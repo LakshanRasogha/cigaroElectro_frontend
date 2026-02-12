@@ -1,6 +1,9 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import { ShoppingCart, Menu, Mail, MapPin, Phone, CheckCircle2, Facebook, Instagram, Twitter, ExternalLink, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap } from 'lucide-react';
+
+// Importing your separated components
+// Note: Ensure your component folders are named correctly (componenets vs components)
 import Footer from '../componenets/footer';
 import Navbar from '../componenets/navbar';
 import Headers from '../componenets/header';
@@ -10,14 +13,13 @@ import HeritageSection from '../UI/aboutsection';
 
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const containerRef = useRef(null);
-  const navRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load GSAP scripts dynamically to avoid resolution errors in the preview environment
+    // 1. Dynamic Script Loading for GSAP
     const loadScripts = async () => {
-      const loadScript = (src) => {
-        return new Promise((resolve, reject) => {
+      const loadScript = (src: string) => {
+        return new Promise<void>((resolve, reject) => {
           if (document.querySelector(`script[src="${src}"]`)) {
             resolve();
             return;
@@ -25,7 +27,7 @@ const App = () => {
           const script = document.createElement('script');
           script.src = src;
           script.async = true;
-          script.onload = resolve;
+          script.onload = () => resolve();
           script.onerror = reject;
           document.head.appendChild(script);
         });
@@ -44,88 +46,57 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !window.gsap) return;
+    if (!isLoaded || !(window as any).gsap) return;
 
-    const gsap = window.gsap;
-    const ScrollTrigger = window.ScrollTrigger;
+    const gsap = (window as any).gsap;
+    const ScrollTrigger = (window as any).ScrollTrigger;
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // 1. Initial Nav Entrance
-      gsap.from(navRef.current, {
+      // 2. Initial Nav Entrance
+      gsap.from(".navbar-anim", {
         y: -100,
         opacity: 0,
         duration: 1.2,
         ease: "power4.out"
       });
 
-      // 2. Hero Text Animation
-      const heroTl = gsap.timeline();
-      heroTl.from(".hero-line", {
-        y: 100,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power4.out",
-        delay: 0.5
-      })
-      .from(".hero-btn", {
-        scale: 0.8,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "back.out(1.7)"
-      }, "-=0.5");
+      // 3. Floating Neon Orbs Animation (Increased movement for Light Mode)
+      gsap.to(".neon-orb", {
+        y: "random(-80, 80)",
+        x: "random(-40, 40)",
+        duration: 10,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.5
+      });
 
-      // 3. Section Reveal Animations
+      // 4. Section Reveal Animations
       const sections = gsap.utils.toArray('.reveal-section');
-      sections.forEach((section) => {
+      sections.forEach((section: any) => {
         gsap.from(section, {
           scrollTrigger: {
             trigger: section,
             start: "top 85%",
             toggleActions: "play none none none"
           },
-          y: 50,
+          y: 40,
           opacity: 0,
-          duration: 1,
+          duration: 1.2,
           ease: "power3.out"
         });
       });
 
-      // 4. Staggered Card Animation
-      gsap.from(".product-card-anim", {
+      // 5. Parallax for background orbs
+      gsap.to(".parallax-orb", {
         scrollTrigger: {
-          trigger: ".products-grid",
-          start: "top 80%"
-        },
-        y: 60,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power2.out"
-      });
-
-      // 5. Gold Line Growth
-      gsap.from(".gold-line", {
-        scrollTrigger: {
-          trigger: ".gold-line",
-          start: "top 90%"
-        },
-        width: 0,
-        duration: 1.5,
-        ease: "expo.out"
-      });
-
-      // 6. Parallax effect for hero image
-      gsap.to(".hero-bg-parallax", {
-        scrollTrigger: {
-          trigger: "header",
+          trigger: "body",
           start: "top top",
-          end: "bottom top",
-          scrub: true
+          end: "bottom bottom",
+          scrub: 1.5
         },
-        y: 150,
+        y: (i: number, target: any) => target.dataset.speed * 100,
         ease: "none"
       });
 
@@ -135,51 +106,108 @@ const App = () => {
   }, [isLoaded]);
 
   return (
-    <div ref={containerRef} className="bg-[#0a0a0a] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen">
+    <div 
+      ref={containerRef} 
+      className="bg-[#fafafa] text-zinc-900 selection:bg-[#00f2ff] selection:text-black min-h-screen relative overflow-x-hidden font-sans"
+    >
       
-      {/* Navigation */}
-      <Navbar />
+      {/* --- Ambient Colorful Neon Background Elements --- */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {/* Soft Cyan Glow */}
+        <div data-speed="2" className="neon-orb parallax-orb absolute top-[-5%] left-[-10%] w-[700px] h-[700px] bg-cyan-300/20 blur-[130px] rounded-full" />
+        {/* Vibrant Pink Glow */}
+        <div data-speed="-1" className="neon-orb parallax-orb absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-fuchsia-400/15 blur-[120px] rounded-full" />
+        {/* Electric Indigo Glow */}
+        <div data-speed="1.5" className="neon-orb parallax-orb absolute bottom-[10%] left-[5%] w-[500px] h-[500px] bg-indigo-400/20 blur-[110px] rounded-full" />
+        {/* Lime Punch Glow */}
+        <div data-speed="-2" className="neon-orb parallax-orb absolute bottom-[-10%] right-[10%] w-[400px] h-[400px] bg-lime-300/10 blur-[100px] rounded-full" />
+      </div>
 
-      {/* Hero Section */}
-      <Headers />
-
-      {/* Features Staggered */}
-      <section className=" bg-[#0a0a0a] border-y border-white/5 reveal-section">
-        <TrustSection />
-      </section>
-
-      {/* Latest Products */}
-      <section className="max-w-7xl mx-auto px-4 reveal-section" id="shop">
-        <ShopSection />
-      </section>
-
-      {/* About Section */}
-      <section className=" bg-zinc-950 reveal-section" id="about">
-        <HeritageSection />
-      </section>
-
-      {/* Newsletter */}
-      <section className="py-24 bg-[#D4AF37] text-black overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-        <div className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
-          <div className="text-center lg:text-left">
-            <h2 className="text-4xl md:text-5xl font-bold font-serif leading-none mb-4">Join the Inner Circle</h2>
-            <p className="font-bold uppercase tracking-widest text-xs opacity-80">Get exclusive access to new drops and limited editions.</p>
-          </div>
-          <div className="flex w-full md:w-auto gap-3 bg-black/5 p-2 rounded-full border border-black/10">
-            <input 
-              type="email" 
-              placeholder="Your premium email" 
-              className="bg-transparent px-8 py-4 flex-grow md:w-80 placeholder:text-black/40 focus:outline-none font-bold"
-            />
-            <button className="bg-black text-white px-10 py-4 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-zinc-800 transition-all whitespace-nowrap">
-              Subscribe Now
-            </button>
-          </div>
+      {/* Main Content Wrap */}
+      <div className="relative z-10">
+        
+        {/* Navigation - Glassmorphism style for Light Mode */}
+        <div className="navbar-anim sticky top-0 z-[100] bg-white/60 backdrop-blur-xl border-b border-zinc-200/50">
+          <Navbar />
         </div>
-      </section>
 
-      <Footer />
+        {/* Hero Section */}
+        <div className="relative">
+          <Headers />
+        </div>
+
+        {/* Trust/Features Section */}
+        <section className="reveal-section relative py-12">
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-sm -z-10" />
+          <TrustSection />
+        </section>
+
+        {/* Shop/Latest Selections - Pure White Background for Contrast */}
+        <section className="reveal-section py-24 bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.02)]" id="shop">
+          <ShopSection />
+        </section>
+
+        {/* Heritage/About Section - Subtle Gradient Transition */}
+        <section className="reveal-section bg-gradient-to-b from-white via-indigo-50/30 to-white py-20" id="about">
+          <HeritageSection />
+        </section>
+
+        {/* Newsletter Section: Vibrant High-Contrast Neon Gradient */}
+        <section className="px-4 py-24 reveal-section">
+          <div className="max-w-6xl mx-auto overflow-hidden relative rounded-[2rem] shadow-2xl shadow-indigo-200">
+            {/* Multi-color Neon Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#6366f1] via-[#a855f7] to-[#ec4899] animate-gradient-xy"></div>
+            
+            {/* Decorative Static Grain/Noise overlay */}
+            <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+
+            <div className="px-8 py-16 md:px-16 md:py-20 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
+              <div className="text-center lg:text-left text-white">
+                <div className="flex items-center justify-center lg:justify-start gap-2 mb-6">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
+                    <Zap size={18} className="text-yellow-300 fill-yellow-300" />
+                  </div>
+                  <span className="font-bold uppercase tracking-[0.2em] text-xs">V.I.P Hub</span>
+                </div>
+                <h2 className="text-4xl md:text-6xl font-extrabold leading-[1.1] mb-6 tracking-tight">
+                  Unlock the <br/> Neon Archive
+                </h2>
+                <p className="font-medium text-white/80 max-w-md text-lg">
+                  Join 5,000+ enthusiasts receiving weekly drops of exotic hardware and premium blends.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-4 p-3 bg-white/10 rounded-3xl backdrop-blur-2xl border border-white/20 shadow-2xl">
+                <input 
+                  type="email" 
+                  placeholder="name@example.com" 
+                  className="bg-white/10 px-6 py-4 rounded-2xl flex-grow lg:w-80 placeholder:text-white/60 focus:outline-none focus:bg-white/20 transition-all font-semibold text-white border border-transparent focus:border-white/30"
+                />
+                <button className="group bg-white text-indigo-600 px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest hover:bg-zinc-900 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                  Join Now
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <div className="bg-white border-t border-zinc-100">
+          <Footer />
+        </div>
+      </div>
+
+      <style jsx global>{`
+        @keyframes gradient-xy {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-xy {
+          background-size: 200% 200%;
+          animation: gradient-xy 15s ease infinite;
+        }
+      `}</style>
     </div>
   );
 };
