@@ -56,7 +56,7 @@ const PRODUCTS: Product[] = [
   }
 ];
 
-export default function App() {
+export default function Home() {
   // Authentication State (Mocking for now - integrate NextAuth later)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
