@@ -6,6 +6,7 @@ import Navbar from '../componenets/navbar';
 import Headers from '../componenets/header';
 import TrustSection from '../UI/trustsection';
 import ShopSection from '../UI/shopsection';
+import HeritageSection from '../UI/aboutsection';
 
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -143,52 +144,18 @@ const App = () => {
       <Headers />
 
       {/* Features Staggered */}
-      <section className="py-20 bg-[#0a0a0a] border-y border-white/5 reveal-section">
+      <section className=" bg-[#0a0a0a] border-y border-white/5 reveal-section">
         <TrustSection />
       </section>
 
       {/* Latest Products */}
-      <section className="py-32 max-w-7xl mx-auto px-4 reveal-section" id="shop">
+      <section className="max-w-7xl mx-auto px-4 reveal-section" id="shop">
         <ShopSection />
       </section>
 
       {/* About Section */}
-      <section className="py-32 bg-zinc-950 reveal-section" id="about">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-20">
-          <div className="lg:w-1/2 relative group">
-            <div className="absolute -top-10 -left-10 w-40 h-40 border-t-2 border-l-2 border-[#D4AF37]/40 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-500"></div>
-            <div className="relative z-10 overflow-hidden rounded-2xl">
-              <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1000" alt="About" className="w-full shadow-2xl transition-transform duration-1000 group-hover:scale-105" />
-            </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-b-2 border-r-2 border-[#D4AF37]/40 group-hover:-translate-x-4 group-hover:-translate-y-4 transition-transform duration-500"></div>
-          </div>
-          <div className="lg:w-1/2">
-            <span className="text-[#D4AF37] uppercase tracking-[0.4em] text-xs font-black block mb-6">Established 2012</span>
-            <h2 className="text-5xl md:text-6xl font-bold font-serif mb-10 leading-tight">Crafting the <br/><span className="text-[#D4AF37]">Standard.</span></h2>
-            <p className="text-gray-400 mb-10 text-lg leading-relaxed font-light">
-              CigaroElectrico was founded on a simple principle: Luxury should be accessible but never compromised. We curate only the most exceptional hardware and eliquids from globally recognized masters.
-            </p>
-            <div className="grid grid-cols-2 gap-8 mb-12">
-              <div className="flex items-start gap-4">
-                <CheckCircle2 className="text-[#D4AF37] h-6 w-6 mt-1" />
-                <div>
-                  <h4 className="font-bold text-sm uppercase tracking-widest mb-1">Authentic</h4>
-                  <p className="text-xs text-gray-500 leading-relaxed">Direct from master craftsmen only.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <CheckCircle2 className="text-[#D4AF37] h-6 w-6 mt-1" />
-                <div>
-                  <h4 className="font-bold text-sm uppercase tracking-widest mb-1">Elite Tech</h4>
-                  <p className="text-xs text-gray-500 leading-relaxed">Cutting edge heating technology.</p>
-                </div>
-              </div>
-            </div>
-            <button className="bg-[#D4AF37] text-black px-12 py-5 rounded-full uppercase text-xs font-black tracking-[0.2em] hover:shadow-2xl hover:shadow-[#D4AF37]/30 transition-all">
-              Discover Our Heritage
-            </button>
-          </div>
-        </div>
+      <section className=" bg-zinc-950 reveal-section" id="about">
+        <HeritageSection />
       </section>
 
       {/* Newsletter */}
