@@ -1,43 +1,33 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from '../componenets/product_card';
-import { ArrowRight, Zap, Sparkles } from 'lucide-react';
-
-const products = [
-  { 
-    name: "Neon Edition Pod X", 
-    price: "$129.00", 
-    old: "$150.00", 
-    img: "https://images.unsplash.com/photo-1620331311520-246422ff82f9?q=80&w=1000", 
-    sale: "SALE" 
-  },
-  { 
-    name: "Cyber Elite 3.0", 
-    price: "$199.00", 
-    img: "https://images.unsplash.com/photo-1574333084133-5483712d704d?q=80&w=1000" 
-  },
-  { 
-    name: "Electric Vapor", 
-    price: "$65.00", 
-    old: "$85.00", 
-    img: "https://images.unsplash.com/photo-1542382156909-9ae37b3f56fd?q=80&w=1000", 
-    sale: "HOT" 
-  },
-  { 
-    name: "Indigo Starter Kit", 
-    price: "$45.00", 
-    img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=1000" 
-  }
-];
+import { ArrowRight, Zap, Sparkles, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 const ShopSection = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // FIXED: Corrected the URL (localhost:3000) and added dependency array
+    axios.get("http://localhost:3001/api/products/get")
+      .then((response) => {
+        setProducts(response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch products", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []); // <--- CRITICAL: Empty array ensures this only runs ONCE when the section loads
+
   return (
     <section className="py-32 bg-white overflow-hidden relative" id="shop">
       {/* --- Aesthetic Background Elements --- */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-indigo-50/40 to-transparent -z-0" />
       
-      {/* Ghost Background Text */}
       <div className="absolute top-20 -left-10 text-[12vw] font-black text-slate-50 select-none pointer-events-none -z-10 uppercase tracking-tighter opacity-70">
         Electric
       </div>
@@ -81,27 +71,31 @@ const ShopSection = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((prod, i) => (
-            <div key={prod.name} className="group relative">
-              {/* Product Glow Effect on Hover */}
-              <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-500 -z-10" />
-              
-              <div className="h-full rounded-[2.5rem] bg-white border border-slate-100 overflow-hidden shadow-sm group-hover:shadow-2xl group-hover:shadow-indigo-100/50 group-hover:-translate-y-3 transition-all duration-500 ease-out">
-                {/* Sale Tag Badge */}
-                {prod.sale && (
-                  <div className="absolute top-6 right-6 z-20 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-100 shadow-sm">
-                    <span className="text-[10px] font-black tracking-widest text-indigo-600 flex items-center gap-1">
-                      <Sparkles size={10} /> {prod.sale}
-                    </span>
-                  </div>
-                )}
-
-                <ProductCard index={i} {...prod} />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="animate-spin text-indigo-600 mb-4" size={40} />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Syncing Catalog...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {products.map((prod: any, i: number) => (
+              <div key={prod._id || i} className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-500 -z-10" />
+                
+                <div className="h-full rounded-[2.5rem] bg-white border border-slate-100 overflow-hidden shadow-sm group-hover:shadow-2xl group-hover:shadow-indigo-100/50 group-hover:-translate-y-3 transition-all duration-500 ease-out">
+                  {prod.sale && (
+                    <div className="absolute top-6 right-6 z-20 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-100 shadow-sm">
+                      <span className="text-[10px] font-black tracking-widest text-indigo-600 flex items-center gap-1">
+                        <Sparkles size={10} /> {prod.sale}
+                      </span>
+                    </div>
+                  )}
+                  <ProductCard index={i} {...prod} />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Decorative Bottom Graphic */}
