@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, Send, MessageCircle } from 'lucide-react';
+import Navbar from '../componenets/navbar';
 
 const ContactPage = () => {
   const fadeUp = {
@@ -12,7 +13,9 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen pt-32 pb-20 px-6 lg:px-10 overflow-hidden relative">
+    <>
+        <Navbar />
+        <div className="bg-white min-h-screen pt-32 pb-20 px-6 lg:px-10 overflow-hidden relative">
       
       {/* Background Ambient Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-100/40 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3" />
@@ -116,6 +119,7 @@ const ContactPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

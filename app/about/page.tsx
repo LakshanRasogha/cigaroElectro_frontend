@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ShieldCheck, Zap, Globe, ArrowRight, Sparkles } from 'lucide-react';
 import Footer from '../componenets/footer';
+import Navbar from '../componenets/navbar';
 
 const AboutPage = () => {
   const { scrollYProgress } = useScroll();
@@ -21,6 +22,7 @@ const AboutPage = () => {
 
   return (
     <div className="bg-[#FFFFFF] text-slate-900 min-h-screen selection:bg-cyan-200 selection:text-cyan-900 overflow-x-hidden">
+        <Navbar/>
       
       {/* --- NEON AMBIENT BACKGROUND ELEMENTS --- */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

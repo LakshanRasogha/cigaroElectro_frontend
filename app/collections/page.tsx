@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { useRouter } from 'next/navigation'; // Import the router
+import Navbar from '../componenets/navbar';
 
 const collections = [
   {
@@ -38,7 +39,10 @@ const collections = [
 
 const CollectionsPage = () => {
   return (
-    <div className="bg-white min-h-screen pt-32 pb-20 px-6 lg:px-10">
+    <>
+        <Navbar />
+        <div className="bg-white min-h-screen pt-32 pb-20 px-6 lg:px-10">
+        
       <header className="max-w-7xl mx-auto mb-16">
         <motion.span 
           initial={{ opacity: 0, x: -20 }}
@@ -63,6 +67,7 @@ const CollectionsPage = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 
@@ -70,6 +75,7 @@ const CollectionCard = ({ item, index }: { item: any, index: number }) => {
   const router = useRouter();
 
   return (
+    
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -79,6 +85,7 @@ const CollectionCard = ({ item, index }: { item: any, index: number }) => {
       onClick={() => router.push(`/collections/${item.id}`)}
       className="group relative h-[600px] w-full rounded-[2.5rem] overflow-hidden bg-slate-100 cursor-pointer active:scale-[0.98] transition-transform"
     >
+        
       <motion.div 
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}

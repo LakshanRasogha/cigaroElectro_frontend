@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingCart, Menu, X, Zap } from 'lucide-react';
+import { ShoppingCart, Menu, X, Zap, User } from 'lucide-react'; // Added User icon
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
@@ -19,7 +19,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Updated Navigation Links to actual routes
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
@@ -73,10 +72,28 @@ const Navbar = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 md:gap-6">
+            
+            {/* Profile Section */}
+            <div className="relative group">
+              <Link 
+                href="/profile" 
+                className={`p-2 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-slate-100 ${isScrolled ? 'text-slate-900' : 'text-slate-600'}`}
+              >
+                <User className="h-5 w-5 group-hover:text-purple-600 transition-colors" />
+              </Link>
+              
+              {/* Simple Desktop Tooltip/Dropdown Hint */}
+              <div className="absolute top-full right-0 mt-2 w-32 py-2 bg-white rounded-xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 -translate-y-2 group-hover:translate-y-0 hidden md:block">
+                <Link href="/auth/login" className="block px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-purple-600">Login</Link>
+                <Link href="/profile" className="block px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-purple-600">Profile</Link>
+              </div>
+            </div>
+
+            {/* Cart Section */}
             <div className={`flex items-center gap-3 cursor-pointer group transition-all duration-300 ${isScrolled ? 'text-slate-900' : 'text-slate-600'}`}>
               <div className="relative p-2 rounded-full group-hover:bg-slate-100 transition-colors">
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="h-5 w-5 group-hover:text-purple-600 transition-colors" />
                 <span className="absolute top-0 right-0 bg-purple-600 text-white text-[8px] font-black rounded-full w-4 h-4 flex items-center justify-center border-2 border-white">
                   0
                 </span>
@@ -121,9 +138,23 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+              
+              {/* Mobile Profile Link */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Link 
+                  href="/auth/login" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-2xl font-black text-purple-600 flex items-center gap-2"
+                >
+                  Account Access <User size={24} />
+                </Link>
+              </motion.div>
             </div>
             
-            {/* Bottom Mobile Branding */}
             <div className="absolute bottom-10 left-10 border-l-2 border-purple-600 pl-4">
               <p className="text-xs font-mono text-slate-400 uppercase tracking-widest">
                 Living in Color <br /> Since 2012
