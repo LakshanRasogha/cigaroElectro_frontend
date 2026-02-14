@@ -11,7 +11,7 @@ import TrustSection from '../UI/trustsection';
 import ShopSection from '../UI/shopsection';
 import HeritageSection from '../UI/aboutsection';
 
-const App = () => {
+const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -212,4 +212,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Home;
