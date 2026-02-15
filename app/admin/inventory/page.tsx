@@ -2,26 +2,21 @@
 
 import React, { useEffect, useState } from 'react';
 import { 
-  Plus, Filter, Download, Search, MoreVertical, Package, 
-  AlertTriangle, CheckCircle2, XCircle, ArrowUpDown, 
-  LayoutGrid, List, Loader2, X, Trash2, AlertCircle,
-  CloudCog
+  Plus, Filter, Download, Search, Package, AlertTriangle, 
+  CheckCircle2, XCircle, LayoutGrid, Loader2, X, Trash2, 
+  AlertCircle, Edit3, Save, Tag
 } from 'lucide-react';
 import axios from 'axios';
 
 /**
  * --- SUB-COMPONENT: InventoryRow ---
  */
-const InventoryRow = ({ product }: { product: any }) => {
+const InventoryRow = ({ product, onEdit, onDelete }: { product: any, onEdit: (p: any) => void, onDelete: (id: string) => void }) => {
+  // Calculate total stock from variants
   const totalStock = product.variants?.reduce((acc: number, curr: any) => acc + (Number(curr.stock) || 0), 0) || 0;
   
-  const getStatus = () => {
-    if (totalStock <= 0) return 'Out of Stock';
-    if (totalStock < 10) return 'Low Stock';
-    return 'In Stock';
-  };
-
-  const status = getStatus();
+  // Determine status
+  const status = totalStock <= 0 ? 'Out of Stock' : totalStock < 10 ? 'Low Stock' : 'In Stock';
 
   const getStatusStyles = (status: string) => {
     switch (status) {
@@ -33,10 +28,10 @@ const InventoryRow = ({ product }: { product: any }) => {
   };
 
   return (
-    <tr className="group hover:bg-slate-50/50 transition-colors cursor-default border-b border-slate-50 last:border-0">
+    <tr className="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
       <td className="py-5 px-8">
         <div className="flex items-center gap-4">
-          <div className="relative w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden flex items-center justify-center border border-slate-200 group-hover:scale-105 transition-transform duration-300">
+          <div className="relative w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden flex items-center justify-center border border-slate-200">
             {product.productImage?.[0] ? (
               <img 
                 src={product.productImage[0]} 
@@ -50,9 +45,7 @@ const InventoryRow = ({ product }: { product: any }) => {
           </div>
           <div className="max-w-[200px]">
             <p className="text-sm font-bold text-slate-900 mb-0.5 truncate">{product.name}</p>
-            <p className="text-[10px] font-medium text-slate-400 tracking-tight uppercase">
-              Key: {product.Key || 'N/A'} • {product.variants?.length || 0} Variants
-            </p>
+            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight">key: {product.key || 'N/A'}</p>
           </div>
         </div>
       </td>
@@ -65,24 +58,43 @@ const InventoryRow = ({ product }: { product: any }) => {
           {status}
         </div>
       </td>
-      <td className="py-5 px-8 text-right">
-        <button className="p-2 text-slate-400 hover:text-slate-900 transition-all active:scale-90"><MoreVertical size={18} /></button>
+      <td className="py-5 px-8">
+        <div className="flex items-center justify-end gap-2">
+          <button 
+            onClick={() => onEdit(product)}
+            className="p-2.5 text-indigo-500 hover:bg-indigo-50 rounded-xl transition-all active:scale-90"
+            title="Edit Product"
+          >
+            <Edit3 size={18} />
+          </button>
+          <button 
+            onClick={() => onDelete(product._id)}
+            className="p-2.5 text-rose-500 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
+            title="Delete Product"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       </td>
     </tr>
   );
 };
 
+/**
+ * --- MAIN PAGE: InventoryPage ---
+ */
 export default function InventoryPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const initialFormState = {
+    key: '',
     name: '',
-    Key: '',
     tagline: '',
     basePrice: '',
     deliveryFee: '',
@@ -99,7 +111,8 @@ export default function InventoryPage() {
     setErrorMsg(null);
     try {
       const res = await axios.get("http://localhost:3001/api/products/get");
-      setProducts(Array.isArray(res.data) ? res.data : res.data.products || []);
+      const data = Array.isArray(res.data) ? res.data : res.data.products || [];
+      setProducts(data);
     } catch (err) {
       setErrorMsg("Failed to connect to server. Ensure backend is running on port 3001.");
     } finally {
@@ -109,13 +122,31 @@ export default function InventoryPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const handleAddVariant = () => {
-    setFormData({ ...formData, variants: [...formData.variants, { flavor: '', emoji: '', stock: '', variantImage: [''] }] });
+  // Open modal for editing
+  const handleEdit = (product: any) => {
+    setEditingId(product._id);
+    setFormData({
+      key: product.key,
+      name: product.name,
+      tagline: product.tagline,
+      basePrice: product.basePrice.toString(),
+      deliveryFee: product.deliveryFee.toString(),
+      category: product.category,
+      description: product.description,
+      productImage: product.productImage,
+      variants: product.variants
+    });
+    setIsModalOpen(true);
   };
 
-  const removeVariant = (index: number) => {
-    if (formData.variants.length > 1) {
-      setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) });
+  // Delete product
+  const handleDelete = async (key: string) => {
+    if (!window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
+    try {
+      await axios.delete(`http://localhost:3001/api/products/${key}`);
+      fetchData();
+    } catch (err) {
+      setErrorMsg("Failed to delete product. Please try again.");
     }
   };
 
@@ -125,19 +156,32 @@ export default function InventoryPage() {
     setErrorMsg(null);
     try {
       const payload = {
-        ...formData,
+        key: formData.key,
+        name: formData.name,
+        tagline: formData.tagline,
         basePrice: Number(formData.basePrice),
         deliveryFee: Number(formData.deliveryFee),
+        category: formData.category,
+        description: formData.description,
+        productImage: formData.productImage,
         variants: formData.variants.map(v => ({
-          ...v,
-          vKey: v.flavor.toLowerCase().replace(/\s+/g, '-'),
+          vKey: `${formData.key}-${v.flavor.toLowerCase().replace(/\s+/g, '-')}`,
+          flavor: v.flavor,
+          emoji: v.emoji,
           stock: Number(v.stock),
-          availability: Number(v.stock) > 0
+          availability: Number(v.stock) > 0,
+          variantImage: Array.isArray(v.variantImage) ? v.variantImage : [v.variantImage]
         }))
       };
-      await axios.post("http://localhost:3001/api/products/add", payload);
-      console.log(payload);
+
+      if (editingId) {
+        await axios.put(`http://localhost:3001/api/products/update/${editingId}`, payload);
+      } else {
+        await axios.post("http://localhost:3001/api/products/add", payload);
+      }
+
       setIsModalOpen(false);
+      setEditingId(null);
       setFormData(initialFormState);
       fetchData();
     } catch (err: any) {
@@ -156,7 +200,6 @@ export default function InventoryPage() {
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8 lg:p-12">
       <div className="max-w-7xl mx-auto">
         
-        {/* Error Notification Bar */}
         {errorMsg && !isModalOpen && (
           <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 text-rose-600 animate-in slide-in-from-top-2">
             <AlertCircle size={20} />
@@ -168,7 +211,7 @@ export default function InventoryPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div className="space-y-1">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Catalog Master</h1>
-            <p className="text-slate-500 font-medium">Live inventory and variant management.</p>
+            <p className="text-slate-500 font-medium">Manage hardware and flavor variants.</p>
           </div>
           
           <div className="flex items-center gap-3">
@@ -180,13 +223,16 @@ export default function InventoryPage() {
                 value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <button onClick={() => setIsModalOpen(true)} className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-indigo-600 transition-all active:scale-95 shadow-xl">
+            <button 
+              onClick={() => { setEditingId(null); setFormData(initialFormState); setIsModalOpen(true); }} 
+              className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-indigo-600 transition-all active:scale-95 shadow-xl"
+            >
               <Plus size={16} strokeWidth={3} /> Add Product
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden transition-all">
+        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             {loading ? (
               <div className="py-24 flex flex-col items-center justify-center text-slate-400">
@@ -202,11 +248,13 @@ export default function InventoryPage() {
                     <th className="py-5 px-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Base Price</th>
                     <th className="py-5 px-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Stock Units</th>
                     <th className="py-5 px-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                    <th className="py-5 px-8"></th>
+                    <th className="py-5 px-8 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="animate-in fade-in duration-500">
-                  {filteredProducts.map((prod) => <InventoryRow key={prod._id} product={prod} />)}
+                  {filteredProducts.map((prod) => (
+                    <InventoryRow key={prod._id} product={prod} onEdit={handleEdit} onDelete={handleDelete} />
+                  ))}
                 </tbody>
               </table>
             )}
@@ -214,68 +262,58 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {/* --- ADD PRODUCT MODAL --- */}
+      {/* --- MODAL --- */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-[2.5rem] shadow-2xl p-8 md:p-12 relative animate-in zoom-in-95">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full"><X size={20}/></button>
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20}/></button>
             
             <div className="mb-10">
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">New Entry</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">{editingId ? 'Edit Product' : 'New Entry'}</h2>
               {errorMsg && <p className="text-rose-500 text-xs font-bold bg-rose-50 p-3 rounded-xl mb-4">{errorMsg}</p>}
             </div>
 
             <form onSubmit={handleFormSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Name</label>
-                  <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="Geek Bar Pulse X" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Key</label>
-                  <input required value={formData.Key} onChange={e => setFormData({...formData, Key: e.target.value})}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="geek-bar-pulse-x-25k" />
-                </div>
+                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="Product Name" />
+                <input required value={formData.key} onChange={e => setFormData({...formData, key: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="key (e.g. gk-pulse-2)" />
               </div>
+
+              <input required value={formData.tagline} onChange={e => setFormData({...formData, tagline: e.target.value})}
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm" placeholder="Tagline" />
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Price (Rs)</label>
-                  <input required type="number" value={formData.basePrice} onChange={e => setFormData({...formData, basePrice: e.target.value})}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="4200" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Delivery Fee</label>
-                  <input required type="number" value={formData.deliveryFee} onChange={e => setFormData({...formData, deliveryFee: e.target.value})}
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="400" />
-                </div>
+                <input required type="number" value={formData.basePrice} onChange={e => setFormData({...formData, basePrice: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm" placeholder="Base Price" />
+                <input required type="number" value={formData.deliveryFee} onChange={e => setFormData({...formData, deliveryFee: e.target.value})}
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm" placeholder="Delivery Fee" />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Product Image URL</label>
-                <input required value={formData.productImage[0]} onChange={e => setFormData({...formData, productImage: [e.target.value]})}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-xs font-mono" placeholder="https://..." />
-              </div>
+              <input required value={formData.productImage[0]} onChange={e => setFormData({...formData, productImage: [e.target.value]})}
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-xs font-mono" placeholder="Main Image URL" />
 
-              {/* Variants */}
-              <div className="space-y-4 pt-4 border-t border-slate-100">
-                <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase tracking-widest">Variants</h3><button type="button" onClick={handleAddVariant} className="text-xs font-bold text-indigo-600">+ Add Variant</button></div>
+              <textarea rows={3} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm resize-none" placeholder="Description" />
+
+              <div className="space-y-4 pt-6 border-t border-slate-100">
+                <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Variants</h3><button type="button" onClick={() => setFormData({...formData, variants: [...formData.variants, { flavor: '', emoji: '', stock: '', variantImage: [''] }]})} className="text-xs font-bold text-indigo-600">+ Add Variant</button></div>
                 {formData.variants.map((v, idx) => (
                   <div key={idx} className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 relative group">
-                    <button type="button" onClick={() => removeVariant(idx)} className="absolute top-4 right-4 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={16}/></button>
+                    <button type="button" onClick={() => setFormData({...formData, variants: formData.variants.filter((_, i) => i !== idx)})} className="absolute top-4 right-4 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={16}/></button>
                     <div className="grid grid-cols-12 gap-3 mb-4">
                       <input required className="col-span-6 p-3 rounded-xl border-none text-xs" placeholder="Flavor" value={v.flavor} onChange={e => { const n = [...formData.variants]; n[idx].flavor = e.target.value; setFormData({...formData, variants: n}); }} />
                       <input className="col-span-2 p-3 rounded-xl border-none text-xs text-center" placeholder="🍏" value={v.emoji} onChange={e => { const n = [...formData.variants]; n[idx].emoji = e.target.value; setFormData({...formData, variants: n}); }} />
                       <input required type="number" className="col-span-4 p-3 rounded-xl border-none text-xs" placeholder="Stock" value={v.stock} onChange={e => { const n = [...formData.variants]; n[idx].stock = e.target.value; setFormData({...formData, variants: n}); }} />
                     </div>
-                    <input className="w-full p-3 rounded-xl border-none text-[10px] font-mono" placeholder="Variant Image URL" value={v.variantImage[0]} onChange={e => { const n = [...formData.variants]; n[idx].variantImage = [e.target.value]; setFormData({...formData, variants: n}); }} />
+                    <input className="w-full p-3 rounded-xl border-none text-[10px] font-mono" placeholder="Variant Image URL" value={v.variantImage?.[0]} onChange={e => { const n = [...formData.variants]; n[idx].variantImage = [e.target.value]; setFormData({...formData, variants: n}); }} />
                   </div>
                 ))}
               </div>
 
-              <button disabled={submitting} type="submit" className="w-full py-6 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-[12px] flex justify-center items-center gap-4 active:scale-95 disabled:opacity-50 transition-all">
-                {submitting ? <Loader2 className="animate-spin" size={20}/> : <><CheckCircle2 size={20}/> Publish to Catalog</>}
+              <button disabled={submitting} type="submit" className="w-full py-6 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-[12px] flex justify-center items-center gap-4 active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-indigo-100">
+                {submitting ? <Loader2 className="animate-spin" size={20}/> : editingId ? <><Save size={20}/> Save Changes</> : <><CheckCircle2 size={20}/> Publish Product</>}
               </button>
             </form>
           </div>
