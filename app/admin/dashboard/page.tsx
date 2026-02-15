@@ -44,6 +44,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import InventoryPage from '../inventory/page';
 
 // --- MOCK DATA ---
 const revenueData = [
@@ -636,48 +637,7 @@ export default function App() {
         )}
 
         {activeTab === 'inventory' && (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in slide-in-from-bottom-2 duration-300">
-            <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold">124</div>
-                  <div className="w-8 h-8 rounded-full bg-indigo-50 border-2 border-white flex items-center justify-center text-[10px] font-bold text-indigo-600">42</div>
-                </div>
-                <p className="text-sm font-bold text-slate-900">166 Total Stock Items</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors border border-slate-100"><Filter size={18} /></button>
-                <button className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors border border-slate-100"><Download size={18} /></button>
-                <button 
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-black text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg shadow-black/10 active:scale-95"
-                >
-                  <Plus size={16} strokeWidth={3} />
-                  Add Product
-                </button>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/50">
-                    <th className="py-4 px-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Product Detail</th>
-                    <th className="py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Base Price</th>
-                    <th className="py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Stock Units</th>
-                    <th className="py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                    <th className="py-4 px-6"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  <InventoryRow name="Carbon X-2 Midnight" type="Hardware" stock="1,240" price="$124.00" status="In Stock" />
-                  <InventoryRow name="Neon Pear (20k Puffs)" type="Disposables" stock="430" price="$29.00" status="In Stock" />
-                  <InventoryRow name="Elite Series Pod Kit" type="Hardware" stock="12" price="$89.00" status="Low Stock" />
-                  <InventoryRow name="Artisanal Menthol 30ml" type="Liquid" stock="890" price="$15.00" status="In Stock" />
-                  <InventoryRow name="Carbon X-1 Edition" type="Hardware" stock="0" price="$99.00" status="Out of Stock" />
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <InventoryPage />
         )}
 
         {activeTab === 'customers' && (
