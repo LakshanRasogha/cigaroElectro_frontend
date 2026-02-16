@@ -26,7 +26,7 @@ const ProductDetailView = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/products/getOne/${productKey}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/getOne/${productKey}`);
         const data = response.data;
         
         if (Array.isArray(data)) {
@@ -267,3 +267,4 @@ const ProductDetailView = () => {
 };
 
 export default ProductDetailView;
+//asdfsfd
