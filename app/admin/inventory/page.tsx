@@ -110,12 +110,13 @@ export default function InventoryPage() {
   };
 
   const [formData, setFormData] = useState(initialFormState);
+  const api = process.env.API || 'http://localhost:3001';
 
   const fetchData = async () => {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const res = await axios.get("http://localhost:3001/api/products/get");
+      const res = await axios.get(`${api}/api/products/get`);
       const data = Array.isArray(res.data) ? res.data : res.data.products || [];
       setProducts(data);
     } catch (err) {
@@ -154,7 +155,7 @@ export default function InventoryPage() {
     if (!window.confirm(`Are you sure you want to delete product "${key}"?`)) return;
     
     try {
-      await axios.delete(`http://localhost:3001/api/products/delete/${key}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API}/api/products/delete/${key}`);
       fetchData();
     } catch (err: any) {
       setErrorMsg(err.response?.data?.message || "Failed to delete product.");
@@ -187,9 +188,9 @@ export default function InventoryPage() {
 
       if (editingKey) {
         // Update via specific Key endpoint
-        await axios.put(`http://localhost:3001/api/products/update/${editingKey}`, payload);
+        await axios.put(`${process.env.NEXT_PUBLIC_API}/api/products/update/${editingKey}`, payload);
       } else {
-        await axios.post("http://localhost:3001/api/products/add", payload);
+        await axios.post(`${process.env.NEXT_PUBLIC_API}/api/products/add`, payload);
       }
 
       setIsModalOpen(false);

@@ -17,8 +17,10 @@ const ShopSection = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+
+
   useEffect(() => {
-    axios.get("http://localhost:3001/api/products/get")
+    axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/get`)
       .then((response) => {
         const data = Array.isArray(response.data) ? response.data : response.data.products || [];
         setProducts(data);

@@ -23,7 +23,7 @@ const ProductsPage = () => {
     const fetchProducts = async () => {
       try {
         // Updated to port 3001 to match your local environment setup
-        const res = await axios.get("http://localhost:3001/api/products/get");
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/get`);
         const data = Array.isArray(res.data) ? res.data : res.data.products || [];
         setProducts(data);
       } catch (err) {

@@ -82,7 +82,7 @@ const ProfilePage = () => {
 
     try {
       // Assuming your backend update endpoint uses user._id
-      const response = await axios.put(`http://localhost:3001/api/users/update/${user._id}`, payload);
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API}/api/users/update/${user._id}`, payload);
       
       if (response.status === 200) {
         // 1. Update localStorage with new data
