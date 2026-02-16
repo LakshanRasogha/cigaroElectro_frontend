@@ -85,7 +85,7 @@ const ShopSection = () => {
             </div>
           </div>
         </div>
-
+//df
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="animate-spin text-indigo-600 mb-4" size={40} />
