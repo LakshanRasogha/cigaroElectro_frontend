@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Heart, ShoppingBag, ChevronRight, Zap, Info } from 'lucide-react';
+import { Eye, Heart, ShoppingBag, ChevronRight, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface Variant {
   flavor: string;
@@ -12,6 +13,7 @@ interface Variant {
 }
 
 interface ProductProps {
+  productKey: string; // Renamed from 'key' to avoid React conflict
   name: string;
   tagline: string;
   basePrice: number;
@@ -22,6 +24,7 @@ interface ProductProps {
 }
 
 const ProductCard = ({ 
+  productKey, // Passed explicitly from the parent
   name, 
   tagline, 
   basePrice, 
@@ -32,13 +35,19 @@ const ProductCard = ({
 }: ProductProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const router = useRouter();
 
-  // Extract total puffs from name (e.g., "20,000 Puffs")
+  // Extract total puffs from name
   const puffDisplay = name.split(' ').filter(word => word.includes(',') || !isNaN(parseInt(word))).join(' ');
-  const brandName = name.split(' ')[0]; // VOZOL
+  const brandName = name.split(' ')[0];
 
   const inStockVariants = variants.filter(v => v.stock > 0 && v.availability);
   const isOutOfStock = inStockVariants.length === 0;
+
+  // Navigation handler
+  const handleNavigate = () => {
+    router.push(`/collections/${productKey}`);
+  };
 
   return (
     <motion.div
@@ -48,7 +57,8 @@ const ProductCard = ({
       transition={{ duration: 0.4, delay: index * 0.05 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="relative flex flex-col h-full min-h-[420px] group"
+      onClick={handleNavigate}
+      className="relative flex flex-col h-full min-h-[420px] group cursor-pointer"
     >
       <div className={`
         relative flex-grow flex flex-col overflow-hidden rounded-[2.5rem] bg-white border transition-all duration-500
@@ -66,7 +76,6 @@ const ProductCard = ({
             className="w-full h-full object-cover"
           />
           
-          {/* Status Badges */}
           <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
             <div className="flex items-center gap-1.5 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full border border-slate-100 shadow-sm">
               <Zap size={10} className="text-indigo-600 fill-indigo-600" />
@@ -123,7 +132,6 @@ const ProductCard = ({
                     </p>
                   </div>
                   
-                  {/* Flavors Grid */}
                   <div className="flex items-center justify-between px-1">
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                       {variants.length} Flavors
@@ -142,10 +150,17 @@ const ProductCard = ({
                   </div>
 
                   <div className="grid grid-cols-5 gap-2">
-                    <button className="col-span-4 py-4 bg-zinc-900 rounded-2xl text-white font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-indigo-600 transition-all">
+                    {/* Updated to use dynamic routing */}
+                    <button 
+                      onClick={handleNavigate}
+                      className="col-span-4 py-4 bg-zinc-900 rounded-2xl text-white font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-indigo-600 transition-all"
+                    >
                       <Eye size={14} /> Quick View
                     </button>
-                    <button className="col-span-1 py-4 bg-indigo-50 rounded-2xl text-indigo-600 flex items-center justify-center border border-indigo-100 hover:bg-indigo-100 transition-colors">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); /* Add cart logic */ }}
+                      className="col-span-1 py-4 bg-indigo-50 rounded-2xl text-indigo-600 flex items-center justify-center border border-indigo-100 hover:bg-indigo-100 transition-colors"
+                    >
                       <ShoppingBag size={14} />
                     </button>
                   </div>
