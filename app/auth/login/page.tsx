@@ -23,7 +23,7 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3001/api/users/login', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API}/api/users/login`, {
         email,
         password
       });

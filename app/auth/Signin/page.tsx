@@ -50,7 +50,7 @@ export default function Register() {
     };
 
     try {
-      const res = await axios.post('http://localhost:3001/api/users/', payload);
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API}/api/users/`, payload);
       
       if (res.status === 201 || res.status === 200) {
         setMessage({ type: 'success', text: 'Identity created! Redirecting to login...' });
