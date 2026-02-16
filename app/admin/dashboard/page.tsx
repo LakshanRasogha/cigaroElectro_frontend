@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -7,32 +7,23 @@ import {
   Settings, 
   TrendingUp, 
   Zap, 
-  Plus, 
   Search, 
   Bell, 
   ChevronRight,
-  Monitor,
   MoreVertical,
   ArrowUpRight,
   ArrowDownRight,
   X,
-  Filter,
-  Download,
-  ShieldAlert,
   MapPin,
   History,
   Mail,
-  PieChart as PieIcon,
-  BarChart as BarIcon,
+  ShoppingCart,
   Calendar,
   Globe,
-  ShoppingCart
+  LucideIcon,
+  ShieldAlert
 } from 'lucide-react';
 import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer, 
@@ -42,9 +33,61 @@ import {
   Bar,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  XAxis,
+  YAxis
 } from 'recharts';
 import InventoryPage from '../inventory/page';
+
+// --- TYPES & INTERFACES ---
+
+interface Order {
+  id: string;
+  date: string;
+  amount: string;
+  status: string;
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+  totalOrders: number;
+  totalSpent: string;
+  joinedDate: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  orders: Order[];
+}
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  change: string;
+  isPositive: boolean;
+  icon: LucideIcon;
+}
+
+interface SidebarItemProps {
+  icon: LucideIcon;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}
+
+interface InventoryRowProps {
+  name: string;
+  type: string;
+  stock: number;
+  status: string;
+  price: string;
+}
 
 // --- MOCK DATA ---
 const revenueData = [
@@ -71,9 +114,9 @@ const regionalData = [
   { region: 'Middle East', users: 3200, growth: '+15%' },
 ];
 
-// --- COMPONENTS ---
+// --- SUB-COMPONENTS ---
 
-const StatCard = ({ title, value, change, isPositive, icon: Icon }) => (
+const StatCard = ({ title, value, change, isPositive, icon: Icon }: StatCardProps) => (
   <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
     <div className="flex justify-between items-start mb-4">
       <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-indigo-50 transition-colors">
@@ -89,38 +132,22 @@ const StatCard = ({ title, value, change, isPositive, icon: Icon }) => (
   </div>
 );
 
-const InventoryRow = ({ name, type, stock, status, price }) => (
-  <tr className="group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
-    <td className="py-4 px-6">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-400 text-[10px] overflow-hidden">
-          {type === 'Hardware' ? <Zap size={16} /> : <div className="w-full h-full bg-indigo-50 flex items-center justify-center text-indigo-400 font-bold uppercase tracking-tighter">IMG</div>}
-        </div>
-        <div>
-          <p className="font-bold text-slate-900 text-sm">{name}</p>
-          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">{type}</p>
-        </div>
-      </div>
-    </td>
-    <td className="py-4 px-2 text-sm text-slate-600 font-bold">{price}</td>
-    <td className="py-4 px-2 text-sm text-slate-600 font-medium">{stock} units</td>
-    <td className="py-4 px-2">
-      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-        status === 'In Stock' ? 'bg-emerald-50 text-emerald-600' : 
-        status === 'Low Stock' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
-      }`}>
-        {status}
-      </span>
-    </td>
-    <td className="py-4 px-6 text-right">
-      <button className="text-slate-300 hover:text-slate-900 transition-colors">
-        <MoreVertical size={18} />
-      </button>
-    </td>
-  </tr>
+const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemProps) => (
+  <button 
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+      active 
+        ? 'bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white shadow-lg shadow-indigo-100' 
+        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+    }`}
+  >
+    <Icon size={20} className={active ? 'text-white' : 'group-hover:scale-110 transition-transform'} />
+    <span className="font-semibold text-sm">{label}</span>
+    {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white opacity-50" />}
+  </button>
 );
 
-const CustomerRow = ({ customer, onDetailClick, onBlock }) => (
+const CustomerRow = ({ customer, onDetailClick, onBlock }: { customer: Customer, onDetailClick: (c: Customer) => void, onBlock: (id: string) => void }) => (
   <tr className="group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
     <td className="py-4 px-6">
       <div className="flex items-center gap-3">
@@ -166,22 +193,7 @@ const CustomerRow = ({ customer, onDetailClick, onBlock }) => (
   </tr>
 );
 
-const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
-  <button 
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-      active 
-        ? 'bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white shadow-lg shadow-indigo-100' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-    }`}
-  >
-    <Icon size={20} className={active ? 'text-white' : 'group-hover:scale-110 transition-transform'} />
-    <span className="font-semibold text-sm">{label}</span>
-    {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white opacity-50" />}
-  </button>
-);
-
-const CustomerDetailModal = ({ customer, isOpen, onClose }) => {
+const CustomerDetailModal = ({ customer, isOpen, onClose }: { customer: Customer | null, isOpen: boolean, onClose: () => void }) => {
   if (!isOpen || !customer) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -252,61 +264,16 @@ const CustomerDetailModal = ({ customer, isOpen, onClose }) => {
   );
 };
 
-const AddProductModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-8 border-b border-slate-100 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">New Hardware Drop.</h2>
-            <p className="text-slate-500 text-sm font-medium">Add a new artisanal flavor engine.</p>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-            <X size={20} />
-          </button>
-        </div>
-        <div className="p-8 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Product Name</label>
-              <input type="text" placeholder="e.g. Carbon X-3" className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all font-medium text-sm" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Series Type</label>
-              <select className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all font-medium text-sm appearance-none">
-                <option>Hardware</option>
-                <option>Disposables</option>
-                <option>Artisanal Liquid</option>
-              </select>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Description</label>
-            <textarea rows="3" placeholder="Explain the flavor engineering..." className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all font-medium text-sm resize-none"></textarea>
-          </div>
-        </div>
-        <div className="p-8 bg-slate-50 flex gap-3">
-          <button onClick={onClose} className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors">Cancel</button>
-          <button className="flex-[2] py-4 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-black/10">Initialize Product</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- MAIN APP ---
+// --- MAIN APP COMPONENT ---
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [analyticsTimeframe, setAnalyticsTimeframe] = useState('7d');
 
-  const mockCustomers = [
+  const mockCustomers: Customer[] = [
     { 
       id: 'CU-1042', name: 'Marcus Holloway', email: 'marcus@dedsec.io', status: 'Active', totalOrders: 14, totalSpent: '$2,420', joinedDate: 'Nov 2023',
       address: { street: '124 Market St', city: 'San Francisco', state: 'CA', zip: '94103', country: 'USA' },
@@ -320,22 +287,20 @@ export default function App() {
       address: { street: '42 Plaza Mayor', city: 'Madrid', state: 'MD', zip: '28012', country: 'Spain' },
       orders: [{ id: '#ORD-7742', date: 'Feb 05, 2024', amount: '$89.00', status: 'Delivered' }]
     },
-    { 
-      id: 'CU-3044', name: 'James Chen', email: 'j.chen@tech.hk', status: 'Blocked', totalOrders: 2, totalSpent: '$240', joinedDate: 'Jan 2024',
-      address: { street: '18 Nathan Rd', city: 'Kowloon', state: 'TST', zip: '852', country: 'Hong Kong' },
-      orders: [{ id: '#ORD-5521', date: 'Jan 15, 2024', amount: '$120.00', status: 'Cancelled' }]
-    },
   ];
 
-  const handleCustomerDetail = (customer) => {
+  const handleCustomerDetail = (customer: Customer) => {
     setSelectedCustomer(customer);
     setIsCustomerModalOpen(true);
   };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex font-sans text-slate-900">
-      <AddProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      <CustomerDetailModal customer={selectedCustomer} isOpen={isCustomerModalOpen} onClose={() => setIsCustomerModalOpen(false)} />
+      <CustomerDetailModal 
+        customer={selectedCustomer} 
+        isOpen={isCustomerModalOpen} 
+        onClose={() => setIsCustomerModalOpen(false)} 
+      />
       
       {/* Sidebar */}
       <aside className="w-64 border-r border-slate-200 bg-white p-6 hidden lg:flex flex-col sticky top-0 h-screen">
@@ -356,9 +321,8 @@ export default function App() {
         <div className="pt-6 mt-6 border-t border-slate-100">
           <SidebarItem icon={Settings} label="Settings" />
           <div className="mt-8 p-4 bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl relative overflow-hidden group">
-            <div className="absolute -right-2 -top-2 w-16 h-16 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all" />
-            <p className="text-white text-xs font-bold uppercase tracking-widest mb-1 relative z-10 opacity-70">Support</p>
-            <p className="text-white text-sm font-medium relative z-10">Premium Concierge 24/7</p>
+            <p className="text-white text-xs font-bold uppercase tracking-widest relative z-10 opacity-70">Support</p>
+            <p className="text-white text-sm font-medium relative z-10">Concierge 24/7</p>
             <button className="mt-3 w-full py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-slate-100 transition-colors">Contact Us</button>
           </div>
         </div>
@@ -370,24 +334,19 @@ export default function App() {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-              {activeTab === 'dashboard' ? 'The Electric Dashboard.' : 
-               activeTab === 'inventory' ? 'Master Inventory.' : 
-               activeTab === 'analytics' ? 'Global Metrics Hub.' : 'Global Client Base.'}
+              {activeTab === 'dashboard' ? 'The Dashboard.' : 
+               activeTab === 'inventory' ? 'Inventory Master.' : 
+               activeTab === 'analytics' ? 'Global Metrics.' : 'Userbase.'}
             </h1>
-            <p className="text-slate-500 font-medium">
-              {activeTab === 'dashboard' ? 'Monitoring hardware drops and flavor engineering.' : 
-               activeTab === 'inventory' ? 'Full visibility of your artisanal collection.' : 
-               activeTab === 'analytics' ? 'Real-time performance and demographic analytics.' : 'Manage high-profile customers and restricted access.'}
-            </p>
           </div>
           
           <div className="flex items-center gap-3">
             <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
                 type="text" 
-                placeholder="Search collection..." 
-                className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm font-medium"
+                placeholder="Search..." 
+                className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -402,24 +361,14 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard title="Total Revenue" value="$84,232.00" change="+12.5%" isPositive={true} icon={TrendingUp} />
-              <StatCard title="Active Puffs" value="1.2M+" change="+34k" isPositive={true} icon={Zap} />
-              <StatCard title="Orders Placed" value="1,429" change="-2.1%" isPositive={false} icon={Package} />
-              <StatCard title="Return Customers" value="68%" change="+5.4%" isPositive={true} icon={Users} />
+              <StatCard title="Revenue" value="$84,232" change="+12.5%" isPositive={true} icon={TrendingUp} />
+              <StatCard title="Utilization" value="1.2M+" change="+34k" isPositive={true} icon={Zap} />
+              <StatCard title="Orders" value="1,429" change="-2.1%" isPositive={false} icon={Package} />
+              <StatCard title="Retention" value="68%" change="+5.4%" isPositive={true} icon={Users} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">Performance Trends</h3>
-                    <p className="text-sm text-slate-500">Revenue vs Utilization growth</p>
-                  </div>
-                  <div className="flex bg-slate-50 p-1 rounded-lg">
-                    <button className="px-3 py-1 text-xs font-bold text-slate-900 bg-white rounded-md shadow-sm">Sales</button>
-                    <button className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-slate-600">Puffs</button>
-                  </div>
-                </div>
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={revenueData}>
@@ -432,7 +381,7 @@ export default function App() {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
-                      <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                      <Tooltip />
                       <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -440,34 +389,27 @@ export default function App() {
               </div>
 
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 mb-6">Carbon X Series</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-6">Top Drop Performance</h3>
                 <div className="space-y-6">
                   {[
-                    { name: 'Carbon X-2 Black', sales: '842 sales', icon: '⚡' },
-                    { name: 'Neon Archive Pro', sales: '612 sales', icon: '💜' },
-                    { name: 'Elite Pods 2.0', sales: '439 sales', icon: '⚪' },
-                    { name: 'Artisanal Pear Liquid', sales: '321 sales', icon: '🍐' },
+                    { name: 'Carbon X-2 Black', sales: '842', icon: '⚡' },
+                    { name: 'Neon Archive Pro', sales: '612', icon: '💜' },
+                    { name: 'Elite Pods 2.0', sales: '439', icon: '⚪' },
                   ].map((product, i) => (
-                    <div key={i} className="flex items-center justify-between group cursor-pointer" onClick={() => setActiveTab('inventory')}>
+                    <div key={i} className="flex items-center justify-between group cursor-pointer">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl group-hover:bg-indigo-50 transition-colors">
                           {product.icon}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900">{product.name}</p>
-                          <p className="text-xs text-slate-400">{product.sales}</p>
+                          <p className="text-xs text-slate-400">{product.sales} sales</p>
                         </div>
                       </div>
-                      <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                      <ChevronRight size={18} className="text-slate-300" />
                     </div>
                   ))}
                 </div>
-                <button 
-                  onClick={() => setActiveTab('inventory')}
-                  className="w-full mt-8 py-3 border-2 border-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest rounded-xl hover:border-slate-200 hover:bg-slate-50 transition-all"
-                >
-                  View All Inventory
-                </button>
               </div>
             </div>
           </div>
@@ -475,61 +417,22 @@ export default function App() {
 
         {activeTab === 'analytics' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-8">
-            {/* Analytics Header Actions */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
-                {['24h', '7d', '30d', '90d'].map(tf => (
-                  <button 
-                    key={tf}
-                    onClick={() => setAnalyticsTimeframe(tf)}
-                    className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
-                      analyticsTimeframe === tf ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    {tf}
-                  </button>
-                ))}
-              </div>
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all">
-                <Download size={16} />
-                Generate Full Report
-              </button>
-            </div>
-
-            {/* Top Row: Conversion & Growth */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter italic flex items-center gap-2">
-                      <TrendingUp size={24} className="text-indigo-500" />
-                      Revenue Velocity
-                    </h3>
-                    <p className="text-sm text-slate-500">Transaction volume vs base value</p>
-                  </div>
-                </div>
                 <div className="h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={revenueData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
-                      <Tooltip 
-                        cursor={{fill: '#f8fafc'}}
-                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }} 
-                      />
+                      <Tooltip />
                       <Bar dataKey="sales" fill="#6366f1" radius={[8, 8, 0, 0]} barSize={40} />
-                      <Bar dataKey="puffs" fill="#a855f7" radius={[8, 8, 0, 0]} barSize={40} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold text-slate-900">Category Mix</h3>
-                  <p className="text-sm text-slate-500">Inventory Distribution</p>
-                </div>
                 <div className="flex-1 h-[250px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -544,119 +447,18 @@ export default function App() {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <p className="text-2xl font-black text-slate-900">100%</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Share</p>
-                  </div>
                 </div>
-                <div className="mt-6 space-y-3">
-                  {categoryData.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                        <span className="font-medium text-slate-600">{item.name}</span>
-                      </div>
-                      <span className="font-bold text-slate-900">{item.value}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Row: Regional & Conversion Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <Globe size={20} className="text-emerald-500" />
-                  Regional Market Penetration
-                </h3>
-                <div className="space-y-6">
-                  {regionalData.map((reg, i) => (
-                    <div key={i} className="flex items-center justify-between group">
-                      <div className="space-y-1">
-                        <p className="text-sm font-bold text-slate-900">{reg.region}</p>
-                        <p className="text-xs text-slate-400">{reg.users.toLocaleString()} Active Users</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-emerald-500 font-bold text-sm">{reg.growth}</span>
-                        <div className="w-32 h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
-                          <div 
-                            className="h-full bg-slate-900 rounded-full group-hover:bg-indigo-500 transition-all duration-1000" 
-                            style={{ width: `${(reg.users / 20000) * 100}%` }} 
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                 <div className="bg-[#6366f1] p-8 rounded-3xl shadow-xl shadow-indigo-200 text-white flex flex-col justify-between">
-                    <ShoppingCart size={32} className="opacity-50" />
-                    <div>
-                      <p className="text-sm font-bold opacity-70 uppercase tracking-widest">AOV</p>
-                      <h4 className="text-3xl font-black mt-1">$142.50</h4>
-                      <p className="text-xs mt-2 flex items-center gap-1">
-                        <ArrowUpRight size={14} /> +8.2% vs last month
-                      </p>
-                    </div>
-                 </div>
-                 <div className="bg-slate-900 p-8 rounded-3xl shadow-xl shadow-slate-200 text-white flex flex-col justify-between">
-                    <Calendar size={32} className="opacity-50" />
-                    <div>
-                      <p className="text-sm font-bold opacity-70 uppercase tracking-widest">Retention</p>
-                      <h4 className="text-3xl font-black mt-1">74.2%</h4>
-                      <p className="text-xs mt-2 flex items-center gap-1">
-                        <ArrowUpRight size={14} /> Peak loyalty
-                      </p>
-                    </div>
-                 </div>
-                 <div className="col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                       <div className="p-4 bg-rose-50 rounded-2xl text-rose-500">
-                          <Zap size={24} />
-                       </div>
-                       <div>
-                          <p className="text-sm font-bold text-slate-900">Real-time Puff Velocity</p>
-                          <p className="text-xs text-slate-500">Average 4,200 puffs per minute across grid</p>
-                       </div>
-                    </div>
-                    <div className="flex gap-1">
-                       {[0.4, 0.7, 0.9, 0.5, 0.8, 0.3, 0.6].map((h, i) => (
-                         <div key={i} className="w-1.5 bg-rose-500 rounded-full animate-pulse" style={{ height: `${h * 40}px`, animationDelay: `${i * 150}ms` }} />
-                       ))}
-                    </div>
-                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'inventory' && (
-          <InventoryPage />
-        )}
+        {activeTab === 'inventory' && <InventoryPage />}
 
         {activeTab === 'customers' && (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in slide-in-from-bottom-2 duration-300">
-            <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
-                  <Users size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Premium Userbase</h3>
-                  <p className="text-sm text-slate-500">Managing {mockCustomers.length} active profiles</p>
-                </div>
-              </div>
-              <button className="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all shadow-lg shadow-black/10">
-                <Download size={16} />
-                Export Data
-              </button>
-            </div>
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -674,7 +476,7 @@ export default function App() {
                       key={customer.id} 
                       customer={customer} 
                       onDetailClick={handleCustomerDetail}
-                      onBlock={(id) => console.log('Blocking user', id)} 
+                      onBlock={(id) => console.log('Block', id)} 
                     />
                   ))}
                 </tbody>

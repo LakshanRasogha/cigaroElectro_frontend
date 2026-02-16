@@ -2,16 +2,20 @@
 
 import React, { useEffect, useState } from 'react';
 import { 
-  Plus, Filter, Download, Search, Package, AlertTriangle, 
-  CheckCircle2, XCircle, LayoutGrid, Loader2, X, Trash2, 
-  AlertCircle, Edit3, Save, Tag
+  Plus, Search, Package, AlertTriangle, 
+  CheckCircle2, XCircle, Loader2, X, Trash2, 
+  AlertCircle, Edit3, Save
 } from 'lucide-react';
 import axios from 'axios';
 
 /**
  * --- SUB-COMPONENT: InventoryRow ---
  */
-const InventoryRow = ({ product, onEdit, onDelete }: { product: any, onEdit: (p: any) => void, onDelete: (id: string) => void }) => {
+const InventoryRow = ({ product, onEdit, onDelete }: { 
+  product: any, 
+  onEdit: (p: any) => void, 
+  onDelete: (key: string) => void 
+}) => {
   // Calculate total stock from variants
   const totalStock = product.variants?.reduce((acc: number, curr: any) => acc + (Number(curr.stock) || 0), 0) || 0;
   
@@ -68,7 +72,8 @@ const InventoryRow = ({ product, onEdit, onDelete }: { product: any, onEdit: (p:
             <Edit3 size={18} />
           </button>
           <button 
-            onClick={() => onDelete(product._id)}
+            // FIXED: Key is passed only when clicked
+            onClick={() => onDelete(product.key)}
             className="p-2.5 text-rose-500 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
             title="Delete Product"
           >
@@ -89,7 +94,7 @@ export default function InventoryPage() {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const initialFormState = {
@@ -122,9 +127,9 @@ export default function InventoryPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  // Open modal for editing
+  // FIXED: handleEdit now targets product.key
   const handleEdit = (product: any) => {
-    setEditingId(product._id);
+    setEditingKey(product.key);
     setFormData({
       key: product.key,
       name: product.name,
@@ -139,14 +144,20 @@ export default function InventoryPage() {
     setIsModalOpen(true);
   };
 
-  // Delete product
+  // Delete product using unique key
   const handleDelete = async (key: string) => {
-    if (!window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
+    if (!key || key === "N/A") {
+        setErrorMsg("This product lacks a valid key and cannot be deleted.");
+        return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete product "${key}"?`)) return;
+    
     try {
-      await axios.delete(`http://localhost:3001/api/products/${key}`);
+      await axios.delete(`http://localhost:3001/api/products/delete/${key}`);
       fetchData();
-    } catch (err) {
-      setErrorMsg("Failed to delete product. Please try again.");
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message || "Failed to delete product.");
     }
   };
 
@@ -174,18 +185,19 @@ export default function InventoryPage() {
         }))
       };
 
-      if (editingId) {
-        await axios.put(`http://localhost:3001/api/products/update/${editingId}`, payload);
+      if (editingKey) {
+        // Update via specific Key endpoint
+        await axios.put(`http://localhost:3001/api/products/update/${editingKey}`, payload);
       } else {
         await axios.post("http://localhost:3001/api/products/add", payload);
       }
 
       setIsModalOpen(false);
-      setEditingId(null);
+      setEditingKey(null);
       setFormData(initialFormState);
       fetchData();
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.message || "Error submitting product. Check console.");
+      setErrorMsg(err.response?.data?.message || "Error submitting product.");
     } finally {
       setSubmitting(false);
     }
@@ -200,8 +212,8 @@ export default function InventoryPage() {
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8 lg:p-12">
       <div className="max-w-7xl mx-auto">
         
-        {errorMsg && !isModalOpen && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 text-rose-600 animate-in slide-in-from-top-2">
+        {errorMsg && (
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 text-rose-600">
             <AlertCircle size={20} />
             <p className="text-sm font-bold">{errorMsg}</p>
             <button onClick={() => setErrorMsg(null)} className="ml-auto p-1 hover:bg-rose-100 rounded-lg"><X size={16}/></button>
@@ -224,7 +236,7 @@ export default function InventoryPage() {
               />
             </div>
             <button 
-              onClick={() => { setEditingId(null); setFormData(initialFormState); setIsModalOpen(true); }} 
+              onClick={() => { setEditingKey(null); setFormData(initialFormState); setIsModalOpen(true); }} 
               className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-indigo-600 transition-all active:scale-95 shadow-xl"
             >
               <Plus size={16} strokeWidth={3} /> Add Product
@@ -237,7 +249,7 @@ export default function InventoryPage() {
             {loading ? (
               <div className="py-24 flex flex-col items-center justify-center text-slate-400">
                 <Loader2 size={40} className="animate-spin text-indigo-500 mb-4" />
-                <p className="text-[10px] font-black tracking-widest uppercase">Updating Database...</p>
+                <p className="text-[10px] font-black tracking-widest uppercase">Querying Warehouse...</p>
               </div>
             ) : (
               <table className="w-full text-left border-collapse">
@@ -253,7 +265,12 @@ export default function InventoryPage() {
                 </thead>
                 <tbody className="animate-in fade-in duration-500">
                   {filteredProducts.map((prod) => (
-                    <InventoryRow key={prod._id} product={prod} onEdit={handleEdit} onDelete={handleDelete} />
+                    <InventoryRow 
+                      key={prod._id} 
+                      product={prod} 
+                      onEdit={handleEdit} 
+                      onDelete={handleDelete} 
+                    />
                   ))}
                 </tbody>
               </table>
@@ -264,13 +281,12 @@ export default function InventoryPage() {
 
       {/* --- MODAL --- */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-[2.5rem] shadow-2xl p-8 md:p-12 relative animate-in zoom-in-95">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20}/></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-3xl max-h-[95vh] overflow-y-auto rounded-[2.5rem] shadow-2xl p-8 md:p-12 relative">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full"><X size={20}/></button>
             
             <div className="mb-10">
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">{editingId ? 'Edit Product' : 'New Entry'}</h2>
-              {errorMsg && <p className="text-rose-500 text-xs font-bold bg-rose-50 p-3 rounded-xl mb-4">{errorMsg}</p>}
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">{editingKey ? 'Edit Product' : 'New Entry'}</h2>
             </div>
 
             <form onSubmit={handleFormSubmit} className="space-y-6">
@@ -278,11 +294,11 @@ export default function InventoryPage() {
                 <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="Product Name" />
                 <input required value={formData.key} onChange={e => setFormData({...formData, key: e.target.value})}
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="key (e.g. gk-pulse-2)" />
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm" placeholder="Unique Key (e.g. vozolll)" />
               </div>
 
               <input required value={formData.tagline} onChange={e => setFormData({...formData, tagline: e.target.value})}
-                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm" placeholder="Tagline" />
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm" placeholder="Marketing Tagline" />
 
               <div className="grid grid-cols-2 gap-4">
                 <input required type="number" value={formData.basePrice} onChange={e => setFormData({...formData, basePrice: e.target.value})}
@@ -295,13 +311,16 @@ export default function InventoryPage() {
                 className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-xs font-mono" placeholder="Main Image URL" />
 
               <textarea rows={3} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm resize-none" placeholder="Description" />
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-sm resize-none" placeholder="Long Description" />
 
               <div className="space-y-4 pt-6 border-t border-slate-100">
-                <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Variants</h3><button type="button" onClick={() => setFormData({...formData, variants: [...formData.variants, { flavor: '', emoji: '', stock: '', variantImage: [''] }]})} className="text-xs font-bold text-indigo-600">+ Add Variant</button></div>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Variants</h3>
+                  <button type="button" onClick={() => setFormData({...formData, variants: [...formData.variants, { flavor: '', emoji: '', stock: '', variantImage: [''] }]})} className="text-xs font-bold text-indigo-600">+ Add Variant</button>
+                </div>
                 {formData.variants.map((v, idx) => (
                   <div key={idx} className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 relative group">
-                    <button type="button" onClick={() => setFormData({...formData, variants: formData.variants.filter((_, i) => i !== idx)})} className="absolute top-4 right-4 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={16}/></button>
+                    <button type="button" onClick={() => setFormData({...formData, variants: formData.variants.filter((_, i) => i !== idx)})} className="absolute top-4 right-4 text-slate-300 hover:text-rose-500 transition-opacity"><Trash2 size={16}/></button>
                     <div className="grid grid-cols-12 gap-3 mb-4">
                       <input required className="col-span-6 p-3 rounded-xl border-none text-xs" placeholder="Flavor" value={v.flavor} onChange={e => { const n = [...formData.variants]; n[idx].flavor = e.target.value; setFormData({...formData, variants: n}); }} />
                       <input className="col-span-2 p-3 rounded-xl border-none text-xs text-center" placeholder="🍏" value={v.emoji} onChange={e => { const n = [...formData.variants]; n[idx].emoji = e.target.value; setFormData({...formData, variants: n}); }} />
@@ -312,8 +331,8 @@ export default function InventoryPage() {
                 ))}
               </div>
 
-              <button disabled={submitting} type="submit" className="w-full py-6 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-[12px] flex justify-center items-center gap-4 active:scale-95 disabled:opacity-50 transition-all shadow-xl shadow-indigo-100">
-                {submitting ? <Loader2 className="animate-spin" size={20}/> : editingId ? <><Save size={20}/> Save Changes</> : <><CheckCircle2 size={20}/> Publish Product</>}
+              <button disabled={submitting} type="submit" className="w-full py-6 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-[12px] flex justify-center items-center gap-4 active:scale-95 disabled:opacity-50 transition-all shadow-xl">
+                {submitting ? <Loader2 className="animate-spin" size={20}/> : editingKey ? <><Save size={20}/> Update Catalog</> : <><CheckCircle2 size={20}/> Publish Product</>}
               </button>
             </form>
           </div>
