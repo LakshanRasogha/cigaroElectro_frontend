@@ -183,7 +183,7 @@ const Navbar = () => {
                 ) : (
                   <>
                     <Link href="/auth/login" className="block px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:bg-slate-50">Log In</Link>
-                    <Link href="/auth/register" className="block px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:bg-slate-50">Create Account</Link>
+                    <Link href="/auth/Signin" className="block px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:bg-slate-50">Create Account</Link>
                   </>
                 )}
               </div>

@@ -117,7 +117,7 @@ const LoginPage = () => {
           >
             <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-2 uppercase">Sign In</h3>
             <p className="text-slate-500 font-medium text-sm">
-              Unregistered? <Link href="/auth/register" className="text-indigo-600 font-bold hover:underline">Establish identity</Link>
+              Unregistered? <Link href="/auth/Signin" className="text-indigo-600 font-bold hover:underline">Establish identity</Link>
             </p>
           </motion.div>
 
