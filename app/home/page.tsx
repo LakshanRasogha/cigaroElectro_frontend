@@ -110,6 +110,7 @@ const Home = () => {
       ref={containerRef} 
       className="bg-[#fafafa] text-zinc-900 selection:bg-[#00f2ff] selection:text-black min-h-screen relative overflow-x-hidden font-sans"
     >
+      <Navbar />
       
       {/* --- Ambient Colorful Neon Background Elements --- */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -128,7 +129,7 @@ const Home = () => {
         
         {/* Navigation - Glassmorphism style for Light Mode */}
         <div className="navbar-anim sticky top-0 z-[100] bg-white/60 backdrop-blur-xl border-b border-zinc-200/50">
-          <Navbar />
+          
         </div>
 
         {/* Hero Section */}
