@@ -10,6 +10,7 @@ import Headers from '../componenets/header';
 import TrustSection from '../UI/trustsection';
 import ShopSection from '../UI/shopsection';
 import HeritageSection from '../UI/aboutsection';
+import NewsletterSection from '../UI/newsletter';
 
 const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -138,59 +139,24 @@ const Home = () => {
         </div>
 
         {/* Trust/Features Section */}
-        <section className="reveal-section relative py-12">
+        <section className="reveal-section relative ">
           <div className="absolute inset-0 bg-white/40 backdrop-blur-sm -z-10" />
           <TrustSection />
         </section>
 
         {/* Shop/Latest Selections - Pure White Background for Contrast */}
-        <section className="reveal-section py-24 bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.02)]" id="shop">
+        <section className="reveal-section  bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.02)]" id="shop">
           <ShopSection />
         </section>
 
         {/* Heritage/About Section - Subtle Gradient Transition */}
-        <section className="reveal-section bg-gradient-to-b from-white via-indigo-50/30 to-white py-20" id="about">
+        <section className="reveal-section bg-gradient-to-b from-white via-indigo-50/30 to-white" id="about">
           <HeritageSection />
         </section>
 
         {/* Newsletter Section: Vibrant High-Contrast Neon Gradient */}
-        <section className="px-4 py-24 reveal-section">
-          <div className="max-w-6xl mx-auto overflow-hidden relative rounded-[2rem] shadow-2xl shadow-indigo-200">
-            {/* Multi-color Neon Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#6366f1] via-[#a855f7] to-[#ec4899] animate-gradient-xy"></div>
-            
-            {/* Decorative Static Grain/Noise overlay */}
-            <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-
-            <div className="px-8 py-16 md:px-16 md:py-20 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
-              <div className="text-center lg:text-left text-white">
-                <div className="flex items-center justify-center lg:justify-start gap-2 mb-6">
-                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
-                    <Zap size={18} className="text-yellow-300 fill-yellow-300" />
-                  </div>
-                  <span className="font-bold uppercase tracking-[0.2em] text-xs">V.I.P Hub</span>
-                </div>
-                <h2 className="text-4xl md:text-6xl font-extrabold leading-[1.1] mb-6 tracking-tight">
-                  Unlock the <br/> Neon Archive
-                </h2>
-                <p className="font-medium text-white/80 max-w-md text-lg">
-                  Join 5,000+ enthusiasts receiving weekly drops of exotic hardware and premium blends.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-4 p-3 bg-white/10 rounded-3xl backdrop-blur-2xl border border-white/20 shadow-2xl">
-                <input 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  className="bg-white/10 px-6 py-4 rounded-2xl flex-grow lg:w-80 placeholder:text-white/60 focus:outline-none focus:bg-white/20 transition-all font-semibold text-white border border-transparent focus:border-white/30"
-                />
-                <button className="group bg-white text-indigo-600 px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest hover:bg-zinc-900 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
-                  Join Now
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            </div>
-          </div>
+        <section className="reveal-section">
+         <NewsletterSection />
         </section>
 
         {/* Footer */}

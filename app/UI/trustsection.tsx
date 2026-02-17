@@ -1,60 +1,64 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle2, Globe, ShieldCheck, Headphones } from 'lucide-react';
-import FeatureCard from '../componenets/feature_card';
+import { Globe, ShieldCheck, Headphones } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const TrustSection = () => {
   const trustFeatures = [
     {
       title: "Concierge Support",
       desc: "Direct access to our premium concierge team 24/7 for a bespoke experience.",
-      icon: <Headphones size={32} className="text-indigo-600" />,
-      color: "from-indigo-500/10 to-purple-500/5",
+      icon: <Headphones size={28} className="text-indigo-400" />,
+      glow: "group-hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]",
     },
     {
       title: "Island-wide Priority",
       desc: "Discreet, insured priority shipping across Sri Lanka directly to your door.",
-      icon: <Globe size={32} className="text-cyan-500" />,
-      color: "from-cyan-500/10 to-blue-500/5",
+      icon: <Globe size={28} className="text-cyan-400" />,
+      glow: "group-hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]",
     },
     {
       title: "Certified Authentic",
       desc: "100% Brand Guarantee with encrypted serial verification on all hardware.",
-      icon: <ShieldCheck size={32} className="text-purple-600" />,
-      color: "from-purple-500/10 to-pink-500/5",
+      icon: <ShieldCheck size={28} className="text-purple-400" />,
+      glow: "group-hover:shadow-[0_0_30px_rgba(192,132,252,0.2)]",
     },
   ];
 
   return (
-    <section className="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
-      {/* Subtle background glow for Light Mode */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.03),transparent)] pointer-events-none" />
+    <section className="relative py-32 overflow-hidden bg-black">
+      <div className="absolute inset-0 z-0">
+        <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-40">
+          <source src="/vape2.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+      </div>
       
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="mb-20 text-center">
+          <p className="text-indigo-500 font-black text-[10px] uppercase tracking-[0.5em] mb-4">The Gold Standard</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tighter">Uncompromising Quality.</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {trustFeatures.map((feat, i) => (
-            <div key={i} className="group relative">
-              {/* Decorative Background Blob for hover effect */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${feat.color} opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-500 -z-10 rounded-[2rem]`} />
-              
-              <div className="h-full p-8 rounded-[2rem] bg-white border border-slate-100 shadow-sm group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-500">
-                <div className="mb-6 inline-flex p-4 rounded-2xl bg-slate-50 group-hover:bg-white group-hover:scale-110 transition-all duration-500 shadow-inner group-hover:shadow-lg">
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 30 }} 
+              whileInView={{ opacity: 1, y: 0 }} 
+              viewport={{ once: true }}
+              className="group relative"
+            >
+              <div className={`h-full p-10 rounded-[3rem] bg-white/[0.03] backdrop-blur-2xl border border-white/10 transition-all duration-500 hover:bg-white/[0.07] ${feat.glow}`}>
+                <div className="mb-8 inline-flex p-5 rounded-2xl bg-white/5 border border-white/10 group-hover:border-indigo-500/50 transition-all">
                   {feat.icon}
                 </div>
-                
-                <h3 className="text-xl font-bold text-zinc-900 mb-3 tracking-tight">
-                  {feat.title}
-                </h3>
-                
-                <p className="text-zinc-500 leading-relaxed text-sm font-medium">
-                  {feat.desc}
-                </p>
-
-                {/* Cyber accent line */}
-                <div className="mt-6 w-8 h-1 bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full group-hover:w-full transition-all duration-700" />
+                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">{feat.title}</h3>
+                <p className="text-zinc-400 leading-relaxed text-sm font-light">{feat.desc}</p>
+                <div className="mt-8 h-[1px] w-12 bg-white/10 group-hover:w-full transition-all duration-700" />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

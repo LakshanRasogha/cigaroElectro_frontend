@@ -1,149 +1,154 @@
 'use client';
 
 import React from 'react';
-import { ChevronRight, ShieldCheck, Zap, Sparkles } from 'lucide-react';
+import { ChevronRight, ShieldCheck, Zap, Sparkles, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Hero = () => {
   return (
-    <header className="relative h-screen min-h-[800px] flex items-center pt-20 overflow-hidden bg-white">
+    <header className="relative h-screen min-h-[800px] flex items-center overflow-hidden bg-black">
       
-      {/* --- Dynamic Background Layer --- */}
+      {/* --- Video Background Layer --- */}
       <div className="absolute inset-0 z-0">
-        {/* The Base Image: Higher brightness, lower grayscale */}
-        <motion.img 
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 15, repeat: Infinity, repeatType: "reverse" }}
-          src="https://images.unsplash.com/photo-1529641484336-ef35148bab06?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-          alt="Premium Vapor" 
-          className="w-full h-full object-cover opacity-10"
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-60"
+        >
+          <source src="/vape.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        {/* Dynamic Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent" />
+        
+        {/* Animated Glows to match the video energy */}
+        <motion.div 
+          animate={{ 
+            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.1, 1] 
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full" 
         />
-        
-        {/* Vibrant Neon Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white via-white/40 to-cyan-100/20" />
-        
-        {/* Animated Neon Orbs */}
-        <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] bg-indigo-200/30 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-5%] left-[-5%] w-[40%] h-[40%] bg-cyan-200/40 blur-[100px] rounded-full" />
-        <div className="absolute top-[20%] left-[20%] w-[30%] h-[30%] bg-purple-100/30 blur-[120px] rounded-full" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-4xl">
           
-          {/* --- Left Column: Content --- */}
-          <div className="max-w-2xl pb-[100px]">
-            {/* Value Proposition Badge - Cyber Light Style */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-8 backdrop-blur-md shadow-sm"
+          {/* Badge: Glass Style */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-xl"
+          >
+            <div className="flex -space-x-2">
+              <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center">
+                <Sparkles className="text-white h-3 w-3" />
+              </div>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-200">
+              The 2026 Collection is Live
+            </span>
+          </motion.div>
+
+          {/* Main Heading: Bold & Immersive */}
+          <h1 className="text-7xl md:text-9xl font-black mb-8 leading-[0.85] text-white tracking-tighter">
+            <div className="overflow-hidden py-2">
+              <motion.span 
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="block"
+              >
+                PURE
+              </motion.span>
+            </div>
+            <div className="overflow-hidden py-2">
+              <motion.span 
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400"
+              >
+                ATMOSPHERE.
+              </motion.span>
+            </div>
+          </h1>
+
+          <motion.p 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-zinc-400 text-lg md:text-2xl mb-12 leading-relaxed max-w-xl font-light"
+          >
+            Sri Lanka&apos;s premier destination for high-fidelity hardware. 
+            Experience the <span className="text-white font-medium italic">Carbon Series</span> — where engineering meets sensory art.
+          </motion.p>
+
+          {/* CTA Section */}
+          <div className="flex flex-wrap gap-6 items-center">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="group relative bg-white text-black px-10 py-6 rounded-full overflow-hidden font-bold uppercase text-xs tracking-widest transition-all"
             >
-              <Sparkles className="text-indigo-600 h-4 w-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-900">
-                Next-Gen Hardware • Pure Extracts
+              <span className="relative z-10 flex items-center gap-2">
+                Shop The Range <ChevronRight className="h-4 w-4" />
               </span>
-            </motion.div>
+              <div className="absolute inset-0 bg-indigo-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+            </motion.button>
 
-            <h1 className="text-6xl md:text-8xl font-bold font-serif mb-8 leading-[0.9] text-zinc-900 tracking-tighter">
-              <div className="overflow-hidden">
-                <motion.span 
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-                  className="block"
-                >
-                  Refine Your
-                </motion.span>
-              </div>
-              <div className="overflow-hidden">
-                <motion.span 
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
-                  className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-500 to-cyan-500"
-                >
-                  Vape Ritual.
-                </motion.span>
-              </div>
-            </h1>
-
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="text-zinc-500 text-lg md:text-xl mb-10 leading-relaxed max-w-lg font-medium"
+            <motion.button 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex items-center gap-4 text-white/70 hover:text-white transition-colors group"
             >
-              Sri Lanka&apos;s destination for the modern enthusiast. We curate 
-              <span className="text-indigo-600 font-bold"> elite tech</span> and artisanal blends designed for peak performance and sensory perfection.
-            </motion.p>
-
-            {/* Quick Info Grid - Indigo Accents */}
-            <motion.div 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               transition={{ delay: 0.8 }}
-               className="grid grid-cols-2 gap-6 mb-12 border-l-4 border-indigo-500/20 pl-6"
-            >
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="text-indigo-600 h-5 w-5" />
-                <span className="text-[11px] uppercase tracking-widest text-zinc-800 font-bold">100% Authentic</span>
+              <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white/10 transition-all">
+                <Play className="h-4 w-4 fill-current" />
               </div>
-              <div className="flex items-center gap-3">
-                <Zap className="text-cyan-500 h-5 w-5" />
-                <span className="text-[11px] uppercase tracking-widest text-zinc-800 font-bold">Express Delivery</span>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="flex flex-col sm:flex-row gap-5"
-            >
-              {/* Primary Button: Electric Gradient */}
-              <button className="group bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-12 py-5 rounded-2xl uppercase text-xs font-black tracking-[0.2em] hover:scale-105 transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-2">
-                Explore Shop 
-                <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              
-              {/* Secondary Button: Clean Glass */}
-              <button className="backdrop-blur-md bg-white border border-zinc-200 text-zinc-900 px-12 py-5 rounded-2xl uppercase text-xs font-black tracking-[0.2em] hover:bg-zinc-50 transition-all shadow-sm">
-                The Heritage
-              </button>
-            </motion.div>
+              <span className="text-xs font-bold uppercase tracking-widest">Process Film</span>
+            </motion.button>
           </div>
 
-          {/* --- Right Column: High-Contrast Visual --- */}
+          {/* Feature Bar */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.4 }}
-            className="hidden lg:block relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="mt-20 flex flex-wrap gap-12 pt-8 border-t border-white/10"
           >
-            <div className="relative z-10 w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-8 border-white shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
-                <img 
-                  src="https://images.unsplash.com/photo-1545095088-26a59e3f2717?q=80&w=687&auto=format&fit=crop" 
-                  className="w-full h-full object-cover"
-                  alt="Elite Series"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/40 via-transparent to-transparent" />
-                
-                {/* Product Label Overlay */}
-                <div className="absolute bottom-10 left-10">
-                  <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl">
-                    <p className="text-indigo-600 font-black text-[10px] uppercase tracking-[0.4em] mb-1">Elite Release</p>
-                    <p className="text-zinc-900 font-serif text-3xl font-bold">Carbon X-2</p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-4">
+              <ShieldCheck className="text-indigo-400 h-6 w-6" />
+              <div>
+                <p className="text-white text-xs font-bold tracking-tighter uppercase">Authentic Hardware</p>
+                <p className="text-zinc-500 text-[10px]">Direct from manufacturers</p>
+              </div>
             </div>
-            
-            {/* Background Decorative Rings - Cyan/Indigo */}
-            <div className="absolute -inset-10 -z-10 border-2 border-indigo-100 rounded-[4rem] animate-pulse" />
-            <div className="absolute -inset-20 -z-10 border border-cyan-50 rounded-[5rem] rotate-3" />
+            <div className="flex items-center gap-4">
+              <Zap className="text-cyan-400 h-6 w-6" />
+              <div>
+                <p className="text-white text-xs font-bold tracking-tighter uppercase">Islandwide Delivery</p>
+                <p className="text-zinc-500 text-[10px]">Same day in Colombo</p>
+              </div>
+            </div>
           </motion.div>
         </div>
+      </div>
+
+      {/* Side Detail (Only visible on large screens) */}
+      <div className="absolute right-12 bottom-12 hidden xl:block">
+         <div className="flex items-center gap-6 rotate-90 origin-right">
+            <span className="text-white/20 text-[10px] uppercase tracking-[1em] font-black">Est. MMXXIV</span>
+            <div className="w-24 h-[1px] bg-white/20" />
+         </div>
       </div>
     </header>
   );
