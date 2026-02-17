@@ -110,7 +110,7 @@ export default function InventoryPage() {
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const api = process.env.API || 'http://localhost:3001';
+  const api = process.env.NEXT_PUBLIC_API;
 
   const fetchData = async () => {
     setLoading(true);
