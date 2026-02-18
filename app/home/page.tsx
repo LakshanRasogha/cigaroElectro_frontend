@@ -11,6 +11,7 @@ import TrustSection from '../UI/trustsection';
 import ShopSection from '../UI/shopsection';
 import HeritageSection from '../UI/aboutsection';
 import NewsletterSection from '../UI/newsletter';
+import LogoRing from '../componenets/logo_rings';
 
 const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -138,6 +139,8 @@ const Home = () => {
           <Headers />
         </div>
 
+        
+
         {/* Trust/Features Section */}
         <section className="reveal-section relative ">
           <div className="absolute inset-0 bg-white/40 backdrop-blur-sm -z-10" />
@@ -158,6 +161,10 @@ const Home = () => {
         <section className="reveal-section">
          <NewsletterSection />
         </section>
+
+        <div className='relative'>
+          <LogoRing />
+        </div>
 
         {/* Footer */}
         <div className="bg-white border-t border-zinc-100">

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShoppingBag, Zap, Sparkles, Shield, Truck, Star, Heart,
+  ShoppingBag, Zap, Sparkles, Shield, Truck, Heart,
   Share2, Droplet, Gauge, Thermometer, ChevronRight, XCircle, Check
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
@@ -48,9 +48,20 @@ const ProductDetailView = () => {
     setSelectedImage(0);
   }, [activeVariantIdx]);
 
+  /**
+   * FIX: Passing the exact product key and variant key for backend compatibility
+   * This ensures that the object saved in localStorage includes the 'key' and 'vKey' 
+   * required by the order dispatch terminal.
+   */
   const handleAddToCart = (variant: any) => {
     const cartItem = {
+      // cartId remains as a local unique identifier for the UI to handle quantity updates
       cartId: `${product.key}-${variant.vKey}`,
+      
+      // key & vKey are stored explicitly to match backend order requirements
+      key: product.key, 
+      vKey: variant.vKey,
+      
       productId: product._id,
       name: product.name,
       flavor: variant.flavor,
@@ -130,7 +141,6 @@ const ProductDetailView = () => {
       </AnimatePresence>
 
       <div className="pt-32 pb-20 px-6 lg:px-10 relative">
-        {/* Dynamic Background Glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -146,7 +156,7 @@ const ProductDetailView = () => {
 
           <div className="grid lg:grid-cols-2 gap-20 items-start mb-40">
             
-            {/* Left: Interactive Product Gallery */}
+            {/* Left: Gallery */}
             <div className="space-y-8">
               <div className="relative sticky top-32">
                 <AnimatePresence mode="wait">
@@ -189,7 +199,7 @@ const ProductDetailView = () => {
               </div>
             </div>
 
-            {/* Right: Technical Meta & Controls */}
+            {/* Right: Controls */}
             <div className="space-y-12">
               <div className="space-y-6">
                 <motion.span 
@@ -204,7 +214,7 @@ const ProductDetailView = () => {
                 <p className="text-lg text-zinc-500 leading-relaxed max-w-xl font-light">{product.description}</p>
               </div>
 
-              {/* Specs Grid */}
+              {/* Specs */}
               <div className="grid grid-cols-3 gap-8 py-10 border-y border-white/5">
                 {[
                   { icon: Droplet, label: "Pure Flavor" },
@@ -218,7 +228,7 @@ const ProductDetailView = () => {
                 ))}
               </div>
 
-              {/* Pricing Module */}
+              {/* Pricing */}
               <div className="p-12 rounded-[3.5rem] bg-white/[0.03] backdrop-blur-3xl border border-white/10 shadow-2xl relative overflow-hidden group/price">
                 <div className="relative z-10 flex justify-between items-center">
                   <div>
@@ -233,7 +243,6 @@ const ProductDetailView = () => {
                 <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 blur-[100px] rounded-full group-hover/price:bg-indigo-500/10 transition-colors duration-1000" />
               </div>
 
-              {/* Trust Indicators */}
               <div className="flex items-center gap-10 pt-4">
                 <div className="flex items-center gap-3 text-zinc-500"><Truck size={20} className="text-indigo-500" /> <span className="text-[10px] font-black uppercase tracking-widest">Global Express</span></div>
                 <div className="flex items-center gap-3 text-zinc-500"><Shield size={20} className="text-cyan-500" /> <span className="text-[10px] font-black uppercase tracking-widest">Encrypted Checkout</span></div>
@@ -241,7 +250,7 @@ const ProductDetailView = () => {
             </div>
           </div>
 
-          {/* Variants Selection Section */}
+          {/* Variants */}
           <div className="space-y-16">
             <div className="border-b border-white/5 pb-10 flex items-end justify-between">
               <h2 className="text-5xl font-black text-white tracking-tighter uppercase">Available Editions<span className="text-indigo-500">.</span></h2>

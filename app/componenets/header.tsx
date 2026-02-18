@@ -39,32 +39,16 @@ const Hero = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-4xl">
           
-          {/* Badge: Glass Style */}
-          {/* <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-xl"
-          >
-            <div className="flex -space-x-2">
-              <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center">
-                <Sparkles className="text-white h-3 w-3" />
-              </div>
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-200">
-              The 2026 Collection is Live
-            </span>
-          </motion.div> */}
-
-          {/* Main Heading: Bold & Immersive */}
-          <h1 className="text-7xl md:text-9xl font-black mb-8 leading-[0.85] text-white tracking-tighter">
+          {/* Main Heading: Bold & Immersive with Dancing Script */}
+          <h1 className="mb-8 leading-[1.1] tracking-tight" style={{ fontFamily: "'Dancing Script', cursive" }}>
             <div className="overflow-hidden py-2">
               <motion.span 
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="block"
+                className="block text-7xl md:text-7xl font-bold text-white"
               >
-                PURE
+                Pure
               </motion.span>
             </div>
             <div className="overflow-hidden py-2">
@@ -72,9 +56,9 @@ const Hero = () => {
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400"
+                className="block text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400"
               >
-                ATMOSPHERE.
+                Atmosphere
               </motion.span>
             </div>
           </h1>

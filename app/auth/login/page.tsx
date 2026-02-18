@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Github, Chrome, Zap, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Github, Chrome, Zap, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,6 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Background configuration to match high-end aesthetic
   const backdropUrl = "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop";
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -28,17 +27,15 @@ const LoginPage = () => {
         password
       });
 
-      // 1. Extract data from response
       const { user, token } = response.data;
-
-      // 2. Save session with the 'user' key for Navbar detection
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
+      
+      // Setup Secure Cookie for Middleware Proxy handling
+      document.cookie = `session=${token}; path=/; Secure; SameSite=Strict`;
 
-      // 3. Dispatch storage event to update Navbar immediately
       window.dispatchEvent(new Event('storage'));
 
-      // 4. Role-Based Redirection Logic
       if (user.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
@@ -48,128 +45,129 @@ const LoginPage = () => {
       router.refresh();
       
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Authorization failed. Verify your credentials.');
+      setError(err.response?.data?.message || 'Access Denied. Terminal could not verify credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 lg:p-10 relative overflow-hidden bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center p-6 lg:p-10 relative overflow-hidden bg-[#020617] selection:bg-indigo-500/30">
       
-      {/* --- BACKDROP LAYER --- */}
+      {/* --- CINEMATIC BACKDROP --- */}
       <div className="absolute inset-0 z-0">
         <img 
           src={backdropUrl} 
           alt="Backdrop" 
-          className="w-full h-full object-cover opacity-30 scale-105"
+          className="w-full h-full object-cover opacity-20 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/80 to-indigo-950/40" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#020617] via-[#020617]/90 to-indigo-900/20" />
       </div>
 
-      {/* Ambient Neon Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-500/10 blur-[120px] rounded-full" />
+      {/* Floating Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/10 blur-[150px] rounded-full animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 blur-[150px] rounded-full" />
 
-      <div className="max-w-6xl w-full grid lg:grid-cols-2 bg-white/95 backdrop-blur-2xl rounded-[3rem] shadow-2xl border border-white/10 overflow-hidden relative z-10">
+      <div className="max-w-6xl w-full grid lg:grid-cols-2 bg-white/[0.02] backdrop-blur-3xl rounded-[3.5rem] shadow-2xl border border-white/5 overflow-hidden relative z-10">
         
         {/* --- LEFT SIDE: BRAND IMMERSION --- */}
-        <div className="hidden lg:flex flex-col justify-between p-16 bg-slate-900 relative overflow-hidden">
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 8, repeat: Infinity }}
-            className="absolute inset-0 bg-gradient-to-br from-indigo-600/30 to-transparent pointer-events-none"
-          />
-
+        <div className="hidden lg:flex flex-col justify-between p-20 bg-black/40 relative overflow-hidden border-r border-white/5">
+          {/* Animated Tech Grid */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+          
           <div className="relative z-10">
-            <Link href="/" className="flex items-center gap-3 group">
-            {/* Logo Container */}
-            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-amber-500/50 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500">
-              <img 
-                src="/logo.png" 
-                alt="CigarroElectrico Logo" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            {/* Typography - Using a Signature/Script Style */}
-            <span className="text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
-                  style={{ fontFamily: "'Dancing Script', cursive" }}>
-              <span className="text-amber-400">Cigarro</span>
-              <span className="text-amber-200">Electrico</span>
-            </span>
-          </Link>
+            <Link href="/" className="flex items-center gap-4 group">
+              <div className="w-14 h-14 relative overflow-hidden rounded-2xl border border-amber-500/30 shadow-lg shadow-amber-500/10 group-hover:scale-110 transition-transform duration-700">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-3xl font-normal tracking-tight text-white" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                <span className="text-amber-400">Cigarro</span>Electric
+              </span>
+            </Link>
           </div>
 
           <div className="relative z-10">
-            <h2 className="text-5xl font-black text-white tracking-tighter leading-tight mb-6">
-              Access the <br /> 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300 italic">Control Terminal.</span>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 text-indigo-400 mb-6"
+            >
+              <Zap size={14} className="fill-current" />
+              <span className="text-[10px] font-black uppercase tracking-[0.5em]">Command Center v2.6</span>
+            </motion.div>
+            <h2 className="text-6xl font-black text-white tracking-tighter leading-none mb-8">
+              Initialize <br /> 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 italic">Discovery.</span>
             </h2>
-            <p className="text-slate-400 font-medium text-lg max-w-sm">
-              Resume your premium hardware journey and manage your artisanal collections.
+            <p className="text-zinc-500 font-light text-lg max-w-sm leading-relaxed">
+              Resume your journey into high-fidelity hardware. Securely manage your artisanal collections through the control terminal.
             </p>
           </div>
 
-          <div className="relative z-10 flex gap-6 text-slate-500 font-mono text-[10px] uppercase tracking-[0.2em]">
-            <span>Secured Session</span>
-            <span>Premium Hub v2.6</span>
+          <div className="relative z-10 flex flex-col gap-4">
+             <div className="flex items-center gap-3 text-zinc-600">
+                <ShieldCheck size={16} className="text-indigo-500" />
+                <span className="text-[9px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Active</span>
+             </div>
+             <div className="h-[1px] w-12 bg-white/10" />
           </div>
         </div>
 
         {/* --- RIGHT SIDE: LOGIN FORM --- */}
-        <div className="p-8 md:p-16 lg:p-20 flex flex-col justify-center bg-white/50 backdrop-blur-md">
+        <div className="p-10 md:p-20 flex flex-col justify-center relative">
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-10"
+            className="mb-12"
           >
-            <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-2 uppercase">Sign In</h3>
-            <p className="text-slate-500 font-medium text-sm">
-              Unregistered? <Link href="/auth/Signin" className="text-indigo-600 font-bold hover:underline">Establish identity</Link>
+            <h3 className="text-4xl font-black text-white tracking-tighter mb-3 uppercase">Sign In</h3>
+            <p className="text-zinc-500 font-medium text-sm">
+              New User? <Link href="/auth/Signin" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors">Establish Identity</Link>
             </p>
           </motion.div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-8">
             {error && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }} 
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-rose-50 text-rose-600 p-4 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-100"
+                className="bg-rose-500/10 text-rose-500 p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-rose-500/20 flex items-center gap-3"
               >
+                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                 {error}
               </motion.div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Credential Link (Email)</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-6">Credential Link</label>
               <div className="relative group">
-                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-indigo-400 transition-colors" size={18} />
                 <input 
                   type="email" 
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@terminal.com"
-                  className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-16 pr-6 py-5 text-slate-900 font-bold placeholder:text-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                  placeholder="terminal@identity.io"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white font-bold placeholder:text-zinc-800 focus:bg-white/[0.05] focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center px-4">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Security Key</label>
-                <Link href="#" className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 hover:text-indigo-400">Recover</Link>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center px-6">
+                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Access Key</label>
+                <Link href="#" className="text-[9px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-400">Recovery</Link>
               </div>
               <div className="relative group">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-indigo-400 transition-colors" size={18} />
                 <input 
                   type="password" 
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl pl-16 pr-6 py-5 text-slate-900 font-bold placeholder:text-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white font-bold placeholder:text-zinc-800 focus:bg-white/[0.05] focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
                 />
               </div>
             </div>
@@ -179,21 +177,21 @@ const LoginPage = () => {
               disabled={loading}
               whileHover={!loading ? { scale: 1.02 } : {}}
               whileTap={!loading ? { scale: 0.98 } : {}}
-              className="w-full bg-slate-900 text-white py-6 rounded-2xl font-black uppercase tracking-[0.4em] text-[11px] flex items-center justify-center gap-3 hover:bg-indigo-600 transition-all duration-500 mt-4 disabled:bg-slate-200 shadow-2xl shadow-indigo-100"
+              className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-[0.5em] text-xs flex items-center justify-center gap-4 hover:bg-indigo-500 hover:text-white transition-all duration-500 shadow-2xl disabled:opacity-50"
             >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : "Authenticate"} 
+              {loading ? <Loader2 className="animate-spin" size={20} /> : "Execute Login"} 
               {!loading && <ArrowRight size={18} />}
             </motion.button>
 
-            <div className="relative py-4 flex items-center gap-4">
-              <div className="h-[1px] flex-1 bg-slate-100" />
-              <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">External Auth</span>
-              <div className="h-[1px] flex-1 bg-slate-100" />
+            <div className="relative py-6 flex items-center gap-6">
+              <div className="h-[1px] flex-1 bg-white/5" />
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">Alternative Port</span>
+              <div className="h-[1px] flex-1 bg-white/5" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <SocialButton icon={<Chrome size={20} />} label="Google" />
-              <SocialButton icon={<Github size={20} />} label="Github" />
+            <div className="grid grid-cols-2 gap-6">
+              <SocialButton icon={<Chrome size={18} />} label="Google" />
+              <SocialButton icon={<Github size={18} />} label="Github" />
             </div>
           </form>
         </div>
@@ -203,7 +201,7 @@ const LoginPage = () => {
 };
 
 const SocialButton = ({ icon, label }: { icon: React.ReactNode, label: string }) => (
-  <button type="button" className="flex items-center justify-center gap-3 py-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-all duration-300 text-slate-600 font-black uppercase text-[10px] tracking-widest">
+  <button type="button" className="flex items-center justify-center gap-4 py-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-500 text-zinc-400 font-bold uppercase text-[10px] tracking-widest">
     {icon}
     <span>{label}</span>
   </button>

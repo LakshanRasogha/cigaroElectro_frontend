@@ -24,3 +24,26 @@ body {
 .animation-delay-2000 {
   animation-delay: 2s;
 }
+
+/* Add to your global.css or stylesheet */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotateY-180 {
+  transform: rotateY(180deg);
+}
+
+.perspective-\[1200px\] {
+  perspective: 1200px;
+}
+
+/* Optional: Add smooth font rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

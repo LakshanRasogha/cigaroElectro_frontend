@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Edit3, Mail, Phone, MapPin, Zap, Camera, X, 
-  Loader2, ShieldCheck, Package, ShoppingBag, LogOut,
-  Clock, CheckCircle2, Truck, AlertCircle, ChevronRight
+  Edit3, Mail, Phone, MapPin, Camera, X, 
+  Loader2, Package, LogOut,
+  Clock, CheckCircle2, Truck, AlertCircle,
+  Flame, Droplets, Zap,
+  ShoppingBag, ChevronRight, Cloud, Calendar
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -26,25 +28,35 @@ const ProfilePage = () => {
     phone: '',
     streetAddress: '',
     city: '',
-    postalCode: ''
+    postalCode: '',
+    bio: '',
+    favoriteFlavor: '',
+    vapeStyle: ''
   });
 
-  const coverPhoto = "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop";
+  const coverPhoto = "https://images.unsplash.com/photo-1576426863848-c21f53c60b19?q=80&w=2070&auto=format&fit=crop";
 
-  // Fetch Orders for the logged-in user
-  const fetchOrderHistory = async (userId: string) => {
+  // FIXED: Fetching orders using the Authorization Token
+  const fetchOrderHistory = async () => {
     setIsLoadingOrders(true);
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      setIsLoadingOrders(false);
+      return;
+    }
+
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`);
-      // Filter orders where the user ID matches the current profile
-      const userOrders = response.data.filter((order: any) => 
-        (order.user?._id === userId || order.user === userId)
-      );
-      // Sort by newest first
-      userOrders.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setOrders(userOrders);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Backend already filters by role/email, so we just set the response data
+      setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
-      console.error("Failed to fetch order manifest:", err);
+      console.error("Failed to fetch orders:", err);
     } finally {
       setIsLoadingOrders(false);
     }
@@ -62,9 +74,13 @@ const ProfilePage = () => {
           phone: parsed.phone || "",
           streetAddress: parsed.address?.address || "",
           city: parsed.address?.city || "",
-          postalCode: parsed.address?.postalCode || ""
+          postalCode: parsed.address?.postalCode || "",
+          bio: parsed.bio || "Cloud chaser and flavor enthusiast. Living that vape life! 💨",
+          favoriteFlavor: parsed.favoriteFlavor || "Strawberry Ice",
+          vapeStyle: parsed.vapeStyle || "DTL"
         });
-        fetchOrderHistory(parsed._id);
+        // Trigger order fetch after user is loaded
+        fetchOrderHistory();
       } catch (error) {
         router.push("/auth/login");
       }
@@ -80,6 +96,7 @@ const ProfilePage = () => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     router.push('/');
     router.refresh();
   };
@@ -93,6 +110,9 @@ const ProfilePage = () => {
       firstName: editForm.firstName,
       lastName: editForm.lastName,
       phone: editForm.phone,
+      bio: editForm.bio,
+      favoriteFlavor: editForm.favoriteFlavor,
+      vapeStyle: editForm.vapeStyle,
       address: {
         address: editForm.streetAddress,
         city: editForm.city,
@@ -110,190 +130,206 @@ const ProfilePage = () => {
         setIsEditModalOpen(false);
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.message || "Failed to synchronize profile.");
+      setErrorMsg(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setIsUpdating(false);
     }
   };
 
   if (!user) return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-[#020617]">
-      <Loader2 className="animate-spin text-indigo-500 mb-4" size={40} />
-      <p className="text-indigo-400 font-black text-[10px] uppercase tracking-[0.4em]">Accessing Terminal...</p>
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-[#0a0b0e]">
+      <Loader2 className="animate-spin text-purple-500 mb-4" size={40} />
+      <p className="text-gray-400 font-medium tracking-widest uppercase text-xs">Synchronizing Profile...</p>
     </div>
   );
 
   return (
-    <div className="bg-[#020617] min-h-screen text-slate-200 selection:bg-indigo-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0b0e] text-gray-200 pb-20 selection:bg-purple-500/30">
       <Navbar />
       
-      {/* --- HERO COVER --- */}
-      <div className="relative h-[350px] w-full overflow-hidden">
-        <img src={coverPhoto} className="w-full h-full object-cover opacity-40 scale-105" alt="Cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent" />
+      {/* Cover Section */}
+      <div className="relative h-64 md:h-80 w-full overflow-hidden">
+        <img src={coverPhoto} className="w-full h-full object-cover opacity-40" alt="Cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0e] via-transparent to-transparent" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-32 relative z-10 pb-32">
-        <div className="grid lg:grid-cols-12 gap-8">
+      <div className="max-w-7xl mx-auto px-4 -mt-24 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* --- SIDEBAR: IDENTITY CARD --- */}
+          {/* Left Column: Essential Profile Info */}
           <div className="lg:col-span-4 space-y-6">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-slate-900/50 backdrop-blur-3xl border border-white/10 rounded-[3.5rem] p-10 relative overflow-hidden shadow-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-[#111216] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
             >
-              <div className="relative w-36 h-36 mx-auto mb-8 group">
-                <div className="w-full h-full rounded-[2.5rem] overflow-hidden border-4 border-slate-900 shadow-2xl relative z-10">
-                  <img src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}&background=6366f1&color=fff`} alt="Avatar" className="w-full h-full object-cover" />
+              <div className="relative w-32 h-32 mx-auto mb-6">
+                <div className="w-full h-full rounded-2xl border-4 border-[#0a0b0e] overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-600">
+                  <img 
+                    src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=8b5cf6&color=fff&size=200&bold=true`} 
+                    alt="Avatar" className="w-full h-full object-cover" 
+                  />
                 </div>
-                <button className="absolute bottom-1 right-1 z-20 bg-indigo-600 text-white p-3 rounded-2xl shadow-xl border-4 border-slate-900 group-hover:scale-110 transition-transform">
-                  <Camera size={18} />
+                <button className="absolute -bottom-2 -right-2 bg-purple-600 text-white p-2.5 rounded-xl border-4 border-[#0a0b0e] hover:scale-110 transition-transform">
+                  <Camera size={16} />
                 </button>
               </div>
 
-              <div className="text-center mb-10">
-                <h1 className="text-4xl font-black text-white tracking-tighter leading-none mb-3">
-                  {user.firstName}
-                </h1>
-                <p className="text-indigo-400 font-bold text-[10px] uppercase tracking-[0.3em] bg-indigo-500/10 py-2 rounded-full border border-indigo-500/20 inline-block px-6">
-                    {user.role} Authority
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold text-white">{user.firstName} {user.lastName}</h1>
+                <p className="text-purple-400 text-xs font-black uppercase tracking-widest mt-2 px-3 py-1 bg-purple-500/10 rounded-full inline-block border border-purple-500/20">
+                  {user.role} Member
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <button onClick={() => setIsEditModalOpen(true)} className="w-full py-5 bg-white text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-indigo-500 hover:text-white transition-all shadow-xl active:scale-95">
-                  <Edit3 size={16} /> Edit Terminal
+              <div className="space-y-3">
+                <button 
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="w-full py-4 bg-white text-black rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-500 hover:text-white transition-all shadow-xl"
+                >
+                  <Edit3 size={16} /> Edit Details
                 </button>
-                <button onClick={handleLogout} className="w-full py-5 bg-rose-500/5 text-rose-500 border border-rose-500/10 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-rose-500 hover:text-white transition-all active:scale-95">
-                  <LogOut size={16} /> De-Authenticate
+                <button 
+                  onClick={handleLogout}
+                  className="w-full py-4 bg-white/5 text-gray-400 border border-white/5 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                >
+                  <LogOut size={16} /> End Session
                 </button>
               </div>
             </motion.div>
 
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-8 rounded-[3rem] flex items-center gap-6 text-white shadow-2xl shadow-indigo-600/20">
-              <ShieldCheck size={40} strokeWidth={2.5} />
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Security Protocol</p>
-                <p className="text-lg font-bold">Identity Verified</p>
-              </div>
+            {/* Quick Summary Info */}
+            <div className="bg-[#111216] border border-white/5 rounded-[2rem] p-6 space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-widest text-gray-500">Contact Archive</h3>
+              <DetailRow icon={<Mail className="text-purple-400" />} label="Email" value={user.email} />
+              <DetailRow icon={<Phone className="text-blue-400" />} label="Mobile" value={user.phone || "Not Set"} />
+              <DetailRow icon={<MapPin className="text-green-400" />} label="Dispatch City" value={user.address?.city || "Not Set"} />
             </div>
           </div>
 
-          {/* --- MAIN CONTENT: ORDER MANIFEST --- */}
-          <div className="lg:col-span-8 space-y-8">
-            <div className="grid grid-cols-3 gap-6">
-              <StatBadge icon={<Package size={20}/>} label="Orders" value={orders.length} />
-              <StatBadge icon={<ShoppingBag size={20}/>} label="Bag Status" value="Active" />
-              <StatBadge icon={<Zap size={20}/>} label="Rank" value="Elite" />
+          {/* Right Column: Experience and History */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatCard icon={<Cloud className="text-purple-400" />} label="Preferred Flavor" value={editForm.favoriteFlavor} />
+              <StatCard icon={<Zap className="text-blue-400" />} label="Vape Style" value={editForm.vapeStyle} />
+              <StatCard icon={<Package className="text-pink-400" />} label="Total Orders" value={orders.length} />
             </div>
 
-            {/* ORDER LIST PANEL */}
-            <div className="bg-slate-900/40 backdrop-blur-2xl border border-white/5 rounded-[3.5rem] p-10 shadow-2xl">
-              <div className="flex justify-between items-center mb-10">
-                <div>
-                    <h2 className="text-3xl font-black tracking-tighter uppercase text-white">Order Manifest.</h2>
-                    <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Live fulfillment sequence</p>
-                </div>
-                <div className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[9px] font-black tracking-widest text-indigo-400 uppercase">
-                    Sync_Status: Online
-                </div>
+            {/* Order Feed */}
+            <div className="bg-[#111216] border border-white/5 rounded-[2.5rem] overflow-hidden">
+              <div className="p-8 border-b border-white/5 flex justify-between items-center">
+                <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                  <ShoppingBag size={20} className="text-purple-400" />
+                  Recent Manifests
+                </h3>
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  {orders.length} Deliveries Logged
+                </span>
               </div>
 
-              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="divide-y divide-white/5 max-h-[500px] overflow-y-auto no-scrollbar">
                 {isLoadingOrders ? (
-                  <div className="py-24 flex flex-col items-center justify-center gap-4 text-zinc-600">
-                    <Loader2 className="animate-spin" size={32} />
-                    <p className="text-[10px] font-black uppercase tracking-widest">Deciphering archives...</p>
+                  <div className="p-20 text-center flex flex-col items-center">
+                    <Loader2 className="animate-spin text-purple-500 mb-4" />
+                    <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Accessing Secure Logs...</p>
                   </div>
                 ) : orders.length > 0 ? (
-                  orders.map((order, i) => (
+                  orders.map((order, idx) => (
                     <motion.div 
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      key={order._id}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all gap-4"
+                      key={order._id} 
+                      initial={{ opacity: 0 }} 
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="p-6 hover:bg-white/[0.02] transition-colors group cursor-pointer"
                     >
-                      <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center text-indigo-500 border border-white/5 group-hover:scale-110 transition-transform">
-                           <Package size={24} />
-                        </div>
-                        <div>
-                          <p className="text-white font-bold tracking-tight mb-1">Transmission #{order._id.slice(-6).toUpperCase()}</p>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                                {new Date(order.createdAt).toLocaleDateString()}
-                            </span>
-                            <span className="w-1 h-1 rounded-full bg-zinc-800" />
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                                Rs. {order.totalAmount?.toLocaleString()}
-                            </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                            <Package size={20} />
+                          </div>
+                          <div>
+                            <p className="font-bold text-white uppercase tracking-tight">Order #{order._id.slice(-6).toUpperCase()}</p>
+                            <p className="text-xs text-gray-500 flex items-center gap-2 mt-1 font-mono">
+                              <Calendar size={12} /> {new Date(order.createdAt).toLocaleDateString()}
+                            </p>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-none border-white/5 pt-4 sm:pt-0">
-                         <StatusBadge status={order.status} />
-                         <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-600 group-hover:text-white group-hover:border-white/30 transition-all">
-                            <ChevronRight size={18} />
-                         </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-white">Rs. {order.totalAmount?.toLocaleString()}</p>
+                          <StatusBadge status={order.status} />
+                        </div>
                       </div>
                     </motion.div>
                   ))
                 ) : (
-                  <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem]">
-                    <AlertCircle className="mx-auto text-zinc-800 mb-4" size={40} />
-                    <p className="text-zinc-500 font-bold uppercase text-[10px] tracking-widest">Zero Transmissions Detected</p>
+                  <div className="p-20 text-center">
+                    <ShoppingBag size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
+                    <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Zero Manifests Recorded</p>
                   </div>
                 )}
-              </div>
-            </div>
-            
-            {/* TERMINAL DATA PANEL */}
-            <div className="bg-slate-900/40 backdrop-blur-2xl border border-white/5 rounded-[3.5rem] p-10 space-y-10">
-              <h2 className="text-xl font-black tracking-tighter uppercase text-white/40">Core Metadata.</h2>
-              <div className="grid gap-8">
-                <DetailRow icon={<Mail className="text-indigo-400" />} label="Comm link" value={user.email} />
-                <DetailRow icon={<Phone className="text-cyan-400" />} label="Secure line" value={user.phone || "Not Set"} />
-                <DetailRow icon={<MapPin className="text-purple-400" />} label="Dispatch zone" value={user.address?.address || "Pending Coordinate Data"} />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- EDIT TERMINAL MODAL --- */}
+      {/* Edit Modal */}
       <AnimatePresence>
         {isEditModalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsEditModalOpen(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-[#020617] border border-white/10 w-full max-w-xl rounded-[3.5rem] relative z-10 overflow-hidden shadow-2xl">
-              <div className="p-12">
-                <div className="flex justify-between items-center mb-10">
-                  <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Patch Identity.</h2>
-                  <button onClick={() => setIsEditModalOpen(false)} className="p-3 bg-white/5 rounded-full hover:bg-rose-500/20 hover:text-rose-500 transition-all text-white"><X size={20}/></button>
-                </div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#111216] border border-white/10 rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden shadow-2xl"
+            >
+              <div className="p-8 flex justify-between items-center border-b border-white/10">
+                <h2 className="text-xl font-bold text-white uppercase tracking-tighter italic">Patch Identity</h2>
+                <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"><X size={20} /></button>
+              </div>
 
-                {errorMsg && <p className="mb-6 text-[10px] font-black text-rose-500 uppercase tracking-widest bg-rose-500/10 p-4 rounded-2xl border border-rose-500/20">{errorMsg}</p>}
-
-                <form className="space-y-8" onSubmit={handleUpdate}>
-                  <div className="grid grid-cols-2 gap-6">
-                    <DarkInput label="First Callname" value={editForm.firstName} onChange={(v:string) => setEditForm({...editForm, firstName: v})} />
-                    <DarkInput label="Last Callname" value={editForm.lastName} onChange={(v:string) => setEditForm({...editForm, lastName: v})} />
+              <div className="p-8 overflow-y-auto max-h-[calc(90vh-160px)] no-scrollbar">
+                <form onSubmit={handleUpdate} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <SimpleInput label="First Name" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
+                    <SimpleInput label="Last Name" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
                   </div>
-                  <DarkInput label="Secure Line" value={editForm.phone} onChange={(v:string) => setEditForm({...editForm, phone: v})} />
+                  <SimpleInput label="Secure Phone" value={editForm.phone} onChange={(v) => setEditForm({...editForm, phone: v})} />
                   
-                  <div className="pt-8 border-t border-white/5 space-y-6">
-                    <DarkInput label="Dispatch Coordinates" value={editForm.streetAddress} onChange={(v:string) => setEditForm({...editForm, streetAddress: v})} />
-                    <div className="grid grid-cols-2 gap-6">
-                      <DarkInput label="City HQ" value={editForm.city} onChange={(v:string) => setEditForm({...editForm, city: v})} />
-                      <DarkInput label="Postal Index" value={editForm.postalCode} onChange={(v:string) => setEditForm({...editForm, postalCode: v})} />
+                  <div className="pt-4 border-t border-white/5 space-y-4">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-purple-400">Vape Personalization</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <SimpleInput label="Fav Flavor" value={editForm.favoriteFlavor} onChange={(v) => setEditForm({...editForm, favoriteFlavor: v})} />
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Style</label>
+                        <select 
+                          value={editForm.vapeStyle}
+                          onChange={(e) => setEditForm({...editForm, vapeStyle: e.target.value})}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none appearance-none transition-all"
+                        >
+                          <option value="MTL">MTL</option>
+                          <option value="DTL">DTL</option>
+                          <option value="RDL">RDL</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
-                  <button disabled={isUpdating} type="submit" className="w-full py-6 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[0.4em] text-[10px] shadow-2xl hover:bg-indigo-500 transition-all active:scale-95 disabled:opacity-50">
-                    {isUpdating ? <Loader2 className="animate-spin mx-auto" size={20}/> : "Execute Synchronize"}
+                  <div className="pt-4 border-t border-white/5 space-y-4">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-purple-400">Dispatch Location</h4>
+                    <SimpleInput label="Street" value={editForm.streetAddress} onChange={(v) => setEditForm({...editForm, streetAddress: v})} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <SimpleInput label="City" value={editForm.city} onChange={(v) => setEditForm({...editForm, city: v})} />
+                      <SimpleInput label="Postal" value={editForm.postalCode} onChange={(v) => setEditForm({...editForm, postalCode: v})} />
+                    </div>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={isUpdating}
+                    className="w-full py-5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isUpdating ? <Loader2 size={16} className="animate-spin" /> : "Authorize Sync"}
                   </button>
                 </form>
               </div>
@@ -305,58 +341,54 @@ const ProfilePage = () => {
   );
 };
 
-/* --- MINI UI COMPONENTS --- */
-
-const StatusBadge = ({ status }: { status: string }) => {
-    const s = status?.toLowerCase() || 'pending';
-    
-    const config: Record<string, { color: string, icon: React.ReactNode }> = {
-        'pending': { color: 'text-amber-400 bg-amber-400/10 border-amber-400/20', icon: <Clock size={12} /> },
-        'shipped': { color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20', icon: <Truck size={12} /> },
-        'delivered': { color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', icon: <CheckCircle2 size={12} /> },
-        'cancelled': { color: 'text-rose-400 bg-rose-400/10 border-rose-400/20', icon: <X size={12} className="rotate-45" /> }
-    };
-
-    const active = config[s] || config['pending'];
-
-    return (
-        <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${active.color} backdrop-blur-md`}>
-            {active.icon}
-            <span className="text-[9px] font-black uppercase tracking-widest">{s}</span>
-        </div>
-    );
-};
-
-const StatBadge = ({ icon, label, value }: any) => (
-  <div className="bg-slate-900/50 backdrop-blur-3xl border border-white/10 p-6 rounded-[2.5rem] flex flex-col items-center text-center shadow-xl flex-1">
-    <div className="text-indigo-400 mb-3">{icon}</div>
-    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 mb-1">{label}</p>
-    <p className="text-lg font-black text-white">{value}</p>
-  </div>
-);
-
 const DetailRow = ({ icon, label, value }: any) => (
-  <div className="flex items-center gap-8 group">
-    <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center transition-all group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10">
+  <div className="flex items-center gap-4 group">
+    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
       {icon}
     </div>
-    <div className="flex-1">
-      <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-1">{label}</h4>
-      <p className="text-white font-bold tracking-tight text-xl break-all">{value}</p>
+    <div className="flex-1 overflow-hidden">
+      <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{label}</p>
+      <p className="text-sm font-bold text-white truncate">{value}</p>
     </div>
   </div>
 );
 
-const DarkInput = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => (
-  <div className="space-y-3">
-    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 ml-6">{label}</label>
+const StatCard = ({ icon, label, value }: any) => (
+  <div className="bg-[#111216] border border-white/5 rounded-2xl p-6 flex flex-col items-center text-center group hover:border-purple-500/30 transition-all">
+    <div className="mb-3 p-3 rounded-xl bg-white/5 group-hover:bg-purple-500 group-hover:text-white transition-all">
+      {icon}
+    </div>
+    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">{label}</p>
+    <p className="text-sm font-bold text-white">{value || "None"}</p>
+  </div>
+);
+
+const SimpleInput = ({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) => (
+  <div className="space-y-1.5 flex-1">
+    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">{label}</label>
     <input 
       type="text" 
       value={value} 
       onChange={(e) => onChange(e.target.value)}
-      className="w-full bg-white/5 border border-white/5 rounded-2xl px-8 py-5 text-white font-bold focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none placeholder:text-zinc-800" 
+      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition-all placeholder-gray-700" 
     />
   </div>
 );
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const s = status?.toLowerCase() || 'pending';
+  const config = {
+    pending: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    shipped: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20',
+    delivered: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+    cancelled: 'text-rose-500 bg-rose-500/10 border-rose-500/20'
+  }[s as 'pending' | 'shipped' | 'delivered' | 'cancelled'] || 'text-gray-500 bg-gray-500/10 border-gray-500/20';
+
+  return (
+    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${config} backdrop-blur-md`}>
+      {s}
+    </span>
+  );
+};
 
 export default ProfilePage;
