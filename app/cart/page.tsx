@@ -6,11 +6,19 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Loader2, Sparkles } from 
 import gsap from 'gsap';
 import Navbar from '@/app/componenets/navbar';
 import Footer from '@/app/componenets/footer';
+import axios from 'axios';
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState(true);
   const containerRef = useRef(null);
+  
+  const handleOrder = () => {
+    axios.post(`${process.env.NEXT_PUBLIC_API}/api/orders/create`, {
+
+    }
+  )
+}
 
   // 1. Load Cart Data on Mount
   useEffect(() => {
@@ -196,6 +204,9 @@ const CartPage = () => {
                 </div>
 
                 <button 
+                  onClick={()=>{
+                    handleOrder();
+                  }}
                   disabled={cartItems.length === 0}
                   className="w-full py-7 bg-white text-black disabled:bg-zinc-800 disabled:text-zinc-600 rounded-3xl font-black uppercase tracking-[0.4em] text-[10px] flex items-center justify-center gap-4 transition-all hover:bg-indigo-500 hover:text-white group"
                 >
