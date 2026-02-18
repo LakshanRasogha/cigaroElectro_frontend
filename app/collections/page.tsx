@@ -22,7 +22,7 @@ const ProductsPage = () => {
       const data = Array.isArray(res.data) ? res.data : res.data.products || [];
       
       // Check your category strings in the console!
-      console.log("Categories in DB:", [...new Set(data.map(p => p.category))]);
+      console.log("Categories in DB:", [...new Set(data.map((p: { category: string }) => p.category))]);
       
       setProducts(data);
     } catch (err) {
