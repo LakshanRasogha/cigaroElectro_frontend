@@ -13,29 +13,42 @@ const ProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Disposable", "Hardware", "Liquid"];
+  const categories = ["All", "Disposable", "Re-fill", "E-Liquid", "Accessories", "T-shirts"];
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/get`);
-        const data = Array.isArray(res.data) ? res.data : res.data.products || [];
-        setProducts(data);
-      } catch (err) {
-        console.error("Failed to fetch inventory:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/get`);
+      const data = Array.isArray(res.data) ? res.data : res.data.products || [];
+      
+      // Check your category strings in the console!
+      console.log("Categories in DB:", [...new Set(data.map(p => p.category))]);
+      
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to fetch inventory:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProducts();
+}, []);
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.category?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // 1. Normalize the Category strings
+  const productCat = (product.category || "").toLowerCase().trim();
+  const selectedCat = selectedCategory.toLowerCase().trim();
+
+  // 2. Search Logic
+  const matchesSearch = 
+    product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    productCat.includes(searchQuery.toLowerCase());
+
+  // 3. Category Logic
+  const matchesCategory = selectedCategory === "All" || productCat === selectedCat;
+
+  return matchesSearch && matchesCategory;
+});
 
   return (
     <main className="relative min-h-screen bg-[#020617] selection:bg-indigo-500/30 overflow-x-hidden">
@@ -114,6 +127,7 @@ const ProductsPage = () => {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 backdrop-blur-md ${
+                 
                   selectedCategory === category
                     ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
                     : 'bg-white/5 text-zinc-500 border border-white/5 hover:border-white/20 hover:text-white'
@@ -126,6 +140,7 @@ const ProductsPage = () => {
         </header>
 
         {/* --- GRID SECTION --- */}
+        {/* --- GRID SECTION --- */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-40">
             <Loader2 className="animate-spin text-indigo-500 mb-6" size={48} />
@@ -133,16 +148,15 @@ const ProductsPage = () => {
           </div>
         ) : (
           <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.05 } }
-            }}
+            layout
             className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
           >
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout"> {/* popLayout is essential for grids */}
               {filteredProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
+                <ProductCard 
+                  key={product._id} // Ensure this is a unique ID from your DB
+                  product={product} 
+                />
               ))}
             </AnimatePresence>
           </motion.div>
