@@ -40,7 +40,7 @@ const Hero = () => {
         <div className="max-w-4xl">
           
           {/* Badge: Glass Style */}
-          <motion.div 
+          {/* <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-xl"
@@ -53,7 +53,7 @@ const Hero = () => {
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-200">
               The 2026 Collection is Live
             </span>
-          </motion.div>
+          </motion.div> */}
 
           {/* Main Heading: Bold & Immersive */}
           <h1 className="text-7xl md:text-9xl font-black mb-8 leading-[0.85] text-white tracking-tighter">

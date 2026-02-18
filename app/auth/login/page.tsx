@@ -83,13 +83,22 @@ const LoginPage = () => {
 
           <div className="relative z-10">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-900 shadow-xl group-hover:rotate-[180deg] transition-transform duration-500">
-                <Zap size={24} fill="currentColor" />
-              </div>
-              <span className="text-2xl font-black tracking-tighter uppercase text-white">
-                Figaro<span className="text-purple-400 italic">Electrico</span>
-              </span>
-            </Link>
+            {/* Logo Container */}
+            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-amber-500/50 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500">
+              <img 
+                src="/logo.png" 
+                alt="CigarroElectrico Logo" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Typography - Using a Signature/Script Style */}
+            <span className="text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
+                  style={{ fontFamily: "'Dancing Script', cursive" }}>
+              <span className="text-amber-400">Cigarro</span>
+              <span className="text-amber-200">Electrico</span>
+            </span>
+          </Link>
           </div>
 
           <div className="relative z-10">

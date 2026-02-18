@@ -90,11 +90,20 @@ const Navbar = () => {
           
           {/* Logo Section */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
-              <Zap size={18} fill="currentColor" />
+            {/* Logo Container */}
+            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-amber-500/50 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500">
+              <img 
+                src="/logo.png" 
+                alt="CigarroElectrico Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <span className="text-xl font-black tracking-tighter uppercase text-white">
-              Figaro<span className="text-indigo-400 italic">Electrico</span>
+
+            {/* Typography - Using a Signature/Script Style */}
+            <span className="text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
+                  style={{ fontFamily: "'Dancing Script', cursive" }}>
+              <span className="text-amber-400">Cigarro</span>
+              <span className="text-amber-200">Electrico</span>
             </span>
           </Link>
           
