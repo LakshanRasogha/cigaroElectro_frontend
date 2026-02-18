@@ -93,13 +93,23 @@ export default function Register() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex justify-center mb-4">
-            <motion.div 
-              whileHover={{ rotate: 180 }}
-              transition={{ duration: 0.5 }}
-              className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-500/20"
-            >
-              <Zap size={28} fill="currentColor" />
-            </motion.div>
+            <Link href="/" className="flex items-center gap-3 group">
+            {/* Logo Container */}
+            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-amber-500/50 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500">
+              <img 
+                src="/logo.png" 
+                alt="CigarroElectrico Logo" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Typography - Using a Signature/Script Style */}
+            <span className="text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
+                  style={{ fontFamily: "'Dancing Script', cursive" }}>
+              <span className="text-amber-400">Cigarro</span>
+              <span className="text-amber-200">Electrico</span>
+            </span>
+          </Link>
           </div>
           <h2 className="text-4xl font-black text-slate-900 tracking-tighter">
             Join the <span className="italic text-slate-400">Circle.</span>
