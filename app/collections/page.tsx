@@ -16,19 +16,23 @@ const ProductsPage = () => {
   const categories = ["All", "Disposable", "Re-fill", "E-Liquid", "Accessories", "T-shirts"];
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/get`);
-        const data = Array.isArray(res.data) ? res.data : res.data.products || [];
-        setProducts(data);
-      } catch (err) {
-        console.error("Failed to fetch inventory:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/products/get`);
+      const data = Array.isArray(res.data) ? res.data : res.data.products || [];
+      
+      // Check your category strings in the console!
+      console.log("Categories in DB:", [...new Set(data.map((p: { category: string }) => p.category))]);
+      
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to fetch inventory:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProducts();
+}, []);
 
   const filteredProducts = products.filter(product => {
     const productCat = (product.category || "").toLowerCase().trim();
