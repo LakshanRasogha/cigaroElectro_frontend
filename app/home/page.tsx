@@ -17,7 +17,6 @@ const Home = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 1. Dynamic Script Loading for GSAP
     const loadScripts = async () => {
       const loadScript = (src: string) => {
         return new Promise<void>((resolve, reject) => {
@@ -54,16 +53,16 @@ const Home = () => {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // 2. Initial Nav Entrance - Targeted at the wrapper
+      // Nav Entrance
       gsap.from(".navbar-anim", {
         y: -100,
         opacity: 0,
         duration: 1.2,
         ease: "power4.out",
-        delay: 0.2, // Reduced delay for faster visibility
+        delay: 0.2,
       });
 
-      // 3. Floating Gold Orbs Animation
+      // Floating Gold Orbs
       gsap.to(".gold-orb", {
         y: "random(-100, 100)",
         x: "random(-50, 50)",
@@ -74,13 +73,13 @@ const Home = () => {
         stagger: 0.8
       });
 
-      // 4. Section Reveal Animations
+      // Section Reveal
       const sections = gsap.utils.toArray('.reveal-section');
       sections.forEach((section: any) => {
         gsap.from(section, {
           scrollTrigger: {
             trigger: section,
-            start: "top 90%", // Trigger slightly earlier
+            start: "top 90%",
             toggleActions: "play none none none"
           },
           y: 60,
@@ -90,7 +89,7 @@ const Home = () => {
         });
       });
 
-      // 5. Parallax for background orbs
+      // Parallax
       gsap.to(".parallax-orb", {
         scrollTrigger: {
           trigger: "body",
@@ -112,10 +111,8 @@ const Home = () => {
       ref={containerRef} 
       className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans"
     >
-      {/* IMPORTANT: The Navbar is placed inside a div with 'relative z-[100]' 
-        to ensure it stays above all ambient background elements. 
-      */}
-      <div className="navbar-anim relative z-[100]">
+      {/* --- FIXED NAVBAR FIX --- */}
+      <div className="navbar-anim fixed top-0 left-0 right-0 z-[100]">
         <Navbar />
       </div>
 
@@ -128,8 +125,8 @@ const Home = () => {
 
       {/* Main Content Wrap */}
       <div className="relative z-10">
-        {/* Hero Section */}
-        <header className="relative">
+        {/* Hero Section - Added pt-20 to prevent overlap with the fixed navbar */}
+        <header className="relative pt-20">
           <Headers />
         </header>
 
