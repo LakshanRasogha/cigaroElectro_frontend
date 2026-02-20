@@ -1,9 +1,8 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import { Sparkles, ArrowRight, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Importing your separated components
-// Note: Ensure your component folders are named correctly (componenets vs components)
 import Footer from '../componenets/footer';
 import Navbar from '../componenets/navbar';
 import Headers from '../componenets/header';
@@ -55,23 +54,24 @@ const Home = () => {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // 2. Initial Nav Entrance
+      // 2. Initial Nav Entrance - Targeted at the wrapper
       gsap.from(".navbar-anim", {
         y: -100,
         opacity: 0,
         duration: 1.2,
-        ease: "power4.out"
+        ease: "power4.out",
+        delay: 0.2, // Reduced delay for faster visibility
       });
 
-      // 3. Floating Neon Orbs Animation (Increased movement for Light Mode)
-      gsap.to(".neon-orb", {
-        y: "random(-80, 80)",
-        x: "random(-40, 40)",
-        duration: 10,
+      // 3. Floating Gold Orbs Animation
+      gsap.to(".gold-orb", {
+        y: "random(-100, 100)",
+        x: "random(-50, 50)",
+        duration: 12,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
-        stagger: 0.5
+        stagger: 0.8
       });
 
       // 4. Section Reveal Animations
@@ -80,10 +80,10 @@ const Home = () => {
         gsap.from(section, {
           scrollTrigger: {
             trigger: section,
-            start: "top 85%",
+            start: "top 90%", // Trigger slightly earlier
             toggleActions: "play none none none"
           },
-          y: 40,
+          y: 60,
           opacity: 0,
           duration: 1.2,
           ease: "power3.out"
@@ -96,9 +96,9 @@ const Home = () => {
           trigger: "body",
           start: "top top",
           end: "bottom bottom",
-          scrub: 1.5
+          scrub: 2
         },
-        y: (i: number, target: any) => target.dataset.speed * 100,
+        y: (i: number, target: any) => target.dataset.speed * 150,
         ease: "none"
       });
 
@@ -110,76 +110,89 @@ const Home = () => {
   return (
     <div 
       ref={containerRef} 
-      className="bg-[#fafafa] text-zinc-900 selection:bg-[#00f2ff] selection:text-black min-h-screen relative overflow-x-hidden font-sans"
+      className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans"
     >
-      <Navbar />
-      
-      {/* --- Ambient Colorful Neon Background Elements --- */}
+      {/* IMPORTANT: The Navbar is placed inside a div with 'relative z-[100]' 
+        to ensure it stays above all ambient background elements. 
+      */}
+      <div className="navbar-anim relative z-[100]">
+        <Navbar />
+      </div>
+
+      {/* --- Ambient Luxury Gold Background Elements --- */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Soft Cyan Glow */}
-        <div data-speed="2" className="neon-orb parallax-orb absolute top-[-5%] left-[-10%] w-[700px] h-[700px] bg-cyan-300/20 blur-[130px] rounded-full" />
-        {/* Vibrant Pink Glow */}
-        <div data-speed="-1" className="neon-orb parallax-orb absolute top-[20%] right-[-5%] w-[600px] h-[600px] bg-fuchsia-400/15 blur-[120px] rounded-full" />
-        {/* Electric Indigo Glow */}
-        <div data-speed="1.5" className="neon-orb parallax-orb absolute bottom-[10%] left-[5%] w-[500px] h-[500px] bg-indigo-400/20 blur-[110px] rounded-full" />
-        {/* Lime Punch Glow */}
-        <div data-speed="-2" className="neon-orb parallax-orb absolute bottom-[-10%] right-[10%] w-[400px] h-[400px] bg-lime-300/10 blur-[100px] rounded-full" />
+        <div data-speed="1.2" className="gold-orb parallax-orb absolute top-[-10%] left-[-5%] w-[800px] h-[800px] bg-[#D4AF37]/5 blur-[150px] rounded-full" />
+        <div data-speed="-0.8" className="gold-orb parallax-orb absolute top-[30%] right-[-10%] w-[700px] h-[700px] bg-[#AA771C]/5 blur-[130px] rounded-full" />
+        <div data-speed="1.5" className="gold-orb parallax-orb absolute bottom-[5%] left-[-5%] w-[600px] h-[600px] bg-[#D4AF37]/3 blur-[120px] rounded-full" />
       </div>
 
       {/* Main Content Wrap */}
       <div className="relative z-10">
-        
-        {/* Navigation - Glassmorphism style for Light Mode */}
-        <div className="navbar-anim sticky top-0 z-[100] bg-white/60 backdrop-blur-xl border-b border-zinc-200/50">
-          
-        </div>
-
         {/* Hero Section */}
-        <div className="relative">
+        <header className="relative">
           <Headers />
-        </div>
-
-        
+        </header>
 
         {/* Trust/Features Section */}
-        <section className="reveal-section relative ">
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-sm -z-10" />
+        <section className="reveal-section relative py-20">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-md -z-10" />
           <TrustSection />
         </section>
 
-        {/* Shop/Latest Selections - Pure White Background for Contrast */}
-        <section className="reveal-section  bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.02)]" id="shop">
+        {/* Shop Section */}
+        <section className="reveal-section bg-[#050505]" id="shop">
           <ShopSection />
         </section>
 
-        {/* Heritage/About Section - Subtle Gradient Transition */}
-        <section className="reveal-section bg-gradient-to-b from-white via-indigo-50/30 to-white" id="about">
+        {/* Heritage Section */}
+        <section className="reveal-section bg-gradient-to-b from-[#050505] via-zinc-900/20 to-[#050505]" id="about">
           <HeritageSection />
         </section>
 
-        {/* Newsletter Section: Vibrant High-Contrast Neon Gradient */}
-        <section className="reveal-section">
-         <NewsletterSection />
+        {/* Newsletter Section */}
+        <section className="reveal-section py-20">
+          <NewsletterSection />
         </section>
 
-        <div className='relative'>
+        {/* 3D Partner Ring */}
+        <section className="reveal-section relative py-32 overflow-visible">
           <LogoRing />
-        </div>
+        </section>
 
         {/* Footer */}
-        <div className="bg-white border-t border-zinc-100">
+        <footer className="bg-black border-t border-white/5">
           <Footer />
-        </div>
+        </footer>
       </div>
 
       <style jsx global>{`
-        @keyframes gradient-xy {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+        html {
+          scroll-behavior: smooth;
         }
-        .animate-gradient-xy {
+
+        @keyframes gold-shimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .animate-gold {
           background-size: 200% 200%;
-          animation: gradient-xy 15s ease infinite;
+          animation: gold-shimmer 12s ease infinite;
+        }
+
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #222;
+          border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #D4AF37;
         }
       `}</style>
     </div>
