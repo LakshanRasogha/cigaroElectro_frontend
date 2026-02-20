@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingCart, Menu, X, Zap, User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, LogOut, Settings, LayoutDashboard, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Types ---
 interface CartItem {
   quantity: number;
   price: number;
-  [key: string]: any; // Allows for other properties in the item object
+  [key: string]: any; 
 }
 
 const Navbar = () => {
@@ -23,22 +23,17 @@ const Navbar = () => {
   const router = useRouter();
 
   const syncNavbarData = () => {
-    // 1. Sync User Session
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try { setUser(JSON.parse(savedUser)); } catch (err) { setUser(null); }
     } else { setUser(null); }
 
-    // 2. Sync Cart Data
     const savedBag = localStorage.getItem('bag');
     if (savedBag) {
       try {
         const items: CartItem[] = JSON.parse(savedBag);
-        
-        // Fix: Explicitly type the accumulator as a number
         const count = items.reduce((acc: number, item: CartItem) => acc + item.quantity, 0);
         const total = items.reduce((acc: number, item: CartItem) => acc + (item.price * item.quantity), 0);
-        
         setCartStats({ count, total });
       } catch (err) { 
         setCartStats({ count: 0, total: 0 }); 
@@ -81,7 +76,7 @@ const Navbar = () => {
     <nav 
       className={`fixed w-full z-[100] transition-all duration-500 ${
         isScrolled 
-          ? 'bg-black/60 backdrop-blur-2xl border-b border-white/5 py-2 shadow-2xl' 
+          ? 'bg-black/80 backdrop-blur-2xl border-b border-[#D4AF37]/20 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)]' 
           : 'bg-transparent py-6'
       }`}
     >
@@ -90,20 +85,18 @@ const Navbar = () => {
           
           {/* Logo Section */}
           <Link href="/" className="flex items-center gap-3 group">
-            {/* Logo Container */}
-            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-amber-500/50 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500">
+            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.3)] group-hover:scale-110 transition-transform duration-500 bg-black">
               <img 
                 src="/logo.png" 
-                alt="CigarroElectrico Logo" 
-                className="w-full h-full object-cover"
+                alt="CigaroElectrico Logo" 
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
               />
             </div>
 
-            {/* Typography - Using a Signature/Script Style */}
             <span className="text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
                   style={{ fontFamily: "'Dancing Script', cursive" }}>
-              <span className="text-amber-400">Cigarro</span>
-              <span className="text-amber-200">Electrico</span>
+              <span className="text-[#D4AF37]">Cigaro</span>
+              <span className="text-white">Electrico</span>
             </span>
           </Link>
           
@@ -116,14 +109,14 @@ const Navbar = () => {
                   key={link.name} 
                   href={link.path} 
                   className={`relative px-2 py-1 transition-colors duration-300 ${
-                    isActive ? 'text-white' : 'text-zinc-400 hover:text-indigo-300'
+                    isActive ? 'text-[#D4AF37]' : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   {link.name}
                   {isActive && (
                     <motion.span 
                       layoutId="navUnderline"
-                      className="absolute -bottom-2 left-0 w-full h-[2px] bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                      className="absolute -bottom-2 left-0 w-full h-[1px] bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.8)]"
                     />
                   )}
                 </Link>
@@ -137,19 +130,19 @@ const Navbar = () => {
             {/* User Profile */}
             <div className="relative group">
               {user ? (
-                <div className="flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10">
+                <div className="flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20">
                   <div className="text-right hidden lg:block">
                     <p className="text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white">
                       {user.firstName || user.name?.split(' ')[0] || 'Member'}
                     </p>
                     <div className="flex items-center justify-end gap-1">
-                      <div className="w-1 h-1 rounded-full bg-indigo-400 animate-pulse" />
-                      <p className="text-[7px] font-bold text-indigo-400 uppercase tracking-widest leading-none">Online</p>
+                      <div className="w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse" />
+                      <p className="text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none">Elite</p>
                     </div>
                   </div>
-                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/10 shadow-xl bg-zinc-800">
+                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900">
                     <img 
-                      src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=6366f1&color=fff`} 
+                      src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=D4AF37&color=000`} 
                       alt="Profile" 
                       className="w-full h-full object-cover" 
                     />
@@ -158,39 +151,39 @@ const Navbar = () => {
               ) : (
                 <Link 
                   href="/auth/login" 
-                  className="p-2.5 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                  className="p-2.5 rounded-full text-zinc-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all"
                 >
                   <User className="h-5 w-5" />
                 </Link>
               )}
               
               {/* Dropdown Menu */}
-              <div className="absolute top-full right-0 mt-3 w-56 py-3 bg-zinc-950/95 backdrop-blur-3xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 -translate-y-2 group-hover:translate-y-0 hidden md:block overflow-hidden">
+              <div className="absolute top-full right-0 mt-3 w-56 py-3 bg-black/95 backdrop-blur-3xl rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#D4AF37]/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 -translate-y-2 group-hover:translate-y-0 hidden md:block overflow-hidden">
                 {user ? (
                   <>
                     <div className="px-5 py-3 border-b border-white/5 mb-2">
-                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Session Active</p>
+                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Authenticated</p>
                         <p className="text-xs font-medium text-white truncate">{user.email}</p>
                     </div>
                     {user.role === 'admin' && (
-                      <Link href="/admin" className="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:bg-indigo-500/10 transition-colors">
+                      <Link href="/admin" className="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors">
                         <LayoutDashboard size={14} /> Control Panel
                       </Link>
                     )}
                     <Link href="/profile" className="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
-                        <Settings size={14} /> Account Settings
+                        <Settings size={14} /> Account
                     </Link>
                     <button 
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-400 hover:bg-rose-500/10 transition-colors"
+                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-colors"
                     >
-                        <LogOut size={14} /> End Session
+                        <LogOut size={14} /> Logout
                     </button>
                   </>
                 ) : (
                   <div className="p-2 flex flex-col gap-1">
-                    <Link href="/auth/login" className="px-4 py-2 text-[10px] font-bold uppercase text-white hover:bg-white/5 rounded-lg">Log In</Link>
-                    <Link href="/auth/Signin" className="px-4 py-2 text-[10px] font-bold uppercase text-indigo-400 hover:bg-indigo-400/10 rounded-lg">Create Account</Link>
+                    <Link href="/auth/login" className="px-4 py-2 text-[10px] font-bold uppercase text-white hover:bg-[#D4AF37]/10 rounded-lg">Log In</Link>
+                    <Link href="/auth/Signin" className="px-4 py-2 text-[10px] font-bold uppercase text-[#D4AF37] hover:bg-[#D4AF37]/20 rounded-lg">Create Account</Link>
                   </div>
                 )}
               </div>
@@ -201,21 +194,21 @@ const Navbar = () => {
               href="/cart"
               className="flex items-center gap-4 group"
             >
-              <div className="relative p-2.5 rounded-full text-zinc-400 group-hover:text-white group-hover:bg-white/5 transition-all">
+              <div className="relative p-2.5 rounded-full text-zinc-400 group-hover:text-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all">
                 <ShoppingCart className="h-5 w-5" />
                 <AnimatePresence>
                   {cartStats.count > 0 && (
                     <motion.span 
                       initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                      className="absolute -top-1 -right-1 bg-indigo-500 text-white text-[8px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-zinc-950"
+                      className="absolute -top-1 -right-1 bg-[#D4AF37] text-black text-[8px] font-black rounded-full w-4 h-4 flex items-center justify-center border border-black"
                     >
                       {cartStats.count}
                     </motion.span>
                   )}
                 </AnimatePresence>
               </div>
-              <div className="hidden lg:flex flex-col border-l border-white/10 pl-4">
-                <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500 leading-none mb-1">Portfolio</span>
+              <div className="hidden lg:flex flex-col border-l border-[#D4AF37]/20 pl-4">
+                <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500 leading-none mb-1">Portfolio Value</span>
                 <span className="text-[11px] font-bold text-white leading-none tracking-tight">
                   Rs. {cartStats.total.toLocaleString()}
                 </span>
@@ -224,7 +217,7 @@ const Navbar = () => {
             
             {/* Mobile Toggle */}
             <button 
-              className="md:hidden text-white p-2 hover:bg-white/5 rounded-full transition-colors"
+              className="md:hidden text-[#D4AF37] p-2 hover:bg-[#D4AF37]/10 rounded-full transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -237,58 +230,53 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            className="fixed inset-0 bg-black z-[110] md:hidden flex flex-col"
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 bg-[#050505] z-[110] md:hidden flex flex-col"
           >
-            {/* Close Button Inside */}
-            <div className="absolute top-8 right-8">
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-4 text-white/40 hover:text-white">
+            <div className="flex justify-between items-center p-8">
+                <span className="text-xl font-bold text-[#D4AF37]" style={{ fontFamily: "'Dancing Script', cursive" }}>Cigaro</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-white hover:text-[#D4AF37]">
                     <X size={32} />
                 </button>
             </div>
 
-            <div className="flex-1 flex flex-col justify-center px-12 space-y-12">
-              <div className="space-y-6">
+            <div className="flex-1 flex flex-col justify-center px-10 space-y-8">
                 {navLinks.map((link, i) => (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
                     key={link.name}
                   >
                     <Link 
                       href={link.path} 
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-6xl font-black text-white hover:text-indigo-500 transition-colors tracking-tighter block"
+                      className="text-5xl font-bold text-white hover:text-[#D4AF37] transition-colors tracking-tighter block uppercase"
                     >
                       {link.name}
                     </Link>
                   </motion.div>
                 ))}
-              </div>
-
-              {user && (
-                <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-                    className="flex items-center gap-6 p-6 bg-white/5 rounded-[2.5rem] border border-white/10"
-                >
-                    <img className="w-20 h-20 rounded-[1.5rem] object-cover border-2 border-indigo-500" src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.name}`} alt="user" />
-                    <div>
-                        <p className="text-3xl font-black text-white">{user.firstName || user.name}</p>
-                        <button onClick={handleLogout} className="text-xs font-bold text-rose-400 uppercase tracking-widest mt-2">Sign Out</button>
-                    </div>
-                </motion.div>
-              )}
             </div>
-            
-            <div className="p-12 border-t border-white/5 flex justify-between items-center">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.5em]">Figaro Electrico 2026</p>
-                <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-white/5" />
-                    <div className="w-8 h-8 rounded-full bg-white/5" />
+
+            <div className="p-10 border-t border-[#D4AF37]/10">
+              {user ? (
+                <div className="flex items-center gap-6 p-6 bg-[#D4AF37]/5 rounded-3xl border border-[#D4AF37]/20">
+                    <img className="w-16 h-16 rounded-2xl object-cover border-2 border-[#D4AF37]" src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.name}`} alt="user" />
+                    <div>
+                        <p className="text-2xl font-bold text-white">{user.firstName || user.name}</p>
+                        <button onClick={handleLogout} className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.2em] mt-1">Terminate Session</button>
+                    </div>
                 </div>
+              ) : (
+                <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full py-5 bg-[#D4AF37] text-black text-center font-bold uppercase tracking-widest rounded-xl block">
+                  Client Login
+                </Link>
+              )}
+              <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-8 text-center">Cigaro Electrico MMXXVI</p>
             </div>
           </motion.div>
         )}
