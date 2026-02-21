@@ -125,8 +125,7 @@ const Home = () => {
 
       {/* Main Content Wrap */}
       <div className="relative z-10">
-        {/* Hero Section - Added pt-20 to prevent overlap with the fixed navbar */}
-        <header className="relative pt-20">
+        <header className="relative ">
           <Headers />
         </header>
 
