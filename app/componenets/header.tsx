@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronRight, ShieldCheck, Zap, Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter()
 
+  const handleNavigation = () => {
+    router.push('/collections')
+  }
   // Audio Toggle Logic - Fixed to toggle correctly
   const handleMouseEnter = () => {
     if (videoRef.current) videoRef.current.muted = true;
@@ -102,8 +107,9 @@ const Hero = () => {
               transition={{ delay: 0.6 }}
               className="group relative bg-[#D4AF37] text-black px-8 py-5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.2em] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)]"
             >
-              <span className="relative z-10 flex items-center gap-2">
-                Explore Collection <ChevronRight className="h-4 w-4" />
+              <span onClick={handleNavigation}
+                    className="relative z-10 flex items-center gap-2">
+                Explore Collection <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
               <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </motion.button>

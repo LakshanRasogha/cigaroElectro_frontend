@@ -85,18 +85,9 @@ const Navbar = () => {
           
           {/* Logo Section */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 relative overflow-hidden rounded-full border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.3)] group-hover:scale-110 transition-transform duration-500 bg-black">
-              <img 
-                src="/logo.png" 
-                alt="CigaroElectrico Logo" 
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
-              />
-            </div>
-
             <span className="text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
                   style={{ fontFamily: "'Dancing Script', cursive" }}>
-              <span className="text-[#D4AF37]">Cigaro</span>
-              <span className="text-white">Electrico</span>
+              <span className="text-[#D4AF37]">CigarroEléctrico</span>
             </span>
           </Link>
           
@@ -228,59 +219,86 @@ const Navbar = () => {
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 bg-[#050505] z-[110] md:hidden flex flex-col"
+  {isMobileMenuOpen && (
+    <motion.div 
+      initial={{ opacity: 0, x: '100%' }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: '100%' }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      // Ensures the background remains solid and overrides any scroll-based parent opacity
+      className="fixed inset-0 bg-[#050505] z-[150] md:hidden flex flex-col h-screen w-screen overflow-hidden pointer-events-auto"
+    >
+      {/* Header Section */}
+      <div className="flex justify-between items-center p-8 shrink-0">
+          <span className="text-xl font-bold text-[#D4AF37]" style={{ fontFamily: "'Dancing Script', cursive" }}>
+            Cigaro
+          </span>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            className="p-2 text-white hover:text-[#D4AF37] transition-colors"
           >
-            <div className="flex justify-between items-center p-8">
-                <span className="text-xl font-bold text-[#D4AF37]" style={{ fontFamily: "'Dancing Script', cursive" }}>Cigaro</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-white hover:text-[#D4AF37]">
-                    <X size={32} />
-                </button>
-            </div>
+            <X size={32} />
+          </button>
+      </div>
 
-            <div className="flex-1 flex flex-col justify-center px-10 space-y-8">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    key={link.name}
+      {/* Nav Links Section - Aligned to the right and text size reduced to 2xl */}
+      <div className="flex-1 flex flex-col justify-center px-10 items-end space-y-5">
+          {navLinks.map((link, i) => (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }} // Sliding in from the right to match alignment
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              key={link.name}
+            >
+              <Link 
+                href={link.path} 
+                onClick={() => setIsMobileMenuOpen(false)}
+                // text-2xl is smaller and more sophisticated; text-right ensures alignment
+                className="text-2xl font-bold text-white hover:text-[#D4AF37] transition-colors tracking-tighter block uppercase text-right"
+              >
+                {link.name}
+              </Link>
+            </motion.div>
+          ))}
+      </div>
+
+      {/* Footer / User Section */}
+      <div className="p-10 border-t border-[#D4AF37]/10 shrink-0 bg-[#050505]">
+        {user ? (
+          <div className="flex items-center gap-4 p-5 bg-[#D4AF37]/5 rounded-3xl border border-[#D4AF37]/20">
+              <img 
+                className="w-14 h-14 rounded-xl object-cover border-2 border-[#D4AF37]" 
+                src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName || user.name}&background=D4AF37&color=000`} 
+                alt="user" 
+              />
+              <div className="overflow-hidden">
+                  <p className="text-xl font-bold text-white truncate">
+                    {user.firstName || user.name}
+                  </p>
+                  <button 
+                    onClick={handleLogout} 
+                    className="text-[9px] font-black text-rose-500 uppercase tracking-[0.2em] mt-1 hover:text-rose-400 transition-colors"
                   >
-                    <Link 
-                      href={link.path} 
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-5xl font-bold text-white hover:text-[#D4AF37] transition-colors tracking-tighter block uppercase"
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
-            </div>
-
-            <div className="p-10 border-t border-[#D4AF37]/10">
-              {user ? (
-                <div className="flex items-center gap-6 p-6 bg-[#D4AF37]/5 rounded-3xl border border-[#D4AF37]/20">
-                    <img className="w-16 h-16 rounded-2xl object-cover border-2 border-[#D4AF37]" src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.name}`} alt="user" />
-                    <div>
-                        <p className="text-2xl font-bold text-white">{user.firstName || user.name}</p>
-                        <button onClick={handleLogout} className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.2em] mt-1">Terminate Session</button>
-                    </div>
-                </div>
-              ) : (
-                <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full py-5 bg-[#D4AF37] text-black text-center font-bold uppercase tracking-widest rounded-xl block">
-                  Client Login
-                </Link>
-              )}
-              <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-8 text-center">Cigaro Electrico MMXXVI</p>
-            </div>
-          </motion.div>
+                    Terminate Session
+                  </button>
+              </div>
+          </div>
+        ) : (
+          <Link 
+            href="/auth/login" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            className="w-full py-5 bg-[#D4AF37] text-black text-center font-bold uppercase tracking-widest rounded-xl block text-sm active:scale-95 transition-transform"
+          >
+            Client Login
+          </Link>
         )}
-      </AnimatePresence>
+        <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-8 text-center">
+          Cigaro Electrico MMXXVI
+        </p>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </nav>
   );
 };
