@@ -130,7 +130,7 @@ const Home = () => {
         </header>
 
         {/* Trust/Features Section */}
-        <section className="reveal-section relative py-20">
+        <section className="reveal-section relative">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-md -z-10" />
           <TrustSection />
         </section>

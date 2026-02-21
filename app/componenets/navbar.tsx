@@ -116,7 +116,7 @@ const Navbar = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4 md:gap-8">
+          <div className="flex items-center gap-1 ml-4 md:gap-8">
             
             {/* User Profile */}
             <div className="relative group">

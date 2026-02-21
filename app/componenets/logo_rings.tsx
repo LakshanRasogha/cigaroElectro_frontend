@@ -15,9 +15,8 @@ const LogoRing = () => {
   const ringRef = useRef<HTMLDivElement>(null);
   const autoRotateRef = useRef<gsap.core.Tween | null>(null);
   
-  // Unified Luxury Partners List
   const partners = [
-    { name: 'Elfbar', logo: 'https://imgs.search.brave.com/6S_i65H3-M0f9VlglRSeiD5Fn60c1NuPZfvZ-pn6GFo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9lbGZi/YXJ2YXBlc3VzYS5j/b20vbXlTdGFnaW5n/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDI1/LzA4L0VsZl9CYXJf/NjAweDYwMC5wbmc' },
+    { name: 'Elfbar', logo: 'https://imgs.search.brave.com/6S_i65H3-M0f9VlglRSeiD5Fn60c1NuPZfvZ-pn6GFo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9lbGZi/YXJ2YXBlc3VzYS5j/b20vbXlTdGFnaW5n/L3dwLWNvbnRlbnQ/dXBsb2Fkcy8yMDI1/LzA4L0VsZl9CYXJf/NjAweDYwMC5wbmc' },
     { name: 'Vozol', logo: 'https://imgs.search.brave.com/7E98hlqlPhm2WdSzTDGVRYOo3-BmkEr-GuAQlnZGqHk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly92b3pv/bC5jby56YS93cC1j/b250ZW50L3VwbG9h/ZHMvMjAyNC8wOC9z/aGFyZS1pbWFnZS5w/bmc' },
     { name: 'Voltbar', logo: 'https://imgs.search.brave.com/cvnqE1_DHj-MwfWAgq3scYNyAbLfd5cB00cy47sJelU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90aGV2/b2x0YmFyLmNvbS93/cC1jb250ZW50L3VwbG9h/ZHMvMjAyNS8wNy9GcnVpdHktU2Vy/aWVzLmpwZw' },
     { name: 'Lost Mary', logo: 'https://imgs.search.brave.com/Gmwm2FVHyO8ekAD31UZa--DXOiTj3FhJr3UQPDj0SkQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9kMzFp/eHl0azh6dWE2aS5j/bG91ZGZyb250Lm5l/dC91cGxvYWRzLzIw/MjUwNjE4MTEzODMx/NzM2Ni5wbmc' },
@@ -32,7 +31,8 @@ const LogoRing = () => {
 
     const ring = ringRef.current;
     const items = ring.children;
-    const radius = window.innerWidth < 768 ? 200 : 350; 
+    // Zoom Out Logic: Reduced radius for mobile from 200 to 150
+    const radius = window.innerWidth < 768 ? 150 : 350; 
     const totalItems = items.length;
 
     gsap.set(items, {
@@ -83,20 +83,20 @@ const LogoRing = () => {
   }, []);
 
   return (
-    <section className="py-32 bg-[#050505] overflow-hidden relative min-h-[900px] flex items-center">
+    <section className="py-20 md:py-32 bg-[#050505] overflow-hidden relative min-h-[700px] md:min-h-[900px] flex items-center">
       
       {/* Background Lighting */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#D4AF37]/5 blur-[150px] rounded-full animate-pulse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[700px] h-[300px] md:h-[700px] bg-[#D4AF37]/5 blur-[100px] md:blur-[150px] rounded-full animate-pulse" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-overlay" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
-        <div className="text-center mb-24">
+        <div className="text-center mb-16 md:mb-24">
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="text-[#D4AF37] font-black text-xs uppercase tracking-[0.5em] mb-4"
+            className="text-[#D4AF37] font-black text-[10px] md:text-xs uppercase tracking-[0.5em] mb-4"
           >
             Global Distribution
           </motion.p>
@@ -104,21 +104,22 @@ const LogoRing = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase mb-6"
+            className="text-4xl md:text-7xl font-black text-white tracking-tighter uppercase mb-6"
           >
             Strategic <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F2D37D]" style={{ fontFamily: "'Dancing Script', cursive" }}>Partners.</span>
           </motion.h2>
-          <div className="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto" />
+          <div className="w-24 md:w-32 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto" />
         </div>
 
         {/* 3D Ring Container */}
         <div 
           className="relative w-full flex items-center justify-center"
-          style={{ height: '500px', perspective: '1500px' }}
+          // Zoom out: Scale the container down on mobile via Tailwind scale-75
+          style={{ height: '400px', perspective: '1200px' }}
         >
           <div 
             ref={ringRef}
-            className="relative w-full h-full cursor-grab active:cursor-grabbing"
+            className="relative w-full h-full cursor-grab active:cursor-grabbing scale-[0.65] md:scale-100"
             style={{ 
               transformStyle: 'preserve-3d',
               transition: isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
@@ -129,35 +130,34 @@ const LogoRing = () => {
                 key={index}
                 className="absolute group"
                 style={{
-                  width: '200px',
-                  height: '200px',
+                  width: '140px', // Smaller card for mobile/zoom
+                  height: '140px',
                   backfaceVisibility: 'visible'
                 }}
               >
                 {/* Gold Obsidian Card */}
-                <div className="relative w-full h-full preserve-3d transition-all duration-700 group-hover:scale-125">
-                  <div className={`absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent backdrop-blur-2xl rounded-[2.5rem] border border-white/5 flex flex-col items-center justify-center p-8 transition-all duration-500 group-hover:border-[#D4AF37]/40 overflow-hidden shadow-2xl shadow-black`}>
+                <div className="relative w-full h-full preserve-3d transition-all duration-700 group-hover:scale-110">
+                  <div className={`absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent backdrop-blur-2xl rounded-[1.5rem] md:rounded-[2.5rem] border border-white/5 flex flex-col items-center justify-center p-4 md:p-8 transition-all duration-500 group-hover:border-[#D4AF37]/40 overflow-hidden shadow-2xl shadow-black`}>
                     
-                    {/* Inner Gold Glow on Hover */}
                     <div 
                       className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 blur-3xl" 
                       style={{ background: `radial-gradient(circle, #D4AF37, transparent)` }}
                     />
                     
                     {/* Logo Image */}
-                    <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
+                    <div className="relative w-16 h-16 md:w-24 md:h-24 mb-3 md:mb-6 flex items-center justify-center">
                       <img 
                         src={partner.logo} 
                         alt={partner.name}
-                        className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-700 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+                        className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-700 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]"
                         loading="lazy"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
                           if (target.parentElement) {
                             target.parentElement.innerHTML = `
-                                <div class="w-16 h-16 rounded-full bg-[#D4AF37]/10 flex items-center justify-center border border-[#D4AF37]/20">
-                                  <span class="text-2xl font-black text-[#D4AF37]">${partner.name[0]}</span>
+                                <div class="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center border border-[#D4AF37]/20">
+                                  <span class="text-xl font-black text-[#D4AF37]">${partner.name[0]}</span>
                                 </div>
                             `;
                           }
@@ -166,7 +166,7 @@ const LogoRing = () => {
                     </div>
                     
                     {/* Brand Label */}
-                    <span className="relative z-10 text-[9px] font-black text-white uppercase tracking-[0.3em] bg-[#D4AF37]/10 px-4 py-2 rounded-full border border-[#D4AF37]/20 group-hover:bg-[#D4AF37] group-hover:text-black transition-all">
+                    <span className="relative z-10 text-[7px] md:text-[9px] font-black text-white uppercase tracking-[0.2em] md:tracking-[0.3em] bg-[#D4AF37]/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#D4AF37]/20 group-hover:bg-[#D4AF37] group-hover:text-black transition-all">
                       {partner.name}
                     </span>
                   </div>
@@ -181,10 +181,10 @@ const LogoRing = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}
           transition={{ delay: 2 }}
-          className="flex flex-col items-center gap-4 mt-24"
+          className="flex flex-col items-center gap-4 mt-12 md:mt-24"
         >
-          <div className="w-[1px] h-12 bg-gradient-to-b from-[#D4AF37] to-transparent" />
-          <p className="text-white/40 text-[10px] uppercase tracking-[0.5em]">
+          <div className="w-[1px] h-8 md:h-12 bg-gradient-to-b from-[#D4AF37] to-transparent" />
+          <p className="text-white/40 text-[8px] md:text-[10px] uppercase tracking-[0.5em]">
             Drag to Rotate • Proprietary Network
           </p>
         </motion.div>

@@ -196,7 +196,7 @@ const CartPage = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 sm:pb-20 md:pb-32 relative z-10">
+        <div className="max-w-7xl mt-2 mx-auto px-4 sm:px-6 pb-16 sm:pb-20 md:pb-32 relative z-10">
           <header className="mb-10 sm:mb-12 md:mb-16 cart-animate">
             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
               <div className="p-1 sm:p-1.5 bg-[#D4AF37]/10 rounded-lg border border-[#D4AF37]/20">
@@ -206,8 +206,8 @@ const CartPage = () => {
                 Inventory Status
               </span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-tighter leading-none uppercase">
-              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] italic">Bag.</span>
+            <h1 className="text-4xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none uppercase">
+              Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] ">Cart</span>
             </h1>
           </header>
 
@@ -236,9 +236,7 @@ const CartPage = () => {
                       <div className="flex-1 space-y-1 sm:space-y-2 md:space-y-3 text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-1 sm:gap-2 md:gap-3">
                           <span className="text-xl sm:text-2xl">{item.emoji}</span>
-                          <p className="text-[#D4AF37] font-black text-[7px] sm:text-[8px] md:text-[9px] tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em] uppercase">
-                            Authorized Hardware
-                          </p>
+                          <p className="text-[#D4AF37] font-black text-[7px] sm:text-[8px] md:text-[9px] tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em] uppercase"/>
                         </div>
                         
                         <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white tracking-tight leading-none uppercase">
@@ -291,15 +289,17 @@ const CartPage = () => {
                         </div>
                         
                         <motion.button 
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => removeItem(item.cartId)} 
-                          className="flex items-center gap-1 sm:gap-2 text-zinc-600 hover:text-rose-500 transition-colors text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-black uppercase"
-                        >
-                          <Trash2 size={10} className="sm:hidden" />
-                          <Trash2 size={12} className="hidden sm:block md:hidden" />
-                          <Trash2 size={14} className="hidden md:block" />
-                          <span className="hidden xs:inline">Remove</span>
-                        </motion.button>
+  whileTap={{ scale: 0.9 }}
+  onClick={() => removeItem(item.cartId)} 
+  className="flex items-center gap-2 text-zinc-600 hover:text-rose-500 transition-colors text-[9px] sm:text-[10px] font-black uppercase"
+>
+  {/* Single Icon with responsive sizing via CSS classes or a larger base size */}
+  <Trash2 
+    className="w-4 h-4 sm:w-5 md:w-6 transition-all" 
+    strokeWidth={2.5} 
+  />
+  <span className="hidden xs:inline">Remove</span>
+</motion.button>
                       </div>
                     </motion.div>
                   ))

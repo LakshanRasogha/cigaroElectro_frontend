@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Navbar from '../componenets/navbar';
 
+
 const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +76,7 @@ const ProductsPage = () => {
       <div className="relative z-10 pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-12 sm:pb-16 px-3 sm:px-4 md:px-6 lg:px-8">
         
         {/* Header Section */}
-        <header className="max-w-7xl mx-auto mb-6 sm:mb-8 md:mb-12">
+        <header className="max-w-7xl mx-auto mt-8 mb-6 sm:mb-8 md:mb-12">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -96,10 +97,9 @@ const ProductsPage = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-8xl font-black text-white tracking-tighter leading-none"
             >
-              <span className="block sm:inline">The</span>{" "}
               <span className="relative inline-block">
                 <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                  Vault.
+                  Collection
                 </span>
                 <motion.div 
                   animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
