@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronRight, ShieldCheck, Zap, Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter()
 
+  const handleNavigation = () => {
+    router.push('/collections')
+  }
   // Audio Toggle Logic - Fixed to toggle correctly
   const handleMouseEnter = () => {
     if (videoRef.current) videoRef.current.muted = true;
@@ -17,7 +22,7 @@ const Hero = () => {
   };
 
   return (
-    <header className="relative h-screen min-h-[800px] bg-black overflow-hidden flex items-center pt-20 lg:pt-24">
+    <header className="relative h-screen min-h-[800px] bg-black overflow-hidden flex items-center">
       {/* pt-20 lg:pt-24 creates the space for your Fixed Navbar. 
           flex items-center ensures the content remains centered in the remaining space.
       */}
@@ -59,25 +64,16 @@ const Hero = () => {
           
           {/* Main Heading */}
           <h1 className="mb-6 leading-[1.1] tracking-tight">
-            <div className="overflow-hidden py-1">
-              <motion.span 
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="block text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter"
-              >
-                Cigaro
-              </motion.span>
-            </div>
+            
             <div className="overflow-hidden py-1">
               <motion.span 
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="block text-5xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C]"
-                style={{ fontFamily: "'Dancing Script', cursive" }}
+                className="block text-4xl md:text-5xl font-light tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#e8cd75] via-[#f3dfa7] to-[#AA771C] drop-shadow-[0_2px_10px_rgba(212,175,55,0.2)]"
+                style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
-                Electrico
+                THE APEX OF VAPOR
               </motion.span>
             </div>
           </h1>
@@ -88,8 +84,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-zinc-400 text-base md:text-xl mb-10 leading-relaxed max-w-xl font-light"
           >
-            Sri Lanka&apos;s premier destination for luxury hardware. 
-            Experience the <span className="text-[#D4AF37] font-medium">Gold Standard</span> — where engineering meets sensory art.
+            it's your entry into the gold standard of modern indulgence
           </motion.p>
 
           {/* CTA Section */}
@@ -102,24 +97,14 @@ const Hero = () => {
               transition={{ delay: 0.6 }}
               className="group relative bg-[#D4AF37] text-black px-8 py-5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.2em] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)]"
             >
-              <span className="relative z-10 flex items-center gap-2">
-                Explore Collection <ChevronRight className="h-4 w-4" />
+              <span onClick={handleNavigation}
+                    className="relative z-10 flex items-center gap-2">
+                Explore Collection <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
               <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
             </motion.button>
 
-            {/* Hover Sound Indicator */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="flex items-center gap-3 text-white/50 group cursor-help"
-            >
-              <div className="w-10 h-10 rounded-full border border-[#D4AF37]/30 flex items-center justify-center group-hover:bg-[#D4AF37]/10 transition-all">
-                <Volume2 className="h-4 w-4 text-[#D4AF37]" />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest">Hover video for audio</span>
-            </motion.div>
+           
           </div>
 
           {/* Feature Bar */}

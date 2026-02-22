@@ -27,7 +27,7 @@ const TrustSection = () => {
   ];
 
   return (
-    <section className="relative py-32 overflow-hidden bg-[#050505]">
+    <section className="relative overflow-hidden bg-[#050505]">
       {/* --- Background Layer --- */}
       <div className="absolute inset-0 z-0">
         <video 
@@ -40,6 +40,8 @@ const TrustSection = () => {
           <source src="/vape2.mp4" type="video/mp4" />
         </video>
         
+
+        
         {/* Premium Overlay: 
             This keeps the video colored but ensures text remains readable by 
             adding a dark gradient wash.
@@ -49,12 +51,12 @@ const TrustSection = () => {
       </div>
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="mb-20 text-center">
+        <div className="mb-10 text-center">
           <motion.p 
             initial={{ opacity: 0, letterSpacing: "0.2em" }}
             whileInView={{ opacity: 1, letterSpacing: "0.5em" }}
             viewport={{ once: true }}
-            className="text-[#D4AF37] font-black text-[10px] uppercase mb-4"
+            className="text-[#D4AF37] font-black text-[10px] uppercase mb-2"
           >
             The Gold Standard
           </motion.p>
