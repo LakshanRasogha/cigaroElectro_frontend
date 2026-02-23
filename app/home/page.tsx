@@ -1,61 +1,28 @@
 "use client";
+
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Importing your separated components
+// Standardizing component imports
 import Footer from "../componenets/footer";
 import Navbar from "../componenets/navbar";
 import Headers from "../componenets/header";
-import TrustSection from "../UI/trustsection";
 import ShopSection from "../UI/shopsection";
 import HeritageSection from "../UI/aboutsection";
 import NewsletterSection from "../UI/newsletter";
 import LogoRing from "../componenets/logo_rings";
 
+// Register GSAP plugins
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 const Home = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadScripts = async () => {
-      const loadScript = (src: string) => {
-        return new Promise<void>((resolve, reject) => {
-          if (document.querySelector(`script[src="${src}"]`)) {
-            resolve();
-            return;
-          }
-          const script = document.createElement("script");
-          script.src = src;
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      };
-
-      try {
-        await loadScript(
-          "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js",
-        );
-        await loadScript(
-          "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js",
-        );
-        setIsLoaded(true);
-      } catch (err) {
-        console.error("Failed to load GSAP scripts", err);
-      }
-    };
-
-    loadScripts();
-  }, []);
-
-  useEffect(() => {
-    if (!isLoaded || !(window as any).gsap) return;
-
-    const gsap = (window as any).gsap;
-    const ScrollTrigger = (window as any).ScrollTrigger;
-    gsap.registerPlugin(ScrollTrigger);
-
     const ctx = gsap.context(() => {
       // Nav Entrance
       gsap.from(".navbar-anim", {
@@ -101,20 +68,23 @@ const Home = () => {
           end: "bottom bottom",
           scrub: 2,
         },
-        y: (i: number, target: any) => target.dataset.speed * 150,
+        y: (i: number, target: any) => {
+            const speed = parseFloat(target.dataset.speed) || 1;
+            return speed * 150;
+        },
         ease: "none",
       });
     }, containerRef);
 
     return () => ctx.revert();
-  }, [isLoaded]);
+  }, []);
 
   return (
     <div
       ref={containerRef}
       className='bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans'
     >
-      {/* --- FIXED NAVBAR FIX --- */}
+      {/* --- FIXED NAVBAR --- */}
       <div className='navbar-anim fixed top-0 left-0 right-0 z-[100]'>
         <Navbar />
       </div>
@@ -137,7 +107,7 @@ const Home = () => {
 
       {/* Main Content Wrap */}
       <div className='relative z-10'>
-        <header className='relative '>
+        <header className='relative'>
           <Headers />
         </header>
 
@@ -176,15 +146,9 @@ const Home = () => {
         }
 
         @keyframes gold-shimmer {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
 
         .animate-gold {
