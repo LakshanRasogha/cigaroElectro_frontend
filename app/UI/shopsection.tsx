@@ -21,7 +21,30 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-// ... interfaces remain the same ...
+// Define the Variant and Product interfaces to fix Type Errors
+interface Variant {
+  vKey: string;
+  flavor: string;
+  emoji: string;
+  stock: number;
+  variantImage: string[];
+  availability: boolean;
+  nicotine?: string;
+}
+
+interface Product {
+  _id?: string;
+  key: string;
+  name: string;
+  tagline?: string;
+  basePrice: number;
+  deliveryFee: number;
+  category: string;
+  productImage: string[];
+  variants: Variant[]; // Required by ProductCard
+  sale?: string;
+  availability?: boolean;
+}
 
 const ShopSection = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -45,6 +68,7 @@ const ShopSection = () => {
       className='pt-10 pb-20 md:pt-16 md:pb-32 bg-[#050505] overflow-hidden relative -mt-16 md:-mt-24'
       id='shop'
     >
+      {/* Background aesthetics */}
       <div className='absolute inset-0 z-0'>
         <div className='absolute inset-0 bg-[#050505]/60 md:bg-transparent md:bg-gradient-to-b md:from-[#050505] md:via-transparent md:to-[#050505]' />
       </div>
@@ -72,7 +96,7 @@ const ShopSection = () => {
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className='text-2xl md:text-3xl font-black text-white tracking-tighter leading-none'
+              className='text-2xl md:text-3xl font-black text-white tracking-tighter leading-none uppercase'
             >
               Vape and Electric{" "}
               <span
@@ -117,29 +141,26 @@ const ShopSection = () => {
         ) : (
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
-            spaceBetween={15} // Slightly tighter spacing for mobile
-            slidesPerView={2} // FIXED: Strictly 2 cards on the smallest screens
+            spaceBetween={15}
+            slidesPerView={2}
             navigation={{
               nextEl: ".swiper-next-btn",
               prevEl: ".swiper-prev-btn",
             }}
             autoplay={{ delay: 5000, disableOnInteraction: false }}
             breakpoints={{
-              // Mobile Large to Tablet
               640: {
                 slidesPerView: 2,
                 spaceBetween: 20,
               },
-              // Tablet
               768: {
                 slidesPerView: 4,
                 spaceBetween: 25,
               },
-              // Desktop - FIXED 4 ITEMS
               1024: {
                 slidesPerView: 4,
-                spaceBetween: 30, // More breathing room for the elite 4-grid
-                slidesPerGroup: 4, // Slides a full page for luxury feel
+                spaceBetween: 30,
+                slidesPerGroup: 4,
               },
             }}
             className='pb-10 custom-gold-swiper !overflow-visible'
@@ -170,6 +191,7 @@ const ShopSection = () => {
                         productKey={productKey}
                         index={i}
                         {...otherProps}
+                        tagline={otherProps.tagline || ""}
                       />
                     </div>
                   </motion.div>
