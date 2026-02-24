@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import Footer from "../componenets/footer";
 import Navbar from "../componenets/navbar";
 import Headers from "../componenets/header";
-import TrustSection from "../UI/trustsection";
 import ShopSection from "../UI/shopsection";
 import HeritageSection from "../UI/aboutsection";
 import NewsletterSection from "../UI/newsletter";
