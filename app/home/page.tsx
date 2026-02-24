@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // Standardizing component imports
-import Footer from "../componenets/footer";
-import Navbar from "../componenets/navbar";
-import Headers from "../componenets/header";
+import Footer from "../components/footer";
+import Navbar from "../components/navbar";
+import Headers from "../components/header";
+import LogoRing from "../components/logo_rings";
+
+// UI Sections
 import ShopSection from "../UI/shopsection";
 import HeritageSection from "../UI/aboutsection";
-import NewsletterSection from "../UI/newsletter";
-import LogoRing from "../componenets/logo_rings";
+import TshirtSection from "../UI/tshirtsection";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
@@ -24,7 +25,7 @@ const Home = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Nav Entrance
+      // 1. Nav Entrance
       gsap.from(".navbar-anim", {
         y: -100,
         opacity: 0,
@@ -33,7 +34,7 @@ const Home = () => {
         delay: 0.2,
       });
 
-      // Floating Gold Orbs
+      // 2. Floating Gold Orbs
       gsap.to(".gold-orb", {
         y: "random(-100, 100)",
         x: "random(-50, 50)",
@@ -44,23 +45,27 @@ const Home = () => {
         stagger: 0.8,
       });
 
-      // Section Reveal
+      // 3. Section Reveal (Updated for tighter layout)
       const sections = gsap.utils.toArray(".reveal-section");
       sections.forEach((section: any) => {
-        gsap.from(section, {
-          scrollTrigger: {
-            trigger: section,
-            start: "top 90%",
-            toggleActions: "play none none none",
+        gsap.fromTo(
+          section,
+          { y: 50, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
           },
-          y: 60,
-          opacity: 0,
-          duration: 1.2,
-          ease: "power3.out",
-        });
+        );
       });
 
-      // Parallax
+      // 4. Parallax
       gsap.to(".parallax-orb", {
         scrollTrigger: {
           trigger: "body",
@@ -68,9 +73,9 @@ const Home = () => {
           end: "bottom bottom",
           scrub: 2,
         },
-        y: (i: number, target: any) => {
-            const speed = parseFloat(target.dataset.speed) || 1;
-            return speed * 150;
+        y: (i, target) => {
+          const speed = parseFloat(target.dataset.speed || "1");
+          return speed * 150;
         },
         ease: "none",
       });
@@ -105,32 +110,33 @@ const Home = () => {
         />
       </div>
 
-      {/* Main Content Wrap */}
+      {/* --- Main Content Wrap --- */}
       <div className='relative z-10'>
         <header className='relative'>
           <Headers />
         </header>
 
         {/* Shop Section */}
+        {/* Removed padding, keeping background consistent */}
         <section className='reveal-section bg-[#050505]' id='shop'>
           <ShopSection />
         </section>
 
+        {/* T-Shirt Section */}
+        {/* Removed 'py-20', added bg color to match previous section seamlessly */}
+        <section className='reveal-section bg-[#050505]'>
+          <TshirtSection />
+        </section>
+
         {/* Heritage Section */}
-        <section
-          className='reveal-section bg-gradient-to-b from-[#050505] via-zinc-900/20 to-[#050505]'
-          id='about'
-        >
+        {/* Removed specific gradients that might cause visual breaks, ensuring seamless flow */}
+        <section className='reveal-section bg-[#050505]' id='about'>
           <HeritageSection />
         </section>
 
-        {/* Newsletter Section */}
-        <section className='reveal-section py-20'>
-          <NewsletterSection />
-        </section>
-
         {/* 3D Partner Ring */}
-        <section className='reveal-section relative py-32 overflow-visible'>
+        {/* Removed 'py-32', reduced to minimal padding just for the 3D element safety */}
+        <section className='reveal-section relative py-10 overflow-visible bg-[#050505]'>
           <LogoRing />
         </section>
 
@@ -146,9 +152,15 @@ const Home = () => {
         }
 
         @keyframes gold-shimmer {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
 
         .animate-gold {

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Navbar from "../componenets/navbar";
+import Navbar from "../components/navbar";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
