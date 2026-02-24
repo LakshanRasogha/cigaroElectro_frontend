@@ -21,32 +21,29 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-// Define the Variant and Product interfaces to fix Type Errors
+// --- TypeScript Interfaces (The Fix for the Error) ---
 interface Variant {
-  vKey: string;
   flavor: string;
   emoji: string;
   stock: number;
-  variantImage: string[];
   availability: boolean;
-  nicotine?: string;
 }
 
 interface Product {
-  _id?: string;
+  _id: string;
   key: string;
   name: string;
-  tagline?: string;
+  tagline: string;
   basePrice: number;
-  deliveryFee: number;
-  category: string;
   productImage: string[];
-  variants: Variant[]; // Required by ProductCard
+  variants: Variant[];
+  category: string;
   sale?: string;
-  availability?: boolean;
+  [key: string]: any; // Allows for additional API fields like createdAt, etc.
 }
 
 const ShopSection = () => {
+  // Use the Product interface here
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +65,7 @@ const ShopSection = () => {
       className='pt-10 pb-20 md:pt-16 md:pb-32 bg-[#050505] overflow-hidden relative -mt-16 md:-mt-24'
       id='shop'
     >
-      {/* Background aesthetics */}
+      {/* Background Overlay */}
       <div className='absolute inset-0 z-0'>
         <div className='absolute inset-0 bg-[#050505]/60 md:bg-transparent md:bg-gradient-to-b md:from-[#050505] md:via-transparent md:to-[#050505]' />
       </div>
@@ -121,10 +118,10 @@ const ShopSection = () => {
             </Link>
 
             <div className='flex gap-2'>
-              <button className='swiper-prev-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all'>
+              <button className='swiper-prev-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95'>
                 <ChevronLeft size={18} />
               </button>
-              <button className='swiper-next-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all'>
+              <button className='swiper-next-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95'>
                 <ChevronRight size={18} />
               </button>
             </div>
@@ -142,31 +139,29 @@ const ShopSection = () => {
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
             spaceBetween={15}
-            slidesPerView={2}
+            slidesPerView={2} // Strictly 2 cards on smallest mobile
             navigation={{
               nextEl: ".swiper-next-btn",
               prevEl: ".swiper-prev-btn",
             }}
             autoplay={{ delay: 5000, disableOnInteraction: false }}
             breakpoints={{
-              640: {
-                slidesPerView: 2,
-                spaceBetween: 20,
-              },
+              // Tablet
               768: {
-                slidesPerView: 4,
+                slidesPerView: 3,
                 spaceBetween: 25,
               },
+              // Desktop
               1024: {
                 slidesPerView: 4,
                 spaceBetween: 30,
-                slidesPerGroup: 4,
+                slidesPerGroup: 4, // Navigates by full pages of 4
               },
             }}
             className='pb-10 custom-gold-swiper !overflow-visible'
           >
             {products.map((prod, i) => {
-              // React 19 Key Fix: Destructure to avoid spreading reserved 'key'
+              // Destructure 'key' to avoid React 19 spread error
               const { key: productKey, ...otherProps } = prod;
 
               return (
@@ -178,10 +173,10 @@ const ShopSection = () => {
                     transition={{ delay: i * 0.05 }}
                     className='group relative h-full py-2'
                   >
-                    <div className='h-full rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.04] backdrop-blur-3xl border border-white/5 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/40 group-hover:shadow-[0_10px_30px_rgba(212,175,55,0.1)]'>
+                    <div className='h-full rounded-[2rem] md:rounded-[2.5rem] bg-white/[0.04] backdrop-blur-3xl border border-white/5 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/40'>
                       {prod.sale && (
                         <div className='absolute top-3 right-3 md:top-4 md:right-4 z-20 px-2.5 py-1 rounded-full bg-[#D4AF37] shadow-lg'>
-                          <span className='text-[7px] md:text-[8px] font-black text-black uppercase tracking-tighter'>
+                          <span className='text-[7px] md:text-[8px] font-black text-black uppercase'>
                             {prod.sale}
                           </span>
                         </div>
