@@ -7,7 +7,9 @@ import {
   Loader2, Package, LogOut,
   Clock, CheckCircle2, Truck, AlertCircle,
   Flame, Droplets, Zap,
-  ShoppingBag, ChevronRight, Cloud, Calendar
+  ShoppingBag, ChevronRight, Cloud, Calendar,
+  Star, Award, Shield, Sparkles, Crown, Gem,
+  Heart
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -36,7 +38,6 @@ const ProfilePage = () => {
 
   const coverPhoto = "https://images.unsplash.com/photo-1576426863848-c21f53c60b19?q=80&w=2070&auto=format&fit=crop";
 
-  // FIXED: Fetching orders using the Authorization Token
   const fetchOrderHistory = async () => {
     setIsLoadingOrders(true);
     const token = localStorage.getItem('token');
@@ -53,7 +54,6 @@ const ProfilePage = () => {
         }
       });
       
-      // Backend already filters by role/email, so we just set the response data
       setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -75,11 +75,10 @@ const ProfilePage = () => {
           streetAddress: parsed.address?.address || "",
           city: parsed.address?.city || "",
           postalCode: parsed.address?.postalCode || "",
-          bio: parsed.bio || "Cloud chaser and flavor enthusiast. Living that vape life! 💨",
+          bio: parsed.bio || "Cloud chaser and flavor enthusiast.",
           favoriteFlavor: parsed.favoriteFlavor || "Strawberry Ice",
           vapeStyle: parsed.vapeStyle || "DTL"
         });
-        // Trigger order fetch after user is loaded
         fetchOrderHistory();
       } catch (error) {
         router.push("/auth/login");
@@ -137,136 +136,209 @@ const ProfilePage = () => {
   };
 
   if (!user) return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-[#0a0b0e]">
-      <Loader2 className="animate-spin text-purple-500 mb-4" size={40} />
-      <p className="text-gray-400 font-medium tracking-widest uppercase text-xs">Synchronizing Profile...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#030303]">
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]" />
+      <div className="relative z-10 flex flex-col items-center">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full mb-4"
+        />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Synchronizing Profile...</p>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0b0e] text-gray-200 pb-20 selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#030303] text-white pb-12 sm:pb-16 md:pb-20 selection:bg-[#D4AF37]/30 overflow-x-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMzAgMTBhMjAgMjAgMCAwIDEgMjAgMjAgMjAgMjAgMCAwIDEtNDAgMCAyMCAyMCAwIDAgMSAyMC0yMHoiIGZpbGw9IiNENEFGMzciIGZpbGwtb3BhY2l0eT0iMC4wMyIvPjwvc3ZnPg==')] opacity-20" />
+        
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute top-20 right-20 w-96 h-96 bg-[#D4AF37] rounded-full blur-[128px] opacity-10"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.1, 0.05] }}
+          transition={{ duration: 10, repeat: Infinity, delay: 2 }}
+          className="absolute bottom-20 left-20 w-96 h-96 bg-[#D4AF37] rounded-full blur-[128px] opacity-10"
+        />
+      </div>
+
       <Navbar />
       
       {/* Cover Section */}
-      <div className="relative h-64 md:h-80 w-full overflow-hidden">
-        <img src={coverPhoto} className="w-full h-full object-cover opacity-40" alt="Cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0b0e] via-transparent to-transparent" />
+      <div className="relative h-40 sm:h-48 md:h-64 lg:h-80 w-full overflow-hidden">
+        <img src={coverPhoto} className="w-full h-full object-cover opacity-30" alt="Cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 -mt-24 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-4 -mt-16 sm:-mt-20 md:-mt-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
           
-          {/* Left Column: Essential Profile Info */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* Left Column */}
+          <div className="lg:col-span-4 space-y-4 sm:space-y-5 md:space-y-6">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-[#111216] border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
+              className="bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl"
             >
-              <div className="relative w-32 h-32 mx-auto mb-6">
-                <div className="w-full h-full rounded-2xl border-4 border-[#0a0b0e] overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-600">
-                  <img 
-                    src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=8b5cf6&color=fff&size=200&bold=true`} 
-                    alt="Avatar" className="w-full h-full object-cover" 
-                  />
+              {/* Gold border accent */}
+              <div className="absolute inset-0 border border-[#D4AF37]/10 rounded-2xl sm:rounded-3xl pointer-events-none" />
+              
+              <div className="relative">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mx-auto mb-4 sm:mb-5 md:mb-6">
+                  <div className="w-full h-full rounded-xl sm:rounded-2xl border-2 border-[#D4AF37]/30 overflow-hidden bg-gradient-to-br from-[#D4AF37] to-[#B49450]">
+                    <img 
+                      src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=D4AF37&color=000&size=200&bold=true`} 
+                      alt="Avatar" 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                  <motion.button 
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black p-1.5 sm:p-2 rounded-lg border-2 border-[#030303] hover:scale-110 transition-transform"
+                  >
+                    <Camera size={12} className="sm:hidden" />
+                    <Camera size={14} className="hidden sm:block md:hidden" />
+                    <Camera size={16} className="hidden md:block" />
+                  </motion.button>
                 </div>
-                <button className="absolute -bottom-2 -right-2 bg-purple-600 text-white p-2.5 rounded-xl border-4 border-[#0a0b0e] hover:scale-110 transition-transform">
-                  <Camera size={16} />
-                </button>
-              </div>
 
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-white">{user.firstName} {user.lastName}</h1>
-                <p className="text-purple-400 text-xs font-black uppercase tracking-widest mt-2 px-3 py-1 bg-purple-500/10 rounded-full inline-block border border-purple-500/20">
-                  {user.role} Member
-                </p>
-              </div>
+                <div className="text-center mb-4 sm:mb-5 md:mb-6">
+                  <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white">
+                    {user.firstName} {user.lastName}
+                  </h1>
+                  <div className="flex items-center justify-center gap-1 mt-1 sm:mt-2">
+                    <Crown size={10} className="text-[#D4AF37]" />
+                    <p className="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37] px-2 py-0.5 bg-[#D4AF37]/10 rounded-full border border-[#D4AF37]/20">
+                      {user.role} Member
+                    </p>
+                  </div>
+                </div>
 
-              <div className="space-y-3">
-                <button 
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="w-full py-4 bg-white text-black rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-500 hover:text-white transition-all shadow-xl"
-                >
-                  <Edit3 size={16} /> Edit Details
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  className="w-full py-4 bg-white/5 text-gray-400 border border-white/5 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-500/10 hover:text-red-400 transition-all"
-                >
-                  <LogOut size={16} /> End Session
-                </button>
+                <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
+                  <motion.button 
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="w-full py-2.5 sm:py-3 md:py-4 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-xl sm:rounded-2xl font-black text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 hover:shadow-[0_5px_20px_rgba(212,175,55,0.3)] transition-all relative overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      <Edit3 size={10} className="sm:hidden" />
+                      <Edit3 size={12} className="hidden sm:block" />
+                      Edit Details
+                    </span>
+                    <motion.div
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    />
+                  </motion.button>
+                  
+                  <motion.button 
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleLogout}
+                    className="w-full py-2.5 sm:py-3 md:py-4 bg-white/5 text-zinc-400 border border-white/5 rounded-xl sm:rounded-2xl font-black text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20 transition-all"
+                  >
+                    <LogOut size={10} className="sm:hidden" />
+                    <LogOut size={12} className="hidden sm:block" />
+                    End Session
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
 
-            {/* Quick Summary Info */}
-            <div className="bg-[#111216] border border-white/5 rounded-[2rem] p-6 space-y-4">
-              <h3 className="text-sm font-black uppercase tracking-widest text-gray-500">Contact Archive</h3>
-              <DetailRow icon={<Mail className="text-purple-400" />} label="Email" value={user.email} />
-              <DetailRow icon={<Phone className="text-blue-400" />} label="Mobile" value={user.phone || "Not Set"} />
-              <DetailRow icon={<MapPin className="text-green-400" />} label="Dispatch City" value={user.address?.city || "Not Set"} />
+            {/* Contact Info */}
+            <div className="bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 backdrop-blur-xl">
+              <h3 className="text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-1">
+                <Shield size={10} /> Contact Archive
+              </h3>
+              <DetailRow 
+                icon={<Mail size={12} className="sm:hidden" />}
+                iconSm={<Mail size={14} className="hidden sm:block" />}
+                label="Email" 
+                value={user.email} 
+              />
+              <DetailRow 
+                icon={<Phone size={12} className="sm:hidden" />}
+                iconSm={<Phone size={14} className="hidden sm:block" />}
+                label="Mobile" 
+                value={user.phone || "Not Set"} 
+              />
+              <DetailRow 
+                icon={<MapPin size={12} className="sm:hidden" />}
+                iconSm={<MapPin size={14} className="hidden sm:block" />}
+                label="City" 
+                value={user.address?.city || "Not Set"} 
+              />
             </div>
           </div>
 
-          {/* Right Column: Experience and History */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <StatCard icon={<Cloud className="text-purple-400" />} label="Preferred Flavor" value={editForm.favoriteFlavor} />
-              <StatCard icon={<Zap className="text-blue-400" />} label="Vape Style" value={editForm.vapeStyle} />
-              <StatCard icon={<Package className="text-pink-400" />} label="Total Orders" value={orders.length} />
+          {/* Right Column */}
+          <div className="lg:col-span-8 space-y-4 sm:space-y-5 md:space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+              <StatCard 
+                icon={<Cloud size={14} className="sm:hidden" />}
+                iconSm={<Cloud size={16} className="hidden sm:block" />}
+                label="Fav Flavor" 
+                value={editForm.favoriteFlavor} 
+              />
+              <StatCard 
+                icon={<Zap size={14} className="sm:hidden" />}
+                iconSm={<Zap size={16} className="hidden sm:block" />}
+                label="Style" 
+                value={editForm.vapeStyle} 
+              />
+              <StatCard 
+                icon={<Package size={14} className="sm:hidden" />}
+                iconSm={<Package size={16} className="hidden sm:block" />}
+                label="Orders" 
+                value={orders.length} 
+              />
             </div>
 
-            {/* Order Feed */}
-            <div className="bg-[#111216] border border-white/5 rounded-[2.5rem] overflow-hidden">
-              <div className="p-8 border-b border-white/5 flex justify-between items-center">
-                <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                  <ShoppingBag size={20} className="text-purple-400" />
+            {/* Orders Feed */}
+            <div className="bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl overflow-hidden backdrop-blur-xl">
+              <div className="p-4 sm:p-5 md:p-6 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-1.5 sm:gap-2">
+                  <ShoppingBag size={14} className="text-[#D4AF37]" />
                   Recent Manifests
                 </h3>
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <span className="text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600">
                   {orders.length} Deliveries Logged
                 </span>
               </div>
 
-              <div className="divide-y divide-white/5 max-h-[500px] overflow-y-auto no-scrollbar">
+              <div className="divide-y divide-white/5 max-h-[350px] sm:max-h-[400px] md:max-h-[450px] overflow-y-auto no-scrollbar">
                 {isLoadingOrders ? (
-                  <div className="p-20 text-center flex flex-col items-center">
-                    <Loader2 className="animate-spin text-purple-500 mb-4" />
-                    <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Accessing Secure Logs...</p>
+                  <div className="p-10 sm:p-12 md:p-16 text-center flex flex-col items-center">
+                    <Loader2 className="animate-spin text-[#D4AF37] mb-2 sm:mb-3" size={16} />
+                    <p className="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-600">Accessing Secure Logs...</p>
                   </div>
                 ) : orders.length > 0 ? (
                   orders.map((order, idx) => (
-                    <motion.div 
-                      key={order._id} 
-                      initial={{ opacity: 0 }} 
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="p-6 hover:bg-white/[0.02] transition-colors group cursor-pointer"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                            <Package size={20} />
-                          </div>
-                          <div>
-                            <p className="font-bold text-white uppercase tracking-tight">Order #{order._id.slice(-6).toUpperCase()}</p>
-                            <p className="text-xs text-gray-500 flex items-center gap-2 mt-1 font-mono">
-                              <Calendar size={12} /> {new Date(order.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-black text-white">Rs. {order.totalAmount?.toLocaleString()}</p>
-                          <StatusBadge status={order.status} />
-                        </div>
-                      </div>
-                    </motion.div>
+                    <OrderRow key={order._id} order={order} index={idx} />
                   ))
                 ) : (
-                  <div className="p-20 text-center">
-                    <ShoppingBag size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
-                    <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Zero Manifests Recorded</p>
+                  <div className="p-10 sm:p-12 md:p-16 text-center">
+                    <Package size={28} className="mx-auto text-zinc-700 mb-2 sm:mb-3" />
+                    <p className="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-600">Zero Manifests Recorded</p>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Bio Section */}
+            <div className="bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 backdrop-blur-xl">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Heart size={14} className="text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                <p className="text-[10px] sm:text-xs text-zinc-400 font-light italic leading-relaxed">
+                  "{editForm.bio}"
+                </p>
               </div>
             </div>
           </div>
@@ -276,36 +348,70 @@ const ProfilePage = () => {
       {/* Edit Modal */}
       <AnimatePresence>
         {isEditModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#111216] border border-white/10 rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-hidden shadow-2xl"
+              className="bg-gradient-to-br from-[#0a0a0a] to-[#030303] border border-[#D4AF37]/20 rounded-2xl sm:rounded-3xl w-full max-w-xl max-h-[90vh] overflow-hidden shadow-2xl"
             >
-              <div className="p-8 flex justify-between items-center border-b border-white/10">
-                <h2 className="text-xl font-bold text-white uppercase tracking-tighter italic">Patch Identity</h2>
-                <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"><X size={20} /></button>
+              {/* Modal Header */}
+              <div className="p-4 sm:p-5 md:p-6 flex justify-between items-center border-b border-white/10">
+                <h2 className="text-sm sm:text-base md:text-lg font-black text-white uppercase tracking-tighter flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-[#D4AF37]" />
+                  Patch Identity
+                </h2>
+                <motion.button 
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsEditModalOpen(false)} 
+                  className="p-1.5 sm:p-2 hover:bg-white/5 rounded-full text-zinc-500 hover:text-[#D4AF37] transition-colors"
+                >
+                  <X size={14} className="sm:hidden" />
+                  <X size={16} className="hidden sm:block" />
+                </motion.button>
               </div>
 
-              <div className="p-8 overflow-y-auto max-h-[calc(90vh-160px)] no-scrollbar">
-                <form onSubmit={handleUpdate} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <SimpleInput label="First Name" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
-                    <SimpleInput label="Last Name" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
+              {/* Modal Content */}
+              <div className="p-4 sm:p-5 md:p-6 overflow-y-auto max-h-[calc(90vh-120px)] no-scrollbar">
+                <form onSubmit={handleUpdate} className="space-y-3 sm:space-y-4 md:space-y-5">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                    <SimpleInput 
+                      label="First Name" 
+                      value={editForm.firstName} 
+                      onChange={(v) => setEditForm({...editForm, firstName: v})} 
+                    />
+                    <SimpleInput 
+                      label="Last Name" 
+                      value={editForm.lastName} 
+                      onChange={(v) => setEditForm({...editForm, lastName: v})} 
+                    />
                   </div>
-                  <SimpleInput label="Secure Phone" value={editForm.phone} onChange={(v) => setEditForm({...editForm, phone: v})} />
                   
-                  <div className="pt-4 border-t border-white/5 space-y-4">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-purple-400">Vape Personalization</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <SimpleInput label="Fav Flavor" value={editForm.favoriteFlavor} onChange={(v) => setEditForm({...editForm, favoriteFlavor: v})} />
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Style</label>
+                  <SimpleInput 
+                    label="Secure Phone" 
+                    value={editForm.phone} 
+                    onChange={(v) => setEditForm({...editForm, phone: v})} 
+                  />
+                  
+                  {/* Vape Preferences */}
+                  <div className="pt-2 sm:pt-3 border-t border-white/5 space-y-2 sm:space-y-3">
+                    <h4 className="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-1">
+                      <Zap size={10} /> Vape Personalization
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                      <SimpleInput 
+                        label="Fav Flavor" 
+                        value={editForm.favoriteFlavor} 
+                        onChange={(v) => setEditForm({...editForm, favoriteFlavor: v})} 
+                      />
+                      <div className="space-y-1">
+                        <label className="text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-1 sm:ml-2">
+                          Style
+                        </label>
                         <select 
                           value={editForm.vapeStyle}
                           onChange={(e) => setEditForm({...editForm, vapeStyle: e.target.value})}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none appearance-none transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:border-[#D4AF37]/50 outline-none transition-all"
                         >
                           <option value="MTL">MTL</option>
                           <option value="DTL">DTL</option>
@@ -313,24 +419,69 @@ const ProfilePage = () => {
                         </select>
                       </div>
                     </div>
+                    <SimpleInput 
+                      label="Bio" 
+                      value={editForm.bio} 
+                      onChange={(v) => setEditForm({...editForm, bio: v})} 
+                    />
                   </div>
 
-                  <div className="pt-4 border-t border-white/5 space-y-4">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-purple-400">Dispatch Location</h4>
-                    <SimpleInput label="Street" value={editForm.streetAddress} onChange={(v) => setEditForm({...editForm, streetAddress: v})} />
-                    <div className="grid grid-cols-2 gap-4">
-                      <SimpleInput label="City" value={editForm.city} onChange={(v) => setEditForm({...editForm, city: v})} />
-                      <SimpleInput label="Postal" value={editForm.postalCode} onChange={(v) => setEditForm({...editForm, postalCode: v})} />
+                  {/* Address Section */}
+                  <div className="pt-2 sm:pt-3 border-t border-white/5 space-y-2 sm:space-y-3">
+                    <h4 className="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-1">
+                      <MapPin size={10} /> Dispatch Location
+                    </h4>
+                    <SimpleInput 
+                      label="Street" 
+                      value={editForm.streetAddress} 
+                      onChange={(v) => setEditForm({...editForm, streetAddress: v})} 
+                    />
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                      <SimpleInput 
+                        label="City" 
+                        value={editForm.city} 
+                        onChange={(v) => setEditForm({...editForm, city: v})} 
+                      />
+                      <SimpleInput 
+                        label="Postal" 
+                        value={editForm.postalCode} 
+                        onChange={(v) => setEditForm({...editForm, postalCode: v})} 
+                      />
                     </div>
                   </div>
 
-                  <button 
+                  {/* Error Message */}
+                  {errorMsg && (
+                    <div className="p-2 sm:p-3 bg-rose-500/10 text-rose-500 rounded-lg text-[8px] sm:text-[9px] font-black uppercase tracking-widest border border-rose-500/20">
+                      {errorMsg}
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <motion.button 
                     type="submit" 
                     disabled={isUpdating}
-                    className="w-full py-5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 sm:py-3.5 md:py-4 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-xl sm:rounded-2xl font-black text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest hover:shadow-[0_5px_20px_rgba(212,175,55,0.3)] transition-all disabled:opacity-50 relative overflow-hidden"
                   >
-                    {isUpdating ? <Loader2 size={16} className="animate-spin" /> : "Authorize Sync"}
-                  </button>
+                    <span className="relative z-10 flex items-center justify-center gap-1.5">
+                      {isUpdating ? (
+                        <>
+                          <Loader2 size={10} className="animate-spin" />
+                          Syncing...
+                        </>
+                      ) : (
+                        "Authorize Sync"
+                      )}
+                    </span>
+                    {!isUpdating && (
+                      <motion.div
+                        animate={{ x: ['-100%', '100%'] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      />
+                    )}
+                  </motion.button>
                 </form>
               </div>
             </motion.div>
@@ -341,40 +492,81 @@ const ProfilePage = () => {
   );
 };
 
-const DetailRow = ({ icon, label, value }: any) => (
-  <div className="flex items-center gap-4 group">
-    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-      {icon}
+// Mobile-Optimized Detail Row
+const DetailRow = ({ icon, iconSm, label, value }: any) => (
+  <div className="flex items-center gap-2 sm:gap-3 group">
+    <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#D4AF37]/10 transition-all">
+      <span className="sm:hidden text-[#D4AF37]">{icon}</span>
+      <span className="hidden sm:block text-[#D4AF37]">{iconSm || icon}</span>
     </div>
     <div className="flex-1 overflow-hidden">
-      <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{label}</p>
-      <p className="text-sm font-bold text-white truncate">{value}</p>
+      <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+      <p className="text-[9px] sm:text-[10px] md:text-xs font-bold text-white truncate">{value}</p>
     </div>
   </div>
 );
 
-const StatCard = ({ icon, label, value }: any) => (
-  <div className="bg-[#111216] border border-white/5 rounded-2xl p-6 flex flex-col items-center text-center group hover:border-purple-500/30 transition-all">
-    <div className="mb-3 p-3 rounded-xl bg-white/5 group-hover:bg-purple-500 group-hover:text-white transition-all">
-      {icon}
+// Mobile-Optimized Stat Card
+const StatCard = ({ icon, iconSm, label, value }: any) => (
+  <div className="bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center text-center group hover:border-[#D4AF37]/30 transition-all">
+    <div className="mb-1.5 sm:mb-2 p-1.5 sm:p-2 rounded-lg bg-white/5 group-hover:bg-[#D4AF37] group-hover:text-black transition-all">
+      <span className="sm:hidden">{icon}</span>
+      <span className="hidden sm:block">{iconSm || icon}</span>
     </div>
-    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">{label}</p>
-    <p className="text-sm font-bold text-white">{value || "None"}</p>
+    <p className="text-[6px] sm:text-[7px] md:text-[8px] font-black uppercase tracking-widest text-zinc-600 mb-0.5">{label}</p>
+    <p className="text-[8px] sm:text-[9px] md:text-[10px] font-bold text-white truncate max-w-full px-1">{value || "None"}</p>
   </div>
 );
 
+// Mobile-Optimized Input
 const SimpleInput = ({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) => (
-  <div className="space-y-1.5 flex-1">
-    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">{label}</label>
+  <div className="space-y-1 flex-1">
+    <label className="text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-1 sm:ml-2">
+      {label}
+    </label>
     <input 
       type="text" 
       value={value} 
       onChange={(e) => onChange(e.target.value)}
-      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition-all placeholder-gray-700" 
+      className="w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-xs text-white focus:border-[#D4AF37]/50 outline-none transition-all placeholder:text-zinc-700" 
     />
   </div>
 );
 
+// Mobile-Optimized Order Row
+const OrderRow = ({ order, index }: { order: any; index: number }) => (
+  <motion.div 
+    initial={{ opacity: 0 }} 
+    animate={{ opacity: 1 }}
+    transition={{ delay: index * 0.05 }}
+    className="p-3 sm:p-4 hover:bg-white/[0.02] transition-colors group cursor-pointer border-b border-white/5 last:border-0"
+  >
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] group-hover:bg-[#D4AF37] group-hover:text-black transition-all">
+          <Package size={14} className="sm:hidden" />
+          <Package size={16} className="hidden sm:block" />
+        </div>
+        <div>
+          <p className="text-[9px] sm:text-[10px] md:text-xs font-black text-white uppercase tracking-tight">
+            Order #{order._id.slice(-6).toUpperCase()}
+          </p>
+          <p className="text-[6px] sm:text-[7px] md:text-[8px] text-zinc-600 flex items-center gap-1 mt-0.5">
+            <Calendar size={8} className="sm:hidden" />
+            <Calendar size={9} className="hidden sm:block" />
+            {new Date(order.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-[9px] sm:text-[10px] md:text-xs font-black text-white">Rs. {order.totalAmount?.toLocaleString()}</p>
+        <StatusBadge status={order.status} />
+      </div>
+    </div>
+  </motion.div>
+);
+
+// Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
   const s = status?.toLowerCase() || 'pending';
   const config = {
@@ -385,7 +577,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   }[s as 'pending' | 'shipped' | 'delivered' | 'cancelled'] || 'text-gray-500 bg-gray-500/10 border-gray-500/20';
 
   return (
-    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${config} backdrop-blur-md`}>
+    <span className={`inline-block text-[6px] sm:text-[7px] md:text-[8px] font-black uppercase tracking-widest px-1.5 sm:px-2 py-0.5 rounded-full border ${config} backdrop-blur-md`}>
       {s}
     </span>
   );

@@ -93,7 +93,7 @@ const ShopSection = () => {
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className='text-2xl md:text-3xl font-black text-white tracking-tighter leading-none'
+              className='text-2xl md:text-3xl font-black text-white tracking-tighter leading-none uppercase'
             >
               Vape and Electric{" "}
               <span
@@ -186,6 +186,7 @@ const ShopSection = () => {
                         productKey={productKey}
                         index={i}
                         {...otherProps}
+                        tagline={otherProps.tagline || ""}
                       />
                     </div>
                   </motion.div>
