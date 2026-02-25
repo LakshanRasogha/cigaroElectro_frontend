@@ -1,39 +1,5 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Edit3,
-  Mail,
-  Phone,
-  MapPin,
-  Camera,
-  X,
-  Loader2,
-  Package,
-  LogOut,
-  Clock,
-  CheckCircle2,
-  Truck,
-  AlertCircle,
-  Flame,
-  Droplets,
-  Zap,
-  ShoppingBag,
-  ChevronRight,
-  Cloud,
-  Calendar,
-  Star,
-  Award,
-  Shield,
-  Sparkles,
-  Crown,
-  Gem,
-  Heart,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import Navbar from "../components/navbar";
 import React, { useEffect, useState, useRef, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -45,7 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
-import Navbar from '../componenets/navbar';
+import Navbar from '../components/navbar';
 
 // Initialize Supabase Client
 const supabase = createClient(
@@ -53,7 +19,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Interfaces
+// --- Interfaces ---
 interface Address {
   address: string;
   city: string;
@@ -108,18 +74,6 @@ interface SimpleInputProps {
   onChange: (value: string) => void;
 }
 
-interface DetailRowProps {
-  icon: ReactNode;
-  label: string;
-  value?: string;
-}
-
-interface StatCardProps {
-  icon: ReactNode;
-  label: string;
-  value: string | number;
-}
-
 const ProfilePage = () => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -132,7 +86,7 @@ const ProfilePage = () => {
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Form state aligned with your Mongoose Schema
+  // Form state aligned with Mongoose Schema
   const [editForm, setEditForm] = useState<EditForm>({
     firstName: '',
     lastName: '',
@@ -148,18 +102,12 @@ const ProfilePage = () => {
   const fetchOrderHistory = async () => {
     setIsLoadingOrders(true);
     const token = localStorage.getItem('token');
-    if (!token) return setIsLoadingOrders(false);
+    if (!token) {
+      setIsLoadingOrders(false);
+      return;
+    }
 
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -175,9 +123,8 @@ const ProfilePage = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        const parsed = JSON.parse(storedUser);
+        const parsed: User = JSON.parse(storedUser);
         setUser(parsed);
-        // Map nested address from schema to flat form state
         setEditForm({
           firstName: parsed.firstName || "",
           lastName: parsed.lastName || "",
@@ -220,7 +167,6 @@ const ProfilePage = () => {
         .from('profile')
         .getPublicUrl(filePath);
 
-      // Update backend with new URL
       const response = await axios.put(`${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`, {
         profilePicture: publicUrl
       }, {
@@ -232,6 +178,7 @@ const ProfilePage = () => {
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setUser(updatedUser);
         setEditForm(prev => ({ ...prev, profilePicture: publicUrl }));
+        window.dispatchEvent(new Event('storage'));
       }
     } catch (err: any) {
       alert("Upload failed: " + err.message);
@@ -246,7 +193,6 @@ const ProfilePage = () => {
     setIsUpdating(true);
     setErrorMsg(null);
 
-    // Construct payload according to your User Schema
     const payload = {
       firstName: editForm.firstName,
       lastName: editForm.lastName,
@@ -283,11 +229,16 @@ const ProfilePage = () => {
     router.push('/');
   };
 
-  if (!user) return <div className="min-h-screen bg-black" />;
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Loader2 className="animate-spin text-[#D4AF37]" size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#030303] text-white pb-20 selection:bg-[#D4AF37]/30 overflow-x-hidden">
-      {/* Background FX */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]" />
         <div className="absolute top-20 right-20 w-96 h-96 bg-[#D4AF37] rounded-full blur-[128px] opacity-5" />
@@ -303,7 +254,6 @@ const ProfilePage = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 -mt-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Sidebar */}
           <div className="lg:col-span-4 space-y-6">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -313,7 +263,9 @@ const ProfilePage = () => {
               <div className="relative w-32 h-32 mx-auto mb-6">
                 <div className="w-full h-full rounded-2xl border-2 border-[#D4AF37]/30 overflow-hidden bg-zinc-800">
                   {isUploading ? (
-                    <div className="w-full h-full flex items-center justify-center"><Loader2 className="animate-spin text-[#D4AF37]" /></div>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Loader2 className="animate-spin text-[#D4AF37]" />
+                    </div>
                   ) : (
                     <img 
                       src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=D4AF37&color=000&bold=true`} 
@@ -367,7 +319,6 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-8 space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <StatCard icon={<ShoppingBag size={20} />} label="Total Orders" value={orders.length} />
@@ -386,12 +337,12 @@ const ProfilePage = () => {
                 {isLoadingOrders ? (
                   <div className="p-20 text-center"><Loader2 className="animate-spin text-[#D4AF37] mx-auto" /></div>
                 ) : orders.length > 0 ? (
-                  orders.map((order, idx) => (
+                  orders.map((order) => (
                     <div key={order._id} className="p-5 flex items-center justify-between hover:bg-white/[0.02]">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]"><Package size={20} /></div>
                         <div>
-                          <p className="text-sm font-black uppercase">Order #{order._id.slice(-6)}</p>
+                          <p className="text-sm font-black uppercase">Order #{order._id.slice(-6).toUpperCase()}</p>
                           <p className="text-[10px] text-zinc-500">{new Date(order.createdAt).toDateString()}</p>
                         </div>
                       </div>
@@ -410,7 +361,6 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
       <AnimatePresence>
         {isEditModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
@@ -424,24 +374,26 @@ const ProfilePage = () => {
                 <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
                   <Sparkles size={18} className="text-[#D4AF37]" /> Update Profile
                 </h2>
-                <button onClick={() => setIsEditModalOpen(false)} className="text-zinc-500 hover:text-white"><X size={24} /></button>
+                <button onClick={() => setIsEditModalOpen(false)} className="text-zinc-500 hover:text-white">
+                  <X size={24} />
+                </button>
               </div>
 
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
                 <form onSubmit={handleUpdate} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
-                    <SimpleInput label="First Name" value={editForm.firstName} onChange={(v: string) => setEditForm({...editForm, firstName: v})} />
-                    <SimpleInput label="Last Name" value={editForm.lastName} onChange={(v: string) => setEditForm({...editForm, lastName: v})} />
+                    <SimpleInput label="First Name" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
+                    <SimpleInput label="Last Name" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
                   </div>
                   
-                  <SimpleInput label="Phone Number" value={editForm.phone} onChange={(v: string) => setEditForm({...editForm, phone: v})} />
+                  <SimpleInput label="Phone Number" value={editForm.phone} onChange={(v) => setEditForm({...editForm, phone: v})} />
                   
                   <div className="space-y-4 pt-4 border-t border-white/5">
                     <h4 className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">Shipping Address</h4>
-                    <SimpleInput label="Street Address" value={editForm.address} onChange={(v: string) => setEditForm({...editForm, address: v})} />
+                    <SimpleInput label="Street Address" value={editForm.address} onChange={(v) => setEditForm({...editForm, address: v})} />
                     <div className="grid grid-cols-2 gap-4">
-                      <SimpleInput label="City" value={editForm.city} onChange={(v: string) => setEditForm({...editForm, city: v})} />
-                      <SimpleInput label="Postal Code" value={editForm.postalCode} onChange={(v: string) => setEditForm({...editForm, postalCode: v})} />
+                      <SimpleInput label="City" value={editForm.city} onChange={(v) => setEditForm({...editForm, city: v})} />
+                      <SimpleInput label="Postal Code" value={editForm.postalCode} onChange={(v) => setEditForm({...editForm, postalCode: v})} />
                     </div>
                   </div>
 
@@ -464,8 +416,8 @@ const ProfilePage = () => {
   );
 };
 
-// Helpers
-const DetailRow = ({ icon, label, value }: any) => (
+// --- Helper Components ---
+const DetailRow = ({ icon, label, value }: DetailRowProps) => (
   <div className="flex items-center gap-4">
     <div className="text-[#D4AF37]">{icon}</div>
     <div>
@@ -475,7 +427,7 @@ const DetailRow = ({ icon, label, value }: any) => (
   </div>
 );
 
-const StatCard = ({ icon, label, value }: any) => (
+const StatCard = ({ icon, label, value }: StatCardProps) => (
   <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 text-center">
     <div className="text-[#D4AF37] mb-2 flex justify-center">{icon}</div>
     <p className="text-[8px] font-black uppercase text-zinc-500">{label}</p>
@@ -483,7 +435,7 @@ const StatCard = ({ icon, label, value }: any) => (
   </div>
 );
 
-const SimpleInput = ({ label, value, onChange }: any) => (
+const SimpleInput = ({ label, value, onChange }: SimpleInputProps) => (
   <div className="space-y-1">
     <label className="text-[9px] font-black uppercase text-zinc-500 ml-2">{label}</label>
     <input 
