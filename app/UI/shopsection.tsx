@@ -53,7 +53,7 @@ const TshirtSection = () => {
         const data = Array.isArray(response.data)
           ? response.data
           : response.data.products || [];
-
+        console.log(data);
         // --- FILTERING LOGIC ---
         // Filters out any product where the name or category contains "t-shirt" (case-insensitive)
         const filteredProducts = data.filter((product: Product) => {

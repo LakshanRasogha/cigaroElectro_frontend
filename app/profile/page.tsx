@@ -1,83 +1,118 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Edit3,
-  Mail,
-  Phone,
-  MapPin,
-  Camera,
-  X,
-  Loader2,
-  Package,
-  LogOut,
-  Clock,
-  CheckCircle2,
-  Truck,
-  AlertCircle,
-  Flame,
-  Droplets,
-  Zap,
-  ShoppingBag,
-  ChevronRight,
-  Cloud,
-  Calendar,
-  Star,
-  Award,
-  Shield,
-  Sparkles,
-  Crown,
-  Gem,
-  Heart,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import Navbar from "../components/navbar";
+import React, { useEffect, useState, useRef, ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Edit3, Mail, Phone, MapPin, Camera, X, 
+  Loader2, Package, LogOut,
+  ShoppingBag, Cloud, Calendar,
+  Shield, Sparkles, Crown, Heart, Zap,
+  ChevronRight
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { createClient } from '@supabase/supabase-js';
+import Navbar from '../components/navbar';
+
+// Initialize Supabase Client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// --- Interfaces ---
+interface OrderedItem {
+  _id: string;
+  name: string;
+  basePrice: number;
+  variant: {
+    vKey: string;
+    flavor: string;
+    variantImage: string[];
+    qty: number;
+  };
+}
+
+interface ShippingAddress {
+  address: string;
+  city: string;
+  postalCode: string;
+  phone: string;
+}
+
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: {
+    address: string;
+    city: string;
+    postalCode: string;
+  };
+  profilePicture: string;
+  role: string;
+  createdAt: string;
+  isBlocked: boolean;
+}
+
+interface Order {
+  _id: string;
+  orderId: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  orderedItems: OrderedItem[];
+  shippingAddress: ShippingAddress;
+}
+
+interface EditForm {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  profilePicture: string;
+}
 
 const ProfilePage = () => {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [editForm, setEditForm] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    streetAddress: "",
-    city: "",
-    postalCode: "",
-    bio: "",
-    favoriteFlavor: "",
-    vapeStyle: "",
+  const [editForm, setEditForm] = useState<EditForm>({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    profilePicture: ''
   });
 
-  const coverPhoto =
-    "https://images.unsplash.com/photo-1576426863848-c21f53c60b19?q=80&w=2070&auto=format&fit=crop";
+  const coverPhoto = "https://images.unsplash.com/photo-1479669732031-affb2ce2d265?q=80&w=1332&auto=format&fit=crop";
 
   const fetchOrderHistory = async () => {
     setIsLoadingOrders(true);
-    const token = localStorage.getItem("token");
-
+    const token = localStorage.getItem('token');
     if (!token) {
       setIsLoadingOrders(false);
       return;
     }
 
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -90,18 +125,16 @@ const ProfilePage = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        const parsed = JSON.parse(storedUser);
+        const parsed: User = JSON.parse(storedUser);
         setUser(parsed);
         setEditForm({
           firstName: parsed.firstName || "",
           lastName: parsed.lastName || "",
           phone: parsed.phone || "",
-          streetAddress: parsed.address?.address || "",
+          address: parsed.address?.address || "",
           city: parsed.address?.city || "",
           postalCode: parsed.address?.postalCode || "",
-          bio: parsed.bio || "Cloud chaser and flavor enthusiast.",
-          favoriteFlavor: parsed.favoriteFlavor || "Strawberry Ice",
-          vapeStyle: parsed.vapeStyle || "DTL",
+          profilePicture: parsed.profilePicture || ""
         });
         fetchOrderHistory();
       } catch (error) {
@@ -116,17 +149,49 @@ const ProfilePage = () => {
     loadUserData();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    document.cookie =
-      "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    router.push("/");
-    router.refresh();
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user._id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile')
+        .getPublicUrl(filePath);
+
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`, {
+        profilePicture: publicUrl
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      if (response.status === 200) {
+        const updatedUser = { ...user, profilePicture: publicUrl };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setEditForm(prev => ({ ...prev, profilePicture: publicUrl }));
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch (err: any) {
+      alert("Upload failed: " + err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setIsUpdating(true);
     setErrorMsg(null);
 
@@ -134,430 +199,203 @@ const ProfilePage = () => {
       firstName: editForm.firstName,
       lastName: editForm.lastName,
       phone: editForm.phone,
-      bio: editForm.bio,
-      favoriteFlavor: editForm.favoriteFlavor,
-      vapeStyle: editForm.vapeStyle,
       address: {
-        address: editForm.streetAddress,
+        address: editForm.address,
         city: editForm.city,
         postalCode: editForm.postalCode,
       },
     };
 
     try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/update/${user._id}`,
-        payload,
-      );
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`, payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
       if (response.status === 200) {
         const updatedUser = { ...user, ...payload };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        window.dispatchEvent(new Event("storage"));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         setUser(updatedUser);
         setIsEditModalOpen(false);
+        window.dispatchEvent(new Event('storage'));
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.message || "Failed to update profile.");
+      setErrorMsg(err.response?.data?.error || "Update failed.");
     } finally {
       setIsUpdating(false);
     }
   };
 
-  if (!user)
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    router.push('/');
+  };
+
+  if (!user) {
     return (
-      <div className='min-h-screen flex flex-col items-center justify-center bg-[#030303]'>
-        <div className='fixed inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]' />
-        <div className='relative z-10 flex flex-col items-center'>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className='w-12 h-12 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full mb-4'
-          />
-          <p className='text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600'>
-            Synchronizing Profile...
-          </p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <Loader2 className="animate-spin text-[#D4AF37]" size={40} />
       </div>
     );
+  }
 
   return (
-    <div className='min-h-screen bg-[#030303] text-white pb-12 sm:pb-16 md:pb-20 selection:bg-[#D4AF37]/30 overflow-x-hidden'>
-      {/* Animated Background */}
-      <div className='fixed inset-0 z-0'>
-        <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]' />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMzAgMTBhMjAgMjAgMCAwIDEgMjAgMjAgMjAgMjAgMCAwIDEtNDAgMCAyMCAyMCAwIDAgMSAyMC0yMHoiIGZpbGw9IiNENEFGMzciIGZpbGwtb3BhY2l0eT0iMC4wMyIvPjwvc3ZnPg==')] opacity-20" />
-
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className='absolute top-20 right-20 w-96 h-96 bg-[#D4AF37] rounded-full blur-[128px] opacity-10'
-        />
-        <motion.div
-          animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.1, 0.05] }}
-          transition={{ duration: 10, repeat: Infinity, delay: 2 }}
-          className='absolute bottom-20 left-20 w-96 h-96 bg-[#D4AF37] rounded-full blur-[128px] opacity-10'
-        />
+    <div className="min-h-screen bg-[#030303] text-white pb-20 selection:bg-[#D4AF37]/30 overflow-x-hidden">
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]" />
+        <div className="absolute top-20 right-20 w-96 h-96 bg-[#D4AF37] rounded-full blur-[128px] opacity-5" />
       </div>
 
       <Navbar />
-
-      {/* Cover Section */}
-      <div className='relative h-40 sm:h-48 md:h-64 lg:h-80 w-full overflow-hidden'>
-        <img
-          src={coverPhoto}
-          className='w-full h-full object-cover opacity-30'
-          alt='Cover'
-        />
-        <div className='absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-transparent' />
+      
+      <div className="relative h-48 md:h-64 w-full overflow-hidden">
+        <img src={coverPhoto} className="w-full h-full object-cover opacity-20" alt="Cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030303] to-transparent" />
       </div>
 
-      <div className='relative z-10 max-w-7xl mx-auto px-3 sm:px-4 -mt-16 sm:-mt-20 md:-mt-24'>
-        <div className='grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-8'>
-          {/* Left Column */}
-          <div className='lg:col-span-4 space-y-4 sm:space-y-5 md:space-y-6'>
-            <motion.div
+      <div className="relative z-10 max-w-7xl mx-auto px-4 -mt-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <div className="lg:col-span-4 space-y-6">
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className='bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl'
+              className="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 backdrop-blur-xl shadow-2xl"
             >
-              {/* Gold border accent */}
-              <div className='absolute inset-0 border border-[#D4AF37]/10 rounded-2xl sm:rounded-3xl pointer-events-none' />
-
-              <div className='relative'>
-                <div className='relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mx-auto mb-4 sm:mb-5 md:mb-6'>
-                  <div className='w-full h-full rounded-xl sm:rounded-2xl border-2 border-[#D4AF37]/30 overflow-hidden bg-gradient-to-br from-[#D4AF37] to-[#B49450]'>
-                    <img
-                      src={
-                        user.profilePicture ||
-                        `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=D4AF37&color=000&size=200&bold=true`
-                      }
-                      alt='Avatar'
-                      className='w-full h-full object-cover'
+              <div className="relative w-32 h-32 mx-auto mb-6">
+                <div className="w-full h-full rounded-2xl border-2 border-[#D4AF37]/30 overflow-hidden bg-zinc-800">
+                  {isUploading ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Loader2 className="animate-spin text-[#D4AF37]" />
+                    </div>
+                  ) : (
+                    <img 
+                      src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=D4AF37&color=000&bold=true`} 
+                      className="w-full h-full object-cover" 
+                      alt="Profile"
                     />
-                  </div>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    className='absolute -bottom-1 -right-1 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black p-1.5 sm:p-2 rounded-lg border-2 border-[#030303] hover:scale-110 transition-transform'
-                  >
-                    <Camera size={12} className='sm:hidden' />
-                    <Camera size={14} className='hidden sm:block md:hidden' />
-                    <Camera size={16} className='hidden md:block' />
-                  </motion.button>
+                  )}
                 </div>
+                <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute -bottom-2 -right-2 bg-[#D4AF37] text-black p-2 rounded-lg hover:scale-110 transition-transform"
+                >
+                  <Camera size={18} />
+                </button>
+              </div>
 
-                <div className='text-center mb-4 sm:mb-5 md:mb-6'>
-                  <h1 className='text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white'>
-                    {user.firstName} {user.lastName}
-                  </h1>
-                  <div className='flex items-center justify-center gap-1 mt-1 sm:mt-2'>
-                    <Crown size={10} className='text-[#D4AF37]' />
-                    <p className='text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37] px-2 py-0.5 bg-[#D4AF37]/10 rounded-full border border-[#D4AF37]/20'>
-                      {user.role} Member
-                    </p>
-                  </div>
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-black">{user.firstName} {user.lastName}</h1>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <Crown size={14} className="text-[#D4AF37]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] px-3 py-1 bg-[#D4AF37]/10 rounded-full border border-[#D4AF37]/20">
+                    {user.role}
+                  </span>
                 </div>
+              </div>
 
-                <div className='space-y-2 sm:space-y-2.5 md:space-y-3'>
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setIsEditModalOpen(true)}
-                    className='w-full py-2.5 sm:py-3 md:py-4 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-xl sm:rounded-2xl font-black text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 hover:shadow-[0_5px_20px_rgba(212,175,55,0.3)] transition-all relative overflow-hidden'
-                  >
-                    <span className='relative z-10 flex items-center gap-1.5'>
-                      <Edit3 size={10} className='sm:hidden' />
-                      <Edit3 size={12} className='hidden sm:block' />
-                      Edit Details
-                    </span>
-                    <motion.div
-                      animate={{ x: ["-100%", "100%"] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent'
-                    />
-                  </motion.button>
-
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleLogout}
-                    className='w-full py-2.5 sm:py-3 md:py-4 bg-white/5 text-zinc-400 border border-white/5 rounded-xl sm:rounded-2xl font-black text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20 transition-all'
-                  >
-                    <LogOut size={10} className='sm:hidden' />
-                    <LogOut size={12} className='hidden sm:block' />
-                    End Session
-                  </motion.button>
-                </div>
+              <div className="space-y-3">
+                <button 
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="w-full py-4 bg-[#D4AF37] text-black rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <Edit3 size={16} /> Edit Profile
+                </button>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full py-4 bg-white/5 text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/10 transition-colors"
+                >
+                  Logout
+                </button>
               </div>
             </motion.div>
 
-            {/* Contact Info */}
-            <div className='bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 backdrop-blur-xl'>
-              <h3 className='text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-1'>
-                <Shield size={10} /> Contact Archive
+            <div className="bg-zinc-900/50 border border-white/5 rounded-3xl p-6 space-y-4">
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-2">
+                <Shield size={14} /> Account Details
               </h3>
-              <DetailRow
-                icon={<Mail size={12} className='sm:hidden' />}
-                iconSm={<Mail size={14} className='hidden sm:block' />}
-                label='Email'
-                value={user.email}
-              />
-              <DetailRow
-                icon={<Phone size={12} className='sm:hidden' />}
-                iconSm={<Phone size={14} className='hidden sm:block' />}
-                label='Mobile'
-                value={user.phone || "Not Set"}
-              />
-              <DetailRow
-                icon={<MapPin size={12} className='sm:hidden' />}
-                iconSm={<MapPin size={14} className='hidden sm:block' />}
-                label='City'
-                value={user.address?.city || "Not Set"}
-              />
+              <DetailRow icon={<Mail size={16} />} label="Email" value={user.email} />
+              <DetailRow icon={<Phone size={16} />} label="Contact" value={user.phone} />
+              <DetailRow icon={<MapPin size={16} />} label="City" value={user.address?.city} />
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className='lg:col-span-8 space-y-4 sm:space-y-5 md:space-y-6'>
-            {/* Stats Cards */}
-            <div className='grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 md:gap-4'>
-              <StatCard
-                icon={<Cloud size={14} className='sm:hidden' />}
-                iconSm={<Cloud size={16} className='hidden sm:block' />}
-                label='Fav Flavor'
-                value={editForm.favoriteFlavor}
-              />
-              <StatCard
-                icon={<Zap size={14} className='sm:hidden' />}
-                iconSm={<Zap size={16} className='hidden sm:block' />}
-                label='Style'
-                value={editForm.vapeStyle}
-              />
-              <StatCard
-                icon={<Package size={14} className='sm:hidden' />}
-                iconSm={<Package size={16} className='hidden sm:block' />}
-                label='Orders'
-                value={orders.length}
-              />
+          <div className="lg:col-span-8 space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <StatCard icon={<ShoppingBag size={20} />} label="Total Orders" value={orders.length} />
+              <StatCard icon={<Calendar size={20} />} label="Joined" value={new Date(user.createdAt).toLocaleDateString()} />
+              <StatCard icon={<Zap size={20} />} label="Status" value={user.isBlocked ? "Suspended" : "Active"} />
             </div>
 
-            {/* Orders Feed */}
-            <div className='bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl overflow-hidden backdrop-blur-xl'>
-              <div className='p-4 sm:p-5 md:p-6 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2'>
-                <h3 className='text-sm sm:text-base font-black text-white flex items-center gap-1.5 sm:gap-2'>
-                  <ShoppingBag size={14} className='text-[#D4AF37]' />
-                  Recent Manifests
+            <div className="bg-zinc-900/50 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-xl">
+              <div className="p-6 border-b border-white/5">
+                <h3 className="text-lg font-black flex items-center gap-2">
+                  <ShoppingBag size={20} className="text-[#D4AF37]" /> Order History
                 </h3>
-                <span className='text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600'>
-                  {orders.length} Deliveries Logged
-                </span>
               </div>
 
-              <div className='divide-y divide-white/5 max-h-[350px] sm:max-h-[400px] md:max-h-[450px] overflow-y-auto no-scrollbar'>
+              <div className="divide-y divide-white/5 min-h-[300px]">
                 {isLoadingOrders ? (
-                  <div className='p-10 sm:p-12 md:p-16 text-center flex flex-col items-center'>
-                    <Loader2
-                      className='animate-spin text-[#D4AF37] mb-2 sm:mb-3'
-                      size={16}
-                    />
-                    <p className='text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-600'>
-                      Accessing Secure Logs...
-                    </p>
-                  </div>
+                  <div className="p-20 text-center"><Loader2 className="animate-spin text-[#D4AF37] mx-auto" /></div>
                 ) : orders.length > 0 ? (
-                  orders.map((order, idx) => (
-                    <OrderRow key={order._id} order={order} index={idx} />
+                  orders.map((order) => (
+                    <OrderRow key={order._id} order={order} />
                   ))
                 ) : (
-                  <div className='p-10 sm:p-12 md:p-16 text-center'>
-                    <Package
-                      size={28}
-                      className='mx-auto text-zinc-700 mb-2 sm:mb-3'
-                    />
-                    <p className='text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-zinc-600'>
-                      Zero Manifests Recorded
-                    </p>
-                  </div>
+                  <div className="p-20 text-center text-zinc-600 font-black uppercase text-xs tracking-widest">No orders found</div>
                 )}
-              </div>
-            </div>
-
-            {/* Bio Section */}
-            <div className='bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 backdrop-blur-xl'>
-              <div className='flex items-start gap-2 sm:gap-3'>
-                <Heart
-                  size={14}
-                  className='text-[#D4AF37] flex-shrink-0 mt-0.5'
-                />
-                <p className='text-[10px] sm:text-xs text-zinc-400 font-light italic leading-relaxed'>
-                  "{editForm.bio}"
-                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Edit Modal */}
       <AnimatePresence>
         {isEditModalOpen && (
-          <div className='fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md'>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className='bg-gradient-to-br from-[#0a0a0a] to-[#030303] border border-[#D4AF37]/20 rounded-2xl sm:rounded-3xl w-full max-w-xl max-h-[90vh] overflow-hidden shadow-2xl'
+              className="bg-zinc-900 border border-[#D4AF37]/20 rounded-3xl w-full max-w-xl max-h-[90vh] overflow-hidden"
             >
-              {/* Modal Header */}
-              <div className='p-4 sm:p-5 md:p-6 flex justify-between items-center border-b border-white/10'>
-                <h2 className='text-sm sm:text-base md:text-lg font-black text-white uppercase tracking-tighter flex items-center gap-1.5'>
-                  <Sparkles size={14} className='text-[#D4AF37]' />
-                  Patch Identity
+              <div className="p-6 flex justify-between items-center border-b border-white/10">
+                <h2 className="text-lg font-black uppercase tracking-tighter flex items-center gap-2">
+                  <Sparkles size={18} className="text-[#D4AF37]" /> Update Profile
                 </h2>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsEditModalOpen(false)}
-                  className='p-1.5 sm:p-2 hover:bg-white/5 rounded-full text-zinc-500 hover:text-[#D4AF37] transition-colors'
-                >
-                  <X size={14} className='sm:hidden' />
-                  <X size={16} className='hidden sm:block' />
-                </motion.button>
+                <button onClick={() => setIsEditModalOpen(false)} className="text-zinc-500 hover:text-white">
+                  <X size={24} />
+                </button>
               </div>
 
-              {/* Modal Content */}
-              <div className='p-4 sm:p-5 md:p-6 overflow-y-auto max-h-[calc(90vh-120px)] no-scrollbar'>
-                <form
-                  onSubmit={handleUpdate}
-                  className='space-y-3 sm:space-y-4 md:space-y-5'
-                >
-                  <div className='grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
-                    <SimpleInput
-                      label='First Name'
-                      value={editForm.firstName}
-                      onChange={(v) =>
-                        setEditForm({ ...editForm, firstName: v })
-                      }
-                    />
-                    <SimpleInput
-                      label='Last Name'
-                      value={editForm.lastName}
-                      onChange={(v) =>
-                        setEditForm({ ...editForm, lastName: v })
-                      }
-                    />
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
+                <form onSubmit={handleUpdate} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <SimpleInput label="First Name" value={editForm.firstName} onChange={(v) => setEditForm({...editForm, firstName: v})} />
+                    <SimpleInput label="Last Name" value={editForm.lastName} onChange={(v) => setEditForm({...editForm, lastName: v})} />
                   </div>
-
-                  <SimpleInput
-                    label='Secure Phone'
-                    value={editForm.phone}
-                    onChange={(v) => setEditForm({ ...editForm, phone: v })}
-                  />
-
-                  {/* Vape Preferences */}
-                  <div className='pt-2 sm:pt-3 border-t border-white/5 space-y-2 sm:space-y-3'>
-                    <h4 className='text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-1'>
-                      <Zap size={10} /> Vape Personalization
-                    </h4>
-                    <div className='grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
-                      <SimpleInput
-                        label='Fav Flavor'
-                        value={editForm.favoriteFlavor}
-                        onChange={(v) =>
-                          setEditForm({ ...editForm, favoriteFlavor: v })
-                        }
-                      />
-                      <div className='space-y-1'>
-                        <label className='text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-1 sm:ml-2'>
-                          Style
-                        </label>
-                        <select
-                          value={editForm.vapeStyle}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              vapeStyle: e.target.value,
-                            })
-                          }
-                          className='w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl px-2 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs text-white focus:border-[#D4AF37]/50 outline-none transition-all'
-                        >
-                          <option value='MTL'>MTL</option>
-                          <option value='DTL'>DTL</option>
-                          <option value='RDL'>RDL</option>
-                        </select>
-                      </div>
-                    </div>
-                    <SimpleInput
-                      label='Bio'
-                      value={editForm.bio}
-                      onChange={(v) => setEditForm({ ...editForm, bio: v })}
-                    />
-                  </div>
-
-                  {/* Address Section */}
-                  <div className='pt-2 sm:pt-3 border-t border-white/5 space-y-2 sm:space-y-3'>
-                    <h4 className='text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37] flex items-center gap-1'>
-                      <MapPin size={10} /> Dispatch Location
-                    </h4>
-                    <SimpleInput
-                      label='Street'
-                      value={editForm.streetAddress}
-                      onChange={(v) =>
-                        setEditForm({ ...editForm, streetAddress: v })
-                      }
-                    />
-                    <div className='grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
-                      <SimpleInput
-                        label='City'
-                        value={editForm.city}
-                        onChange={(v) => setEditForm({ ...editForm, city: v })}
-                      />
-                      <SimpleInput
-                        label='Postal'
-                        value={editForm.postalCode}
-                        onChange={(v) =>
-                          setEditForm({ ...editForm, postalCode: v })
-                        }
-                      />
+                  
+                  <SimpleInput label="Phone Number" value={editForm.phone} onChange={(v) => setEditForm({...editForm, phone: v})} />
+                  
+                  <div className="space-y-4 pt-4 border-t border-white/5">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">Shipping Address</h4>
+                    <SimpleInput label="Street Address" value={editForm.address} onChange={(v) => setEditForm({...editForm, address: v})} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <SimpleInput label="City" value={editForm.city} onChange={(v) => setEditForm({...editForm, city: v})} />
+                      <SimpleInput label="Postal Code" value={editForm.postalCode} onChange={(v) => setEditForm({...editForm, postalCode: v})} />
                     </div>
                   </div>
 
-                  {/* Error Message */}
-                  {errorMsg && (
-                    <div className='p-2 sm:p-3 bg-rose-500/10 text-rose-500 rounded-lg text-[8px] sm:text-[9px] font-black uppercase tracking-widest border border-rose-500/20'>
-                      {errorMsg}
-                    </div>
-                  )}
+                  {errorMsg && <div className="p-3 bg-rose-500/10 text-rose-500 rounded-xl text-[10px] font-black border border-rose-500/20">{errorMsg}</div>}
 
-                  {/* Submit Button */}
-                  <motion.button
-                    type='submit'
+                  <button 
+                    type="submit" 
                     disabled={isUpdating}
-                    whileTap={{ scale: 0.98 }}
-                    className='w-full py-3 sm:py-3.5 md:py-4 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-xl sm:rounded-2xl font-black text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest hover:shadow-[0_5px_20px_rgba(212,175,55,0.3)] transition-all disabled:opacity-50 relative overflow-hidden'
+                    className="w-full py-4 bg-[#D4AF37] text-black rounded-2xl font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                   >
-                    <span className='relative z-10 flex items-center justify-center gap-1.5'>
-                      {isUpdating ? (
-                        <>
-                          <Loader2 size={10} className='animate-spin' />
-                          Syncing...
-                        </>
-                      ) : (
-                        "Authorize Sync"
-                      )}
-                    </span>
-                    {!isUpdating && (
-                      <motion.div
-                        animate={{ x: ["-100%", "100%"] }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                        className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent'
-                      />
-                    )}
-                  </motion.button>
+                    {isUpdating ? "Syncing..." : "Save Changes"}
+                  </button>
                 </form>
               </div>
             </motion.div>
@@ -568,117 +406,137 @@ const ProfilePage = () => {
   );
 };
 
-// Mobile-Optimized Detail Row
-const DetailRow = ({ icon, iconSm, label, value }: any) => (
-  <div className='flex items-center gap-2 sm:gap-3 group'>
-    <div className='w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#D4AF37]/10 transition-all'>
-      <span className='sm:hidden text-[#D4AF37]'>{icon}</span>
-      <span className='hidden sm:block text-[#D4AF37]'>{iconSm || icon}</span>
-    </div>
-    <div className='flex-1 overflow-hidden'>
-      <p className='text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600'>
-        {label}
-      </p>
-      <p className='text-[9px] sm:text-[10px] md:text-xs font-bold text-white truncate'>
-        {value}
-      </p>
+// --- Sub-Components ---
+
+const OrderRow = ({ order }: { order: Order }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative overflow-hidden transition-all duration-300 border-b border-white/5 last:border-0"
+    >
+      <div className="p-5 flex items-center justify-between cursor-default hover:bg-white/[0.03] transition-colors">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+            <Package size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-black uppercase tracking-tight">
+                {order.orderId || `Order #${order._id.slice(-6).toUpperCase()}`}
+              </p>
+              <ChevronRight 
+                size={14} 
+                className={`text-zinc-600 transition-transform duration-300 ${isHovered ? 'rotate-90 text-[#D4AF37]' : ''}`} 
+              />
+            </div>
+            <p className="text-[10px] text-zinc-500">
+              {new Date(order.createdAt).toDateString()}
+            </p>
+          </div>
+        </div>
+        
+        <div className="text-right">
+          <p className="font-black text-white">Rs. {order.totalAmount?.toLocaleString()}</p>
+          <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border backdrop-blur-md ${
+            order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'approved'
+            ? 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5' 
+            : 'border-amber-500/20 text-amber-400 bg-amber-500/5'
+          }`}>
+            {order.status}
+          </span>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="bg-black/40 px-5 pb-5"
+          >
+            <div className="pt-2 space-y-4">
+              <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#D4AF37]/60">
+                  Manifest Items
+                </p>
+                {order.shippingAddress && (
+                  <p className="text-[8px] text-zinc-500 uppercase tracking-widest">
+                    Dispatch to: {order.shippingAddress.city}
+                  </p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {order.orderedItems.map((item) => (
+                  <div 
+                    key={item._id} 
+                    className="flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2 rounded-xl group/item transition-colors hover:border-[#D4AF37]/30"
+                  >
+                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-800 border border-white/5">
+                      <img 
+                        src={item.variant.variantImage[0]} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate">{item.name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] text-[#D4AF37] font-medium">{item.variant.flavor}</span>
+                        <span className="text-[9px] text-zinc-600">x{item.variant.qty}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-zinc-300">
+                        Rs. {(item.basePrice * item.variant.qty).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
+// --- Helper Components ---
+const DetailRow = ({ icon, label, value }: { icon: ReactNode, label: string, value?: string }) => (
+  <div className="flex items-center gap-4">
+    <div className="text-[#D4AF37]">{icon}</div>
+    <div>
+      <p className="text-[8px] font-black uppercase text-zinc-500">{label}</p>
+      <p className="text-xs font-bold">{value || "N/A"}</p>
     </div>
   </div>
 );
 
-// Mobile-Optimized Stat Card
-const StatCard = ({ icon, iconSm, label, value }: any) => (
-  <div className='bg-gradient-to-br from-white/[0.02] to-white/[0.01] border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col items-center text-center group hover:border-[#D4AF37]/30 transition-all'>
-    <div className='mb-1.5 sm:mb-2 p-1.5 sm:p-2 rounded-lg bg-white/5 group-hover:bg-[#D4AF37] group-hover:text-black transition-all'>
-      <span className='sm:hidden'>{icon}</span>
-      <span className='hidden sm:block'>{iconSm || icon}</span>
-    </div>
-    <p className='text-[6px] sm:text-[7px] md:text-[8px] font-black uppercase tracking-widest text-zinc-600 mb-0.5'>
-      {label}
-    </p>
-    <p className='text-[8px] sm:text-[9px] md:text-[10px] font-bold text-white truncate max-w-full px-1'>
-      {value || "None"}
-    </p>
+const StatCard = ({ icon, label, value }: { icon: ReactNode, label: string, value: string | number }) => (
+  <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 text-center">
+    <div className="text-[#D4AF37] mb-2 flex justify-center">{icon}</div>
+    <p className="text-[8px] font-black uppercase text-zinc-500">{label}</p>
+    <p className="text-sm font-black">{value}</p>
   </div>
 );
 
-// Mobile-Optimized Input
-const SimpleInput = ({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) => (
-  <div className='space-y-1 flex-1'>
-    <label className='text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-1 sm:ml-2'>
-      {label}
-    </label>
-    <input
-      type='text'
-      value={value}
+const SimpleInput = ({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) => (
+  <div className="space-y-1">
+    <label className="text-[9px] font-black uppercase text-zinc-500 ml-2">{label}</label>
+    <input 
+      type="text" 
+      value={value} 
       onChange={(e) => onChange(e.target.value)}
-      className='w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-xs text-white focus:border-[#D4AF37]/50 outline-none transition-all placeholder:text-zinc-700'
+      required
+      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#D4AF37]/50 outline-none transition-all" 
     />
   </div>
 );
-
-// Mobile-Optimized Order Row
-const OrderRow = ({ order, index }: { order: any; index: number }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: index * 0.05 }}
-    className='p-3 sm:p-4 hover:bg-white/[0.02] transition-colors group cursor-pointer border-b border-white/5 last:border-0'
-  >
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-2 sm:gap-3'>
-        <div className='w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] group-hover:bg-[#D4AF37] group-hover:text-black transition-all'>
-          <Package size={14} className='sm:hidden' />
-          <Package size={16} className='hidden sm:block' />
-        </div>
-        <div>
-          <p className='text-[9px] sm:text-[10px] md:text-xs font-black text-white uppercase tracking-tight'>
-            Order #{order._id.slice(-6).toUpperCase()}
-          </p>
-          <p className='text-[6px] sm:text-[7px] md:text-[8px] text-zinc-600 flex items-center gap-1 mt-0.5'>
-            <Calendar size={8} className='sm:hidden' />
-            <Calendar size={9} className='hidden sm:block' />
-            {new Date(order.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
-      <div className='text-right'>
-        <p className='text-[9px] sm:text-[10px] md:text-xs font-black text-white'>
-          Rs. {order.totalAmount?.toLocaleString()}
-        </p>
-        <StatusBadge status={order.status} />
-      </div>
-    </div>
-  </motion.div>
-);
-
-// Status Badge Component
-const StatusBadge = ({ status }: { status: string }) => {
-  const s = status?.toLowerCase() || "pending";
-  const config =
-    {
-      pending: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-      shipped: "text-cyan-500 bg-cyan-500/10 border-cyan-500/20",
-      delivered: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
-      cancelled: "text-rose-500 bg-rose-500/10 border-rose-500/20",
-    }[s as "pending" | "shipped" | "delivered" | "cancelled"] ||
-    "text-gray-500 bg-gray-500/10 border-gray-500/20";
-
-  return (
-    <span
-      className={`inline-block text-[6px] sm:text-[7px] md:text-[8px] font-black uppercase tracking-widest px-1.5 sm:px-2 py-0.5 rounded-full border ${config} backdrop-blur-md`}
-    >
-      {s}
-    </span>
-  );
-};
 
 export default ProfilePage;
