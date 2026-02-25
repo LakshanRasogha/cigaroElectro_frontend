@@ -6,7 +6,8 @@ import {
   Edit3, Mail, Phone, MapPin, Camera, X, 
   Loader2, Package, LogOut,
   ShoppingBag, Cloud, Calendar,
-  Shield, Sparkles, Crown, Heart, Zap
+  Shield, Sparkles, Crown, Heart, Zap,
+  ChevronRight
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -20,10 +21,23 @@ const supabase = createClient(
 );
 
 // --- Interfaces ---
-interface Address {
+interface OrderedItem {
+  _id: string;
+  name: string;
+  basePrice: number;
+  variant: {
+    vKey: string;
+    flavor: string;
+    variantImage: string[];
+    qty: number;
+  };
+}
+
+interface ShippingAddress {
   address: string;
   city: string;
   postalCode: string;
+  phone: string;
 }
 
 interface User {
@@ -32,7 +46,11 @@ interface User {
   lastName: string;
   email: string;
   phone: string;
-  address: Address;
+  address: {
+    address: string;
+    city: string;
+    postalCode: string;
+  };
   profilePicture: string;
   role: string;
   createdAt: string;
@@ -41,9 +59,12 @@ interface User {
 
 interface Order {
   _id: string;
+  orderId: string;
   totalAmount: number;
-  createdAt: string;
   status: string;
+  createdAt: string;
+  orderedItems: OrderedItem[];
+  shippingAddress: ShippingAddress;
 }
 
 interface EditForm {
@@ -54,24 +75,6 @@ interface EditForm {
   city: string;
   postalCode: string;
   profilePicture: string;
-}
-
-interface DetailRowProps {
-  icon: ReactNode;
-  label: string;
-  value?: string;
-}
-
-interface StatCardProps {
-  icon: ReactNode;
-  label: string;
-  value: string | number;
-}
-
-interface SimpleInputProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
 }
 
 const ProfilePage = () => {
@@ -86,7 +89,6 @@ const ProfilePage = () => {
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Form state aligned with Mongoose Schema
   const [editForm, setEditForm] = useState<EditForm>({
     firstName: '',
     lastName: '',
@@ -338,19 +340,7 @@ const ProfilePage = () => {
                   <div className="p-20 text-center"><Loader2 className="animate-spin text-[#D4AF37] mx-auto" /></div>
                 ) : orders.length > 0 ? (
                   orders.map((order) => (
-                    <div key={order._id} className="p-5 flex items-center justify-between hover:bg-white/[0.02]">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]"><Package size={20} /></div>
-                        <div>
-                          <p className="text-sm font-black uppercase">Order #{order._id.slice(-6).toUpperCase()}</p>
-                          <p className="text-[10px] text-zinc-500">{new Date(order.createdAt).toDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-black">Rs. {order.totalAmount?.toLocaleString()}</p>
-                        <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-white/10">{order.status}</span>
-                      </div>
-                    </div>
+                    <OrderRow key={order._id} order={order} />
                   ))
                 ) : (
                   <div className="p-20 text-center text-zinc-600 font-black uppercase text-xs tracking-widest">No orders found</div>
@@ -416,8 +406,109 @@ const ProfilePage = () => {
   );
 };
 
+// --- Sub-Components ---
+
+const OrderRow = ({ order }: { order: Order }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative overflow-hidden transition-all duration-300 border-b border-white/5 last:border-0"
+    >
+      <div className="p-5 flex items-center justify-between cursor-default hover:bg-white/[0.03] transition-colors">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+            <Package size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-black uppercase tracking-tight">
+                {order.orderId || `Order #${order._id.slice(-6).toUpperCase()}`}
+              </p>
+              <ChevronRight 
+                size={14} 
+                className={`text-zinc-600 transition-transform duration-300 ${isHovered ? 'rotate-90 text-[#D4AF37]' : ''}`} 
+              />
+            </div>
+            <p className="text-[10px] text-zinc-500">
+              {new Date(order.createdAt).toDateString()}
+            </p>
+          </div>
+        </div>
+        
+        <div className="text-right">
+          <p className="font-black text-white">Rs. {order.totalAmount?.toLocaleString()}</p>
+          <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border backdrop-blur-md ${
+            order.status.toLowerCase() === 'delivered' || order.status.toLowerCase() === 'approved'
+            ? 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5' 
+            : 'border-amber-500/20 text-amber-400 bg-amber-500/5'
+          }`}>
+            {order.status}
+          </span>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="bg-black/40 px-5 pb-5"
+          >
+            <div className="pt-2 space-y-4">
+              <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#D4AF37]/60">
+                  Manifest Items
+                </p>
+                {order.shippingAddress && (
+                  <p className="text-[8px] text-zinc-500 uppercase tracking-widest">
+                    Dispatch to: {order.shippingAddress.city}
+                  </p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {order.orderedItems.map((item) => (
+                  <div 
+                    key={item._id} 
+                    className="flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2 rounded-xl group/item transition-colors hover:border-[#D4AF37]/30"
+                  >
+                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-800 border border-white/5">
+                      <img 
+                        src={item.variant.variantImage[0]} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate">{item.name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] text-[#D4AF37] font-medium">{item.variant.flavor}</span>
+                        <span className="text-[9px] text-zinc-600">x{item.variant.qty}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-zinc-300">
+                        Rs. {(item.basePrice * item.variant.qty).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 // --- Helper Components ---
-const DetailRow = ({ icon, label, value }: DetailRowProps) => (
+const DetailRow = ({ icon, label, value }: { icon: ReactNode, label: string, value?: string }) => (
   <div className="flex items-center gap-4">
     <div className="text-[#D4AF37]">{icon}</div>
     <div>
@@ -427,7 +518,7 @@ const DetailRow = ({ icon, label, value }: DetailRowProps) => (
   </div>
 );
 
-const StatCard = ({ icon, label, value }: StatCardProps) => (
+const StatCard = ({ icon, label, value }: { icon: ReactNode, label: string, value: string | number }) => (
   <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 text-center">
     <div className="text-[#D4AF37] mb-2 flex justify-center">{icon}</div>
     <p className="text-[8px] font-black uppercase text-zinc-500">{label}</p>
@@ -435,7 +526,7 @@ const StatCard = ({ icon, label, value }: StatCardProps) => (
   </div>
 );
 
-const SimpleInput = ({ label, value, onChange }: SimpleInputProps) => (
+const SimpleInput = ({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) => (
   <div className="space-y-1">
     <label className="text-[9px] font-black uppercase text-zinc-500 ml-2">{label}</label>
     <input 
