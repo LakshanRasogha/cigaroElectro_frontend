@@ -2,9 +2,16 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Zap, ArrowRight } from "lucide-react";
+import { ShieldCheck, Zap, ArrowRight, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const HeritageSection = () => {
+  const router = useRouter();
+
+  const handleNavigation = () => {
+    router.push("/about");
+  };
+
   return (
     <section className='relative py-32 bg-[#050505] overflow-hidden' id='about'>
       {/* Ambient Gold Background Glows */}
@@ -116,15 +123,27 @@ const HeritageSection = () => {
             </div>
 
             {/* Primary Action Button */}
-            <button className='group relative bg-[#D4AF37] text-black px-12 py-6 rounded-2xl text-[10px] font-black tracking-[0.3em] transition-all duration-500 hover:bg-white hover:scale-105 active:scale-95 shadow-[0_20px_40px_rgba(212,175,55,0.1)]'>
-              <span className='relative z-10 flex items-center gap-4'>
-                About Cigarro
-                <ArrowRight
-                  size={16}
-                  className='group-hover:translate-x-2 transition-transform duration-500'
-                />
-              </span>
-            </button>
+            <div className='flex flex-col sm:flex-row gap-6 items-start sm:items-center'>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                onClick={handleNavigation}
+                // UPDATED: px-5 (was px-7) and py-2.5 (was py-3) for a slimmer look
+                className='group relative bg-[#D4AF37] text-black px-5 py-2.5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.25em] transition-all shadow-[0_10px_25px_rgba(212,175,55,0.25)]'
+              >
+                <span
+                  className='relative z-10 flex items-center gap-3'
+                  onClick={handleNavigation}
+                >
+                  About Cigarro{" "}
+                  <ChevronRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5' />
+                </span>
+                <div className='absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out' />
+              </motion.button>
+            </div>
           </motion.div>
         </div>
       </div>

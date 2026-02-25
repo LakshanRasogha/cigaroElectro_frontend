@@ -1,5 +1,39 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Edit3,
+  Mail,
+  Phone,
+  MapPin,
+  Camera,
+  X,
+  Loader2,
+  Package,
+  LogOut,
+  Clock,
+  CheckCircle2,
+  Truck,
+  AlertCircle,
+  Flame,
+  Droplets,
+  Zap,
+  ShoppingBag,
+  ChevronRight,
+  Cloud,
+  Calendar,
+  Star,
+  Award,
+  Shield,
+  Sparkles,
+  Crown,
+  Gem,
+  Heart,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Navbar from "../components/navbar";
 import React, { useEffect, useState, useRef, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -117,6 +151,15 @@ const ProfilePage = () => {
     if (!token) return setIsLoadingOrders(false);
 
     try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -129,7 +172,7 @@ const ProfilePage = () => {
   };
 
   const loadUserData = () => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const parsed = JSON.parse(storedUser);
@@ -211,8 +254,8 @@ const ProfilePage = () => {
       address: {
         address: editForm.address,
         city: editForm.city,
-        postalCode: editForm.postalCode
-      }
+        postalCode: editForm.postalCode,
+      },
     };
 
     try {
