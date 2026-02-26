@@ -5,11 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
   Search,
-  Zap,
-  Loader2,
   LayoutGrid,
   Sparkles,
-  ChevronRight,
   Package,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -85,17 +82,13 @@ const ProductsPage = () => {
 
       <Navbar />
 
-      {/* Video Background */}
-      <div className='fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-20 sm:opacity-30'>
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
+      {/* Background Image (Replaced Video) */}
+      <div className='fixed inset-0 z-0 overflow-hidden pointer-events-none '>
+        <img
+          src='/ptern.png'
+          alt='Background Pattern'
           className='w-full h-full object-cover'
-        >
-          <source src='/vape2.mp4' type='video/mp4' />
-        </video>
+        />
         <div className='absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]' />
       </div>
 
@@ -146,7 +139,9 @@ const ProductsPage = () => {
             >
               <div className='relative group w-full'>
                 <Search
-                  className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${isSearchFocused ? "text-[#D4AF37]" : "text-zinc-600"}`}
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                    isSearchFocused ? "text-[#D4AF37]" : "text-zinc-600"
+                  }`}
                   size={14}
                 />
                 <input

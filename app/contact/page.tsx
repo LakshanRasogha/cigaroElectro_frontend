@@ -18,17 +18,14 @@ const ContactPage = () => {
         {/* --- CINEMATIC BACKGROUND LAYER --- */}
         <div className='fixed inset-0 z-0 pointer-events-none'>
           {/* Subtle Radial Gradient */}
-          <div className='absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#030303_100%)] opacity-70' />
+          <div className='absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#030303_100%)] ' />
 
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className='w-full h-full object-cover opacity-20'
-          >
-            <source src='/vape2.mp4' type='video/mp4' />
-          </video>
+          {/* Static Background Image (Replaced Video) */}
+          <img
+            src='/ptern.png'
+            alt='Background Pattern'
+            className='w-full h-full object-cover opacity-99'
+          />
 
           {/* Branded Overlay */}
           <div className='absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]' />

@@ -131,7 +131,15 @@ const AboutPage = () => {
 
       {/* Hero Section */}
       <section className='relative min-h-[90vh] flex items-center justify-center px-6 overflow-hidden pt-20'>
-        <div className='absolute inset-0 z-0 opacity-30'>
+        {/* --- UPDATED BACKGROUND --- */}
+        <div className='absolute inset-0 z-0 opacity-30 pointer-events-none'>
+          {/* Static Pattern Image */}
+          <img
+            src='/ptern.png'
+            alt='Background Pattern'
+            className='absolute top-0 left-0 w-full h-full object-cover opacity-20'
+          />
+          {/* Radial Overlay for text readability */}
           <div className='absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_transparent_70%)]' />
         </div>
 
