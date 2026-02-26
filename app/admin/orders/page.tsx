@@ -18,6 +18,7 @@ import {
   ThumbsDown,
   Loader2,
   MoreVertical,
+  User as UserIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -51,6 +52,9 @@ interface Order {
   _id: string;
   orderId: string;
   email: string;
+  // Added these fields based on your backend update
+  firstName?: string;
+  lastName?: string;
   shippingAddress: ShippingAddress;
   orderDate: string;
   orderedItems: OrderedItem[];
@@ -91,7 +95,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-// Props interface for the card to accept the update function
+// Props interface for the card
 interface OrderCardProps {
   order: Order;
   onUpdateStatus: (orderId: string, newStatus: string) => Promise<void>;
@@ -108,10 +112,18 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
       0,
     ) || 0;
 
+  // Construct Full Name
+  const fullName = order.firstName
+    ? `${order.firstName} ${order.lastName || ""}`
+    : "Guest User";
+
+  // Generate avatar URL based on name
+  const avatarUrl = `https://ui-avatars.com/api/?name=${fullName}&background=0f172a&color=fff&size=128`;
+
   // Handler for status updates
   const handleAction = async (e: React.MouseEvent, status: string) => {
-    e.stopPropagation(); // Stop bubbling
-    setShowActions(false); // Close menu
+    e.stopPropagation();
+    setShowActions(false);
 
     if (confirm(`Change order status to ${status}?`)) {
       setIsProcessing(true);
@@ -128,18 +140,26 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-          {/* Left: ID & Date */}
+          {/* Left: ID, User & Date */}
           <div className='flex items-center gap-4'>
-            <div className='w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white shrink-0'>
-              <Package size={20} />
+            {/* User Avatar */}
+            <div className='w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white shrink-0 overflow-hidden relative'>
+              <img
+                src={avatarUrl}
+                alt='User'
+                className='w-full h-full object-cover'
+              />
             </div>
+
             <div>
               <div className='flex items-center gap-2'>
                 <h3 className='text-sm font-black text-slate-900 uppercase tracking-wide'>
                   {order.orderId}
                 </h3>
-                <span className='hidden sm:inline-block text-[10px] text-slate-400 bg-white border border-slate-200 px-1.5 rounded'>
-                  {order.email}
+                {/* User Name Badge */}
+                <span className='hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-2 py-0.5 rounded-full'>
+                  <UserIcon size={10} className='text-indigo-500' />
+                  {fullName}
                 </span>
               </div>
               <div className='flex items-center gap-2 text-xs text-slate-500 font-medium mt-1'>
@@ -169,7 +189,6 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
             <div className='flex items-center gap-3'>
               <StatusBadge status={order.status} />
 
-              {/* Expand Toggle */}
               <button className='p-2 bg-white border border-slate-200 rounded-full text-slate-400 hover:text-slate-900 transition-colors'>
                 {isExpanded ? (
                   <ChevronUp size={16} />
@@ -178,7 +197,6 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                 )}
               </button>
 
-              {/* Action Menu Trigger */}
               <div className='relative'>
                 <button
                   onClick={(e) => {
@@ -194,7 +212,6 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                   )}
                 </button>
 
-                {/* Dropdown Menu */}
                 <AnimatePresence>
                   {showActions && (
                     <motion.div
@@ -290,11 +307,28 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                 ))}
               </div>
 
-              {/* Delivery Info */}
+              {/* Customer & Shipping Info */}
               <div className='flex flex-col gap-4'>
                 <div className='bg-slate-50 p-5 rounded-2xl h-fit border border-slate-100'>
                   <h4 className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4'>
-                    Shipping Info
+                    Customer Profile
+                  </h4>
+                  <div className='space-y-4 mb-6'>
+                    <div className='flex items-start gap-3'>
+                      <div className='bg-white p-2 rounded-lg border border-slate-200'>
+                        <UserIcon size={16} className='text-indigo-500' />
+                      </div>
+                      <div className='text-xs text-slate-600 font-medium'>
+                        <p className='font-bold text-slate-900 text-sm'>
+                          {fullName}
+                        </p>
+                        <p className='text-slate-500'>{order.email}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4 className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-t border-slate-200 pt-4'>
+                    Shipping Address
                   </h4>
 
                   <div className='space-y-4'>
@@ -425,7 +459,6 @@ export default function OrdersPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      // FIXED URL: Changed "updateStatus" to "status" to match your backend route
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API}/api/orders/status/${orderId}`,
         { status: newStatus },
