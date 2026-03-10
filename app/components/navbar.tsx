@@ -105,11 +105,12 @@ const Navbar = () => {
         <div className='flex justify-between items-center h-16'>
           {/* Logo Section */}
           <Link href='/' className='flex items-center gap-3 group'>
+            {/* UPDATED: Applied consistent classes for the logo */}
             <span
-              className='text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none'
+              className='text-3xl md:text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
-              <span className='text-[#D4AF37]'>CigarroEléctrico</span>
+              CigarroEléctrico
             </span>
           </Link>
 
@@ -278,9 +279,9 @@ const Navbar = () => {
           >
             {/* Header Section */}
             <div className='flex justify-between items-center p-8 shrink-0'>
-              {/* UPDATED: Removed font-bold, added text-2xl and font-normal to match the main desktop logo exactly */}
+              {/* UPDATED: Applied consistent classes for the logo */}
               <span
-                className='text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
+                className='text-3xl md:text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 CigarroEléctrico
