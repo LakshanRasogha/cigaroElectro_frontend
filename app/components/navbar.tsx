@@ -278,11 +278,12 @@ const Navbar = () => {
           >
             {/* Header Section */}
             <div className='flex justify-between items-center p-8 shrink-0'>
+              {/* UPDATED: Removed font-bold, added text-2xl and font-normal to match the main desktop logo exactly */}
               <span
-                className='text-xl font-bold text-[#D4AF37]'
+                className='text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
-                Cigaro
+                CigarroEléctrico
               </span>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -341,7 +342,7 @@ const Navbar = () => {
                       }}
                       className='text-[9px] font-black text-rose-500 uppercase tracking-[0.2em] mt-1 hover:text-rose-400 transition-colors'
                     >
-                      Terminate Session
+                      Log Out
                     </button>
                   </div>
                 </div>
