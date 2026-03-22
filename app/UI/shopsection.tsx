@@ -48,7 +48,7 @@ const TshirtSection = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API}/api/products/get`)
+      .get(`${process.env.NEXT_PUBLIC_API}/products/get`)
       .then((response) => {
         const data = Array.isArray(response.data)
           ? response.data
