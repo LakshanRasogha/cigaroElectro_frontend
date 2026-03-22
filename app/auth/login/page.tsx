@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import type { CredentialResponse } from "@react-oauth/google";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { motion } from "framer-motion";
 import {
   Mail,
   Lock,
   ArrowRight,
   Github,
-  Chrome,
   Zap,
   Loader2,
   Sparkles,
@@ -27,10 +28,30 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   const backdropUrl =
     "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop";
+
+  const completeLogin = (user: any, token: string) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
+    const secureCookie = window.location.protocol === "https:" ? " Secure;" : "";
+    document.cookie = `session=${token}; path=/;${secureCookie} SameSite=Strict`;
+
+    window.dispatchEvent(new Event("storage"));
+
+    if (user.role === "admin") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/");
+    }
+
+    router.refresh();
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,20 +65,7 @@ const LoginPage = () => {
       });
 
       const { user, token } = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", token);
-
-      document.cookie = `session=${token}; path=/; Secure; SameSite=Strict`;
-
-      window.dispatchEvent(new Event("storage"));
-
-      if (user.role === "admin") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/");
-      }
-
-      router.refresh();
+      completeLogin(user, token);
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
@@ -66,6 +74,36 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError("Google sign-in did not return a valid credential.");
+      return;
+    }
+
+    setGoogleLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post(apiUrl("/users/google"), {
+        token: credentialResponse.credential,
+      });
+
+      const { user, token } = response.data;
+      completeLogin(user, token);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          "Google authentication failed. Check your Google client setup.",
+      );
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google authentication failed before the token reached the server.");
   };
 
   return (
@@ -336,16 +374,42 @@ const LoginPage = () => {
             </div>
 
             {/* Social Buttons - Mobile Optimized */}
-            <div className='grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
-              <SocialButton
-                icon={<Chrome size={14} className='sm:hidden' />}
-                iconSm={<Chrome size={16} className='hidden sm:block' />}
-                label='Google'
-              />
+            <div className='grid gap-3 sm:gap-4'>
+              {googleClientId ? (
+                <GoogleOAuthProvider clientId={googleClientId}>
+                  <div className='space-y-2'>
+                    <div className='min-h-11 rounded-xl sm:rounded-2xl overflow-hidden'>
+                      <div className='w-full [&>div]:!w-full [&_iframe]:!w-full'>
+                        <GoogleLogin
+                          onSuccess={handleGoogleSuccess}
+                          onError={handleGoogleError}
+                          text='signin_with'
+                          shape='pill'
+                          theme='outline'
+                          size='large'
+                          width='100%'
+                        />
+                      </div>
+                    </div>
+                    {googleLoading && (
+                      <div className='flex items-center justify-center gap-2 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37]'>
+                        <Loader2 className='animate-spin' size={14} />
+                        Verifying Google Identity
+                      </div>
+                    )}
+                  </div>
+                </GoogleOAuthProvider>
+              ) : (
+                <div className='rounded-xl sm:rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-amber-400 text-center'>
+                  Set NEXT_PUBLIC_GOOGLE_CLIENT_ID to enable Google sign-in
+                </div>
+              )}
+
               <SocialButton
                 icon={<Github size={14} className='sm:hidden' />}
                 iconSm={<Github size={16} className='hidden sm:block' />}
                 label='Github'
+                disabled
               />
             </div>
           </form>
@@ -360,20 +424,27 @@ const SocialButton = ({
   icon,
   iconSm,
   label,
+  disabled = false,
 }: {
   icon: React.ReactNode;
   iconSm?: React.ReactNode;
   label: string;
+  disabled?: boolean;
 }) => (
   <motion.button
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
+    whileHover={disabled ? undefined : { scale: 1.02 }}
+    whileTap={disabled ? undefined : { scale: 0.98 }}
     type='button'
-    className='flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#D4AF37]/30 transition-all duration-500 text-zinc-400 hover:text-[#D4AF37] font-bold uppercase text-[7px] sm:text-[8px] md:text-[9px] tracking-widest group'
+    disabled={disabled}
+    className={`flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.02] font-bold uppercase text-[7px] sm:text-[8px] md:text-[9px] tracking-widest group transition-all duration-500 ${
+      disabled
+        ? "cursor-not-allowed text-zinc-600"
+        : "text-zinc-400 hover:bg-white/[0.05] hover:border-[#D4AF37]/30 hover:text-[#D4AF37]"
+    }`}
   >
     <span className='sm:hidden'>{icon}</span>
     <span className='hidden sm:block'>{iconSm || icon}</span>
-    <span className='group-hover:text-[#D4AF37] transition-colors'>
+    <span className={disabled ? "" : "group-hover:text-[#D4AF37] transition-colors"}>
       {label}
     </span>
   </motion.button>
