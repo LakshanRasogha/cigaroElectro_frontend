@@ -38,7 +38,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/api/users/login`,
+        `${process.env.NEXT_PUBLIC_API}/users/login`,
         {
           email,
           password,
