@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import Navbar from "../components/navbar";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 
 // Initialize Supabase Client
 const supabase = createClient(
@@ -121,12 +122,9 @@ const ProfilePage = () => {
     }
 
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await axios.get(apiUrl("/orders/getOrders"), {
+        headers: getAuthHeaders(),
+      });
       setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -184,14 +182,12 @@ const ProfilePage = () => {
       } = supabase.storage.from("profile").getPublicUrl(filePath);
 
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`,
+        apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
         {
           profilePicture: publicUrl,
         },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: getAuthHeaders(),
         },
       );
 
@@ -228,12 +224,10 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`,
+        apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
         payload,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: getAuthHeaders(),
         },
       );
 

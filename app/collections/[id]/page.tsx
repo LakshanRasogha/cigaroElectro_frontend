@@ -22,6 +22,7 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/app/components/navbar";
+import { apiUrl } from "@/app/lib/api";
 
 const ProductDetailView = () => {
   const params = useParams();
@@ -39,7 +40,7 @@ const ProductDetailView = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/api/products/getOne/${productKey}`,
+          apiUrl(`/products/getOne/${encodeURIComponent(String(productKey))}`),
         );
         const data = response.data;
 

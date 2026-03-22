@@ -27,6 +27,7 @@ import Footer from "@/app/components/footer";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 
 const CartPage = () => {
   const router = useRouter();
@@ -121,13 +122,9 @@ const CartPage = () => {
     };
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/create`,
-        orderPayload,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
-      );
+      const res = await axios.post(apiUrl("/orders/create"), orderPayload, {
+        headers: getAuthHeaders(),
+      });
 
       if (res.status === 201 || res.status === 200) {
         setCartItems([]);

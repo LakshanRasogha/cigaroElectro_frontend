@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { apiUrl } from "@/app/lib/api";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -32,9 +33,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/api/products/get`,
-        );
+        const res = await axios.get(apiUrl("/products/get"));
         const data = Array.isArray(res.data)
           ? res.data
           : res.data.products || [];

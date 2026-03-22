@@ -5,6 +5,7 @@ import ProductCard from "../components/product_card";
 import { Loader2, ChevronLeft, ChevronRight, Shirt } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { apiUrl } from "@/app/lib/api";
 
 // --- Swiper Imports ---
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -40,7 +41,7 @@ const TshirtSection = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API}/products/get`)
+      .get(apiUrl("/products/get"))
       .then((response) => {
         const data = Array.isArray(response.data)
           ? response.data

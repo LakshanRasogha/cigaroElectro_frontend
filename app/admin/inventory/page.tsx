@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { supabase } from "@/app/lib/supabase";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 
 const InventoryRow = ({
   product,
@@ -160,12 +161,10 @@ export default function InventoryPage() {
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const api = process.env.NEXT_PUBLIC_API;
-
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${api}/api/products/get`);
+      const res = await axios.get(apiUrl("/products/get"));
       const data = Array.isArray(res.data) ? res.data : res.data.products || [];
       setProducts(data);
     } catch (err) {
@@ -243,7 +242,9 @@ export default function InventoryPage() {
     if (!key || key === "N/A" || !window.confirm(`Delete product "${key}"?`))
       return;
     try {
-      await axios.delete(`${api}/api/products/delete/${key}`);
+      await axios.delete(apiUrl(`/products/delete/${encodeURIComponent(key)}`), {
+        headers: getAuthHeaders(),
+      });
       fetchData();
     } catch (err: any) {
       setErrorMsg("Failed to delete product.");
@@ -270,9 +271,15 @@ export default function InventoryPage() {
       };
 
       if (editingKey) {
-        await axios.put(`${api}/api/products/update/${editingKey}`, payload);
+        await axios.put(
+          apiUrl(`/products/update/${encodeURIComponent(editingKey)}`),
+          payload,
+          { headers: getAuthHeaders() },
+        );
       } else {
-        await axios.post(`${api}/api/products/add`, payload);
+        await axios.post(apiUrl("/products/add"), payload, {
+          headers: getAuthHeaders(),
+        });
       }
 
       setIsModalOpen(false);

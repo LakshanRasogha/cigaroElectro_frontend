@@ -9,6 +9,7 @@ import {
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/app/lib/api';
 
 export default function Register() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function Register() {
     };
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API}/api/users/`, payload);
+      const res = await axios.post(apiUrl('/users'), payload);
       
       if (res.status === 201 || res.status === 200) {
         setMessage({ type: 'success', text: 'Identity created! Redirecting to login...' });

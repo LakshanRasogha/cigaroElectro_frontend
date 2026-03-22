@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { apiUrl } from "@/app/lib/api";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -37,13 +38,10 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/users/login`,
-        {
-          email,
-          password,
-        },
-      );
+      const response = await axios.post(apiUrl("/users/login"), {
+        email,
+        password,
+      });
 
       const { user, token } = response.data;
       localStorage.setItem("user", JSON.stringify(user));

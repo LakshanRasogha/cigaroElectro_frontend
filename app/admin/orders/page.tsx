@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 
 // --- TYPES ---
 
@@ -431,12 +432,9 @@ export default function OrdersPage() {
         return;
       }
 
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await axios.get(apiUrl("/orders/getOrders"), {
+        headers: getAuthHeaders(),
+      });
 
       setOrders(response.data);
     } catch (err: any) {
@@ -460,9 +458,9 @@ export default function OrdersPage() {
       if (!token) return;
 
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/status/${orderId}`,
+        apiUrl(`/orders/status/${encodeURIComponent(orderId)}`),
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: getAuthHeaders() },
       );
 
       // Optimistically update the UI
