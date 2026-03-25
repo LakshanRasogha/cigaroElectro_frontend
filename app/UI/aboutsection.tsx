@@ -2,11 +2,21 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Zap, ArrowRight, ChevronRight } from "lucide-react";
+import { ShieldCheck, Zap, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const HeritageSection = () => {
   const router = useRouter();
+  const partners = [
+    "Elfbar",
+    "Vozol",
+    "Voltbar",
+    "Lost Mary",
+    "Nasty",
+    "Tkyo",
+    "GeekVape",
+    "Caliburn",
+  ];
 
   const handleNavigation = () => {
     router.push("/about");
@@ -119,6 +129,30 @@ const HeritageSection = () => {
                 <p className='text-[11px] text-zinc-500 leading-relaxed font-medium group-hover/card:text-zinc-300'>
                   Instant-fire ignition and sub-ohm precision control.
                 </p>
+              </div>
+            </div>
+
+            <div className='mb-16'>
+              <div className='flex items-center gap-4 mb-6'>
+                <span className='h-[1px] w-12 bg-gradient-to-r from-[#D4AF37] to-transparent' />
+                <span className='text-[#D4AF37] uppercase tracking-[0.35em] text-[10px] font-black'>
+                  Partner Network
+                </span>
+              </div>
+
+              <div className='flex flex-wrap gap-3 max-w-2xl'>
+                {partners.map((partner) => (
+                  <motion.div
+                    key={partner}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.45 }}
+                    className='rounded-full border border-[#D4AF37]/20 bg-white/[0.03] px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-200 transition-colors hover:border-[#D4AF37]/40 hover:text-[#D4AF37]'
+                  >
+                    {partner}
+                  </motion.div>
+                ))}
               </div>
             </div>
 

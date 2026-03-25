@@ -8,7 +8,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
 import Headers from "../components/header";
-import LogoRing from "../components/logo_rings";
 
 // UI Sections
 import ShopSection from "../UI/shopsection";
@@ -46,8 +45,8 @@ const Home = () => {
       });
 
       // 3. Section Reveal (Updated for tighter layout)
-      const sections = gsap.utils.toArray(".reveal-section");
-      sections.forEach((section: any) => {
+      const sections = gsap.utils.toArray<HTMLElement>(".reveal-section");
+      sections.forEach((section) => {
         gsap.fromTo(
           section,
           { y: 50, opacity: 0 },
@@ -132,12 +131,6 @@ const Home = () => {
         {/* Removed specific gradients that might cause visual breaks, ensuring seamless flow */}
         <section className='reveal-section bg-[#050505]' id='about'>
           <HeritageSection />
-        </section>
-
-        {/* 3D Partner Ring */}
-        {/* Removed 'py-32', reduced to minimal padding just for the 3D element safety */}
-        <section className='reveal-section relative py-10 overflow-visible bg-[#050505]'>
-          <LogoRing />
         </section>
 
         {/* Footer */}
