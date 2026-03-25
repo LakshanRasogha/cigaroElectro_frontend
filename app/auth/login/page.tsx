@@ -162,8 +162,13 @@ const LoginPage = () => {
                   className='w-full h-full object-cover'
                 />
               </div>
+              <img
+                src='/logo 2 gld.png'
+                alt='CigaroElectro wordmark'
+                className='h-10 w-auto object-contain'
+              />
               <span
-                className='text-2xl font-normal tracking-tight text-white'
+                className='hidden text-2xl font-normal tracking-tight text-white'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 <span className='text-[#D4AF37]'>Cigarro</span>Eléctrico
@@ -236,8 +241,13 @@ const LoginPage = () => {
                 className='w-full h-full object-cover'
               />
             </div>
+            <img
+              src='/logo 2 gld.png'
+              alt='CigaroElectro wordmark'
+              className='h-8 w-auto object-contain'
+            />
             <span
-              className='text-base font-normal text-white'
+              className='hidden text-base font-normal text-white'
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
               <span className='text-[#D4AF37]'>Cigarro</span>Eléctrico

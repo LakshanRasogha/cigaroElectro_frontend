@@ -123,8 +123,13 @@ export default function Register() {
                   className="w-full h-full object-cover"
                 />
               </div>
+              <img
+                src="/logo 2 gld.png"
+                alt="CigaroElectro wordmark"
+                className="h-8 sm:h-9 md:h-10 w-auto object-contain"
+              />
 
-              <span className="text-lg sm:text-xl md:text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
+              <span className="hidden text-lg sm:text-xl md:text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none" 
                     style={{ fontFamily: "'Dancing Script', cursive" }}>
                 <span className="text-[#D4AF37]">Cigarro</span>
                 <span className="text-[#F2D37D]">Electrico</span>

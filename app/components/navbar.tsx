@@ -11,7 +11,6 @@ import {
   LogOut,
   Settings,
   LayoutDashboard,
-  Crown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -21,6 +20,28 @@ interface CartItem {
   price: number;
   [key: string]: any;
 }
+
+const BrandLogo = ({
+  mobile = false,
+  onClick,
+}: {
+  mobile?: boolean;
+  onClick?: () => void;
+}) => (
+  <Link
+    href='/'
+    onClick={onClick}
+    className='flex items-center shrink-0'
+  >
+    <img
+      src='/logo 2 gld.png'
+      alt='CigaroElectro logo'
+      className={`w-auto object-contain ${
+        mobile ? "h-11" : "h-12 md:h-14"
+      }`}
+    />
+  </Link>
+);
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -104,14 +125,7 @@ const Navbar = () => {
       <div className='max-w-7xl mx-auto px-6 lg:px-10'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo Section */}
-          <Link href='/' className='flex items-center gap-3 group'>
-            <span
-              className='text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none'
-              style={{ fontFamily: "'Dancing Script', cursive" }}
-            >
-              <span className='text-[#D4AF37]'>CigarroEléctrico</span>
-            </span>
-          </Link>
+          <BrandLogo />
 
           {/* Desktop Navigation */}
           <div className='hidden md:flex space-x-10 items-center font-bold uppercase text-[10px] tracking-[0.25em]'>
@@ -278,9 +292,12 @@ const Navbar = () => {
           >
             {/* Header Section */}
             <div className='flex justify-between items-center p-8 shrink-0'>
-              {/* UPDATED: Removed font-bold, added text-2xl and font-normal to match the main desktop logo exactly */}
+              <BrandLogo
+                mobile
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
               <span
-                className='text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
+                className='hidden text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 CigarroEléctrico
