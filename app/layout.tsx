@@ -12,10 +12,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+export const metadata = {
+  // This tells Next.js the root URL for all your images and links
+  metadataBase: new URL("https://cigarroelectrico.com"),
+
   title: "CigarroElectrico",
   description:
-    "Shop premium vapes, exclusive accessories, Cigarro Electrico, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality.",
+    "Shop premium vapes, exclusive accessories, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality.",
+
+  openGraph: {
+    title: "CigarroElectrico | Vapes & Culture",
+    description:
+      "More than just a vape shop. Explore our curated collection of top-tier vapes, accessories, and unique custom DFT apparel.",
+    url: "https://cigarroelectrico.com",
+    siteName: "CigarroElectrico",
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "CigarroElectrico | Vapes & Culture",
+    description:
+      "Elevate your lifestyle with premium vapes and custom DFT tees.",
+  },
 };
 
 export default function RootLayout({
