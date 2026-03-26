@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "CigarroElectrico",
   description:
-    "Shop premium vapes, exclusive accessories, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality.",
+    "Shop premium vapes, exclusive accessories, Cigarro Electrico, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality.",
 };
 
 export default function RootLayout({
