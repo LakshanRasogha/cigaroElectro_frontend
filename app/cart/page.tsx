@@ -100,6 +100,11 @@ const CartPage = () => {
       return router.push("/auth/login");
     }
 
+    if (user.isBlocked) {
+      alert("Sorry your account is Blocked");
+      return;
+    }
+
     setIsOrderLoading(true);
 
     const shippingAddress =
@@ -134,7 +139,12 @@ const CartPage = () => {
         router.push("/profile");
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Dispatch failure.");
+      const errorMessage = err.response?.data?.message;
+      alert(
+        errorMessage === "Sorry your account is Blocked"
+          ? "Sorry your account is Blocked"
+          : errorMessage || "Dispatch failure.",
+      );
     } finally {
       setIsOrderLoading(false);
     }

@@ -333,9 +333,18 @@ const ProfilePage = () => {
                   {user.firstName} {user.lastName}
                 </h1>
                 <div className='flex items-center justify-center gap-2 mt-2'>
-                  <Crown size={14} className='text-[#D4AF37]' />
-                  <span className='text-[10px] font-black uppercase tracking-widest text-[#D4AF37] px-3 py-1 bg-[#D4AF37]/10 rounded-full border border-[#D4AF37]/20'>
-                    {user.role}
+                  <Crown
+                    size={14}
+                    className={user.isBlocked ? "text-rose-400" : "text-[#D4AF37]"}
+                  />
+                  <span
+                    className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                      user.isBlocked
+                        ? "text-rose-400 bg-rose-500/10 border-rose-500/20"
+                        : "text-[#D4AF37] bg-[#D4AF37]/10 border-[#D4AF37]/20"
+                    }`}
+                  >
+                    {user.isBlocked ? "User Blocked" : user.role}
                   </span>
                 </div>
               </div>
@@ -347,6 +356,14 @@ const ProfilePage = () => {
                 >
                   <Edit3 size={16} /> Edit Profile
                 </button>
+                {user.isBlocked && (
+                  <button
+                    onClick={() => router.push("/contact")}
+                    className='w-full py-4 bg-rose-500/10 text-rose-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/15 transition-colors'
+                  >
+                    Contact Us
+                  </button>
+                )}
                 <button
                   onClick={handleLogout}
                   className='w-full py-4 bg-white/5 text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/10 transition-colors'

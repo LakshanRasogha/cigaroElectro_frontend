@@ -32,7 +32,7 @@ const BrandLogo = ({
     <img
       src='/logo 2 gld.png'
       alt='CigaroElectro logo'
-      className={`w-auto object-contain ${mobile ? "h-11" : "h-12 md:h-14"}`}
+      className={`w-auto object-contain ${mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"}`}
     />
   </Link>
 );

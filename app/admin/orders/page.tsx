@@ -24,6 +24,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getEntityId, getListKey } from "@/app/lib/entity_id";
 
 // --- TYPES ---
 
@@ -35,6 +36,7 @@ interface Variant {
 }
 
 interface OrderedItem {
+  id?: string;
   _id: string;
   productKey: string;
   name: string;
@@ -51,6 +53,7 @@ interface ShippingAddress {
 }
 
 interface Order {
+  id?: string;
   _id: string;
   orderId: string;
   email: string;
@@ -279,7 +282,10 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                 </h4>
                 {order.orderedItems?.map((item) => (
                   <div
-                    key={item._id}
+                    key={getListKey(
+                      item,
+                      `${item.productKey}-${item.variant?.vKey || item.name}`,
+                    )}
                     className='flex gap-4 p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors'
                   >
                     <div className='w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200'>
@@ -580,7 +586,7 @@ export default function OrdersPage() {
           <div className='space-y-4'>
             {filteredOrders.map((order) => (
               <OrderCard
-                key={order._id}
+                key={getListKey(order, order.orderId || getEntityId(order))}
                 order={order}
                 onUpdateStatus={handleUpdateStatus}
               />
