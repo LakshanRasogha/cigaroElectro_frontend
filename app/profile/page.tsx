@@ -538,6 +538,18 @@ const ProfilePage = () => {
 
 const OrderRow = ({ order }: { order: Order }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const normalizedStatus = order.status?.toLowerCase() || "pending";
+
+  const statusClassName =
+    normalizedStatus === "delivered" || normalizedStatus === "approved"
+      ? "border-emerald-500/20 text-emerald-400 bg-emerald-500/5"
+      : normalizedStatus === "shipped"
+        ? "border-sky-500/20 text-sky-400 bg-sky-500/5"
+        : normalizedStatus === "pending" ||
+            normalizedStatus === "cancelled" ||
+            normalizedStatus === "rejected"
+          ? "border-rose-500/20 text-rose-400 bg-rose-500/5"
+          : "border-amber-500/20 text-amber-400 bg-amber-500/5";
 
   return (
     <motion.div
@@ -575,12 +587,7 @@ const OrderRow = ({ order }: { order: Order }) => {
             Rs. {order.totalAmount?.toLocaleString()}
           </p>
           <span
-            className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border backdrop-blur-md ${
-              order.status.toLowerCase() === "delivered" ||
-              order.status.toLowerCase() === "approved"
-                ? "border-emerald-500/20 text-emerald-400 bg-emerald-500/5"
-                : "border-amber-500/20 text-amber-400 bg-amber-500/5"
-            }`}
+            className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border backdrop-blur-md ${statusClassName}`}
           >
             {order.status}
           </span>

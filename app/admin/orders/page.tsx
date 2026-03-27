@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  Truck,
   ThumbsUp,
   ThumbsDown,
   Loader2,
@@ -75,6 +76,9 @@ const StatusBadge = ({ status }: { status: string }) => {
   if (normalizedStatus === "approved") {
     style = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
     icon = <CheckCircle2 size={12} />;
+  } else if (normalizedStatus === "shipped") {
+    style = "bg-sky-500/10 text-sky-600 border-sky-500/20";
+    icon = <Truck size={12} />;
   } else if (
     normalizedStatus === "cancelled" ||
     normalizedStatus === "rejected"
@@ -234,6 +238,12 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                           className='w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-2'
                         >
                           <XCircle size={14} /> Cancel
+                        </button>
+                        <button
+                          onClick={(e) => handleAction(e, "Shipped")}
+                          className='w-full text-left px-3 py-2 text-xs font-bold text-sky-600 hover:bg-sky-50 rounded-lg flex items-center gap-2'
+                        >
+                          <Truck size={14} /> Mark Shipped
                         </button>
                         <button
                           onClick={(e) => handleAction(e, "Pending")}
