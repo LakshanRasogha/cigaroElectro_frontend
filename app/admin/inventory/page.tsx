@@ -21,6 +21,7 @@ import {
 import axios from "axios";
 import { supabase } from "@/app/lib/supabase";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getListKey } from "@/app/lib/entity_id";
 
 const InventoryRow = ({
   product,
@@ -390,7 +391,7 @@ export default function InventoryPage() {
                 <tbody>
                   {filteredProducts.map((prod) => (
                     <InventoryRow
-                      key={prod._id}
+                      key={getListKey(prod, prod.key)}
                       product={prod}
                       onEdit={handleEdit}
                       onDelete={handleDelete}

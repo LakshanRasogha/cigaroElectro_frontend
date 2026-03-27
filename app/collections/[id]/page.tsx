@@ -23,6 +23,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/app/components/navbar";
 import { apiUrl } from "@/app/lib/api";
+import { getEntityId } from "@/app/lib/entity_id";
 
 const ProductDetailView = () => {
   const params = useParams();
@@ -46,7 +47,7 @@ const ProductDetailView = () => {
 
         if (Array.isArray(data)) {
           const found = data.find(
-            (p: any) => p.key === productKey || p._id === productKey,
+            (p: any) => p.key === productKey || getEntityId(p) === productKey,
           );
           setProduct(found || null);
         } else {
@@ -70,7 +71,7 @@ const ProductDetailView = () => {
       cartId: `${product.key}-${variant.vKey}`,
       key: product.key,
       vKey: variant.vKey,
-      productId: product._id,
+      productId: getEntityId(product),
       name: product.name,
       flavor: variant.flavor,
       emoji: variant.emoji,

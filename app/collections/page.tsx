@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { apiUrl } from "@/app/lib/api";
+import { getListKey } from "@/app/lib/entity_id";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -227,7 +228,7 @@ const ProductsPage = () => {
             <AnimatePresence mode='popLayout'>
               {filteredProducts.map((product, index) => (
                 <MobileProductCard
-                  key={product._id}
+                  key={getListKey(product, index)}
                   product={product}
                   index={index}
                 />

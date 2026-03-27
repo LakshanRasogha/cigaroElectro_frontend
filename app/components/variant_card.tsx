@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, Variants } from 'framer-motion';
+import { getEntityId } from '@/app/lib/entity_id';
 import { 
   ShoppingBag, 
   CheckCircle2, 
@@ -27,6 +28,7 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const controls = useAnimation();
+  const variantCardId = `variant-card-${getEntityId(variant) || index}`;
 
   // Mouse move effect for 3D parallax tilt
   useEffect(() => {
@@ -39,12 +41,13 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
       }
     };
 
-    const element = document.getElementById(`variant-card-${variant._id}`);
+    const element = document.getElementById(variantCardId);
     if (element) {
-      element.addEventListener('mousemove', (e) => handleMouseMove(e as unknown as MouseEvent));
-      return () => element.removeEventListener('mousemove', (e) => handleMouseMove(e as unknown as MouseEvent));
+      const listener = (e: Event) => handleMouseMove(e as MouseEvent);
+      element.addEventListener('mousemove', listener);
+      return () => element.removeEventListener('mousemove', listener);
     }
-  }, [isHovered, variant._id]);
+  }, [isHovered, variantCardId]);
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,7 +96,7 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
 
   return (
     <motion.div
-      id={`variant-card-${variant._id}`}
+      id={variantCardId}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}

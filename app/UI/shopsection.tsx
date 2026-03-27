@@ -14,6 +14,7 @@ import axios from "axios";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { apiUrl } from "@/app/lib/api";
+import { getListKey } from "@/app/lib/entity_id";
 
 // --- Swiper Imports ---
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -31,7 +32,8 @@ interface Variant {
 }
 
 interface Product {
-  _id: string;
+  id?: string;
+  _id?: string;
   key: string;
   name: string;
   tagline: string;
@@ -174,7 +176,10 @@ const TshirtSection = () => {
               const { key: productKey, ...otherProps } = prod;
 
               return (
-                <SwiperSlide key={prod._id || productKey} className='h-auto'>
+                <SwiperSlide
+                  key={getListKey(prod, productKey || i)}
+                  className='h-auto'
+                >
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
