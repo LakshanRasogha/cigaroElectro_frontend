@@ -24,6 +24,13 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import Navbar from "../components/navbar";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import PhoneRegionSelect from "@/app/components/phone_region_select";
+import {
+  DEFAULT_PHONE_REGION,
+  combinePhoneNumber,
+  normalizePhoneDigits,
+  splitPhoneNumber,
+} from "@/app/lib/phone";
 
 // Initialize Supabase Client
 const supabase = createClient(
@@ -81,7 +88,8 @@ interface Order {
 interface EditForm {
   firstName: string;
   lastName: string;
-  phone: string;
+  phoneRegion: string;
+  phoneNumber: string;
   address: string;
   city: string;
   postalCode: string;
@@ -103,7 +111,8 @@ const ProfilePage = () => {
   const [editForm, setEditForm] = useState<EditForm>({
     firstName: "",
     lastName: "",
-    phone: "",
+    phoneRegion: DEFAULT_PHONE_REGION,
+    phoneNumber: "",
     address: "",
     city: "",
     postalCode: "",
@@ -138,11 +147,13 @@ const ProfilePage = () => {
     if (storedUser) {
       try {
         const parsed: User = JSON.parse(storedUser);
+        const parsedPhone = splitPhoneNumber(parsed.phone);
         setUser(parsed);
         setEditForm({
           firstName: parsed.firstName || "",
           lastName: parsed.lastName || "",
-          phone: parsed.phone || "",
+          phoneRegion: parsedPhone.regionCode,
+          phoneNumber: parsedPhone.localNumber,
           address: parsed.address?.address || "",
           city: parsed.address?.city || "",
           postalCode: parsed.address?.postalCode || "",
@@ -214,7 +225,7 @@ const ProfilePage = () => {
     const payload = {
       firstName: editForm.firstName,
       lastName: editForm.lastName,
-      phone: editForm.phone,
+      phone: combinePhoneNumber(editForm.phoneRegion, editForm.phoneNumber),
       address: {
         address: editForm.address,
         city: editForm.city,
@@ -440,7 +451,7 @@ const ProfilePage = () => {
 
               <div className='p-6 overflow-y-auto max-h-[calc(90vh-100px)]'>
                 <form onSubmit={handleUpdate} className='space-y-6'>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <SimpleInput
                       label='First Name'
                       value={editForm.firstName}
@@ -457,10 +468,19 @@ const ProfilePage = () => {
                     />
                   </div>
 
-                  <SimpleInput
-                    label='Phone Number'
-                    value={editForm.phone}
-                    onChange={(v) => setEditForm({ ...editForm, phone: v })}
+                  <PhoneField
+                    label='WhatsApp Number'
+                    regionCode={editForm.phoneRegion}
+                    localNumber={editForm.phoneNumber}
+                    onRegionChange={(value) =>
+                      setEditForm({ ...editForm, phoneRegion: value })
+                    }
+                    onLocalNumberChange={(value) =>
+                      setEditForm({
+                        ...editForm,
+                        phoneNumber: normalizePhoneDigits(value),
+                      })
+                    }
                   />
 
                   <div className='space-y-4 pt-4 border-t border-white/5'>
@@ -471,12 +491,14 @@ const ProfilePage = () => {
                       label='Street Address'
                       value={editForm.address}
                       onChange={(v) => setEditForm({ ...editForm, address: v })}
+                      autoComplete='shipping address-line1'
                     />
-                    <div className='grid grid-cols-2 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                       <SimpleInput
                         label='City'
                         value={editForm.city}
                         onChange={(v) => setEditForm({ ...editForm, city: v })}
+                        autoComplete='shipping address-level2'
                       />
                       <SimpleInput
                         label='Postal Code'
@@ -484,6 +506,7 @@ const ProfilePage = () => {
                         onChange={(v) =>
                           setEditForm({ ...editForm, postalCode: v })
                         }
+                        autoComplete='shipping postal-code'
                       />
                     </div>
                   </div>
@@ -667,10 +690,12 @@ const SimpleInput = ({
   label,
   value,
   onChange,
+  autoComplete,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  autoComplete?: string;
 }) => (
   <div className='space-y-1'>
     <label className='text-[9px] font-black uppercase text-zinc-500 ml-2'>
@@ -678,11 +703,48 @@ const SimpleInput = ({
     </label>
     <input
       type='text'
+      autoComplete={autoComplete}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       required
       className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#D4AF37]/50 outline-none transition-all'
     />
+  </div>
+);
+
+const PhoneField = ({
+  label,
+  regionCode,
+  localNumber,
+  onRegionChange,
+  onLocalNumberChange,
+}: {
+  label: string;
+  regionCode: string;
+  localNumber: string;
+  onRegionChange: (value: string) => void;
+  onLocalNumberChange: (value: string) => void;
+}) => (
+  <div className='space-y-1'>
+    <label className='text-[9px] font-black uppercase text-zinc-500 ml-2'>
+      {label}
+    </label>
+    <div className='grid grid-cols-[108px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-3'>
+      <PhoneRegionSelect
+        value={regionCode}
+        onChange={onRegionChange}
+        buttonClassName='bg-white/5 border-white/10 rounded-xl px-2.5 sm:px-3 py-3 text-sm'
+      />
+      <input
+        type='tel'
+        inputMode='numeric'
+        required
+        value={localNumber}
+        onChange={(e) => onLocalNumberChange(e.target.value)}
+        placeholder='WhatsApp number'
+        className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#D4AF37]/50 outline-none transition-all placeholder:text-zinc-500 placeholder:opacity-100'
+      />
+    </div>
   </div>
 );
 

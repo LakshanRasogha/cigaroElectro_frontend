@@ -154,11 +154,22 @@ const CartPage = () => {
     setCartItems((prev) => prev.filter((item) => item.cartId !== cartId));
   };
 
+  const toCurrencyNumber = (value: unknown) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) =>
+      acc +
+      toCurrencyNumber(item.price) *
+        Math.max(1, toCurrencyNumber(item.quantity)),
     0,
   );
-  const totalDelivery = cartItems.length > 0 ? cartItems[0].delivery || 0 : 0;
+  const totalDelivery = cartItems.reduce(
+    (acc, item) => acc + toCurrencyNumber(item.delivery),
+    0,
+  );
   const total = subtotal + totalDelivery;
 
   if (isSyncing)
@@ -260,13 +271,13 @@ const CartPage = () => {
 
                 <div className='space-y-6 mb-12'>
                   <div className='flex justify-between text-[9px] font-bold tracking-widest text-zinc-500 uppercase'>
-                    <span>Valuation</span>
+                    <span>Subtotal</span>
                     <span className='text-white'>
                       Rs. {subtotal.toLocaleString()}
                     </span>
                   </div>
                   <div className='flex justify-between text-[9px] font-bold tracking-widest text-zinc-500 uppercase'>
-                    <span>Logistics</span>
+                    <span>Total Delivery</span>
                     <span className='text-white'>
                       Rs. {totalDelivery.toLocaleString()}
                     </span>
@@ -274,7 +285,7 @@ const CartPage = () => {
                   <div className='h-px bg-white/5' />
                   <div className='space-y-2'>
                     <p className='text-[#D4AF37] text-[8px] font-bold uppercase tracking-[0.4em]'>
-                      Total Dispatch
+                      Grand Total
                     </p>
                     <p className='text-4xl font-serif tracking-tighter text-white'>
                       Rs. {total.toLocaleString()}
@@ -417,8 +428,15 @@ const AddressModal = ({
           </button>
         </div>
 
-        <div className='space-y-4'>
+        <form
+          className='space-y-4'
+          onSubmit={(e) => {
+            e.preventDefault();
+            onConfirm();
+          }}
+        >
           <button
+            type='button'
             onClick={() => setOption("profile")}
             className={`w-full p-6 rounded-2xl border text-left flex items-start gap-4 transition-all ${option === "profile" ? "border-[#D4AF37] bg-[#D4AF37]/5" : "border-white/5 bg-white/[0.02]"}`}
           >
@@ -436,6 +454,7 @@ const AddressModal = ({
           </button>
 
           <button
+            type='button'
             onClick={() => setOption("new")}
             className={`w-full p-6 rounded-2xl border text-left flex items-start gap-4 transition-all ${option === "new" ? "border-[#D4AF37] bg-[#D4AF37]/5" : "border-white/5 bg-white/[0.02]"}`}
           >
@@ -449,34 +468,58 @@ const AddressModal = ({
 
           {option === "new" && (
             <div className='space-y-3 pt-4'>
-              <input
-                placeholder='STREET ADDRESS'
-                onChange={(e) =>
-                  setNewAddress({ ...newAddress, address: e.target.value })
-                }
-                className='w-full bg-white/5 border border-white/5 rounded-xl px-5 py-4 text-[9px] text-white tracking-widest uppercase outline-none focus:border-[#D4AF37]/40 transition-all placeholder:text-zinc-800'
-              />
-              <div className='grid grid-cols-2 gap-3'>
+              <div className='space-y-2'>
+                <p className='text-[7px] font-bold uppercase tracking-widest text-zinc-500'>
+                  Street Address
+                </p>
                 <input
-                  placeholder='CITY'
+                  autoComplete='shipping address-line1'
+                  value={newAddress.address}
+                  placeholder='STREET ADDRESS'
                   onChange={(e) =>
-                    setNewAddress({ ...newAddress, city: e.target.value })
+                    setNewAddress({ ...newAddress, address: e.target.value })
                   }
-                  className='bg-white/5 border border-white/5 rounded-xl px-5 py-4 text-[9px] text-white tracking-widest uppercase outline-none placeholder:text-zinc-800'
+                  className='w-full bg-white/5 border border-white/5 rounded-xl px-5 py-4 text-[9px] text-white tracking-widest uppercase outline-none focus:border-[#D4AF37]/40 transition-all placeholder:text-zinc-500 placeholder:opacity-100'
                 />
-                <input
-                  placeholder='POSTAL'
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, postalCode: e.target.value })
-                  }
-                  className='bg-white/5 border border-white/5 rounded-xl px-5 py-4 text-[9px] text-white tracking-widest uppercase outline-none placeholder:text-zinc-800'
-                />
+              </div>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                <div className='space-y-2'>
+                  <p className='text-[7px] font-bold uppercase tracking-widest text-zinc-500'>
+                    City
+                  </p>
+                  <input
+                    autoComplete='shipping address-level2'
+                    value={newAddress.city}
+                    placeholder='CITY'
+                    onChange={(e) =>
+                      setNewAddress({ ...newAddress, city: e.target.value })
+                    }
+                    className='w-full bg-white/5 border border-white/5 rounded-xl px-5 py-4 text-[9px] text-white tracking-widest uppercase outline-none placeholder:text-zinc-500 placeholder:opacity-100'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <p className='text-[7px] font-bold uppercase tracking-widest text-zinc-500'>
+                    Postal
+                  </p>
+                  <input
+                    autoComplete='shipping postal-code'
+                    value={newAddress.postalCode}
+                    placeholder='POSTAL'
+                    onChange={(e) =>
+                      setNewAddress({
+                        ...newAddress,
+                        postalCode: e.target.value,
+                      })
+                    }
+                    className='w-full bg-white/5 border border-white/5 rounded-xl px-5 py-4 text-[9px] text-white tracking-widest uppercase outline-none placeholder:text-zinc-500 placeholder:opacity-100'
+                  />
+                </div>
               </div>
             </div>
           )}
 
           <motion.button
-            onClick={onConfirm}
+            type='submit'
             disabled={loading}
             className='w-full py-6 mt-6 bg-[#D4AF37] text-black rounded-2xl font-black uppercase tracking-[0.4em] text-[9px] flex items-center justify-center gap-3 transition-all'
           >
@@ -486,7 +529,7 @@ const AddressModal = ({
               "Initialize Synchronized Dispatch"
             )}
           </motion.button>
-        </div>
+        </form>
       </motion.div>
     </div>
   );

@@ -28,17 +28,11 @@ const BrandLogo = ({
   mobile?: boolean;
   onClick?: () => void;
 }) => (
-  <Link
-    href='/'
-    onClick={onClick}
-    className='flex items-center shrink-0'
-  >
+  <Link href='/' onClick={onClick} className='flex items-center shrink-0'>
     <img
       src='/logo 2 gld.png'
       alt='CigaroElectro logo'
-      className={`w-auto object-contain ${
-        mobile ? "h-11" : "h-12 md:h-14"
-      }`}
+      className={`w-auto object-contain ${mobile ? "h-11" : "h-12 md:h-14"}`}
     />
   </Link>
 );
@@ -158,29 +152,48 @@ const Navbar = () => {
             {/* User Profile */}
             <div className='relative group'>
               {user ? (
-                <div className='flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'>
-                  <div className='text-right hidden lg:block'>
-                    <p className='text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white'>
-                      {user.firstName || user.name?.split(" ")[0] || "Member"}
-                    </p>
-                    <div className='flex items-center justify-end gap-1'>
-                      <div className='w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse' />
-                      <p className='text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none'>
-                        Elite
+                <>
+                  <button
+                    type='button'
+                    onClick={() => router.push("/profile")}
+                    className='md:hidden flex items-center justify-center p-1 rounded-full transition-all duration-300 hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
+                  >
+                    <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
+                      <img
+                        src={
+                          user.profilePicture ||
+                          `https://ui-avatars.com/api/?name=${user.name || "User"}&background=D4AF37&color=000`
+                        }
+                        alt='Profile'
+                        className='w-full h-full object-cover'
+                      />
+                    </div>
+                  </button>
+
+                  <div className='hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'>
+                    <div className='text-right hidden lg:block'>
+                      <p className='text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white'>
+                        {user.firstName || user.name?.split(" ")[0] || "Member"}
                       </p>
+                      <div className='flex items-center justify-end gap-1'>
+                        <div className='w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse' />
+                        <p className='text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none'>
+                          Elite
+                        </p>
+                      </div>
+                    </div>
+                    <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
+                      <img
+                        src={
+                          user.profilePicture ||
+                          `https://ui-avatars.com/api/?name=${user.name || "User"}&background=D4AF37&color=000`
+                        }
+                        alt='Profile'
+                        className='w-full h-full object-cover'
+                      />
                     </div>
                   </div>
-                  <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
-                    <img
-                      src={
-                        user.profilePicture ||
-                        `https://ui-avatars.com/api/?name=${user.name || "User"}&background=D4AF37&color=000`
-                      }
-                      alt='Profile'
-                      className='w-full h-full object-cover'
-                    />
-                  </div>
-                </div>
+                </>
               ) : (
                 <Link
                   href='/auth/login'
@@ -292,10 +305,7 @@ const Navbar = () => {
           >
             {/* Header Section */}
             <div className='flex justify-between items-center p-8 shrink-0'>
-              <BrandLogo
-                mobile
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
+              <BrandLogo mobile onClick={() => setIsMobileMenuOpen(false)} />
               <span
                 className='hidden text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
@@ -328,6 +338,22 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navLinks.length * 0.1 }}
+                >
+                  <button
+                    type='button'
+                    onClick={handleLogout}
+                    className='text-[9px] font-black text-rose-500 hover:text-rose-400 transition-colors tracking-[0.2em] block uppercase text-right'
+                  >
+                    Logout
+                  </button>
+                </motion.div>
+              )}
             </div>
 
             {/* Footer / User Section */}
@@ -352,15 +378,9 @@ const Navbar = () => {
                     <p className='text-xl font-bold text-white truncate'>
                       {user.firstName || user.name}
                     </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Stop click from triggering profile navigation
-                        handleLogout();
-                      }}
-                      className='text-[9px] font-black text-rose-500 uppercase tracking-[0.2em] mt-1 hover:text-rose-400 transition-colors'
-                    >
-                      Log Out
-                    </button>
+                    <p className='text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mt-1'>
+                      View Profile
+                    </p>
                   </div>
                 </div>
               ) : (
