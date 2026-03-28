@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, Zap, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, Zap, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ProductVariant } from "@/app/lib/types";
 
@@ -34,6 +34,20 @@ const ProductCard = ({
   const brandName = name.split(" ")[0];
   const inStockVariants = variants.filter((v) => v.stock > 0 && v.availability);
   const isOutOfStock = inStockVariants.length === 0;
+  const nameLength = name.trim().length;
+  const normalizedCategory = category.trim().toLowerCase();
+  const nameSizeClass =
+    nameLength > 30
+      ? "text-[11px] md:text-lg"
+      : nameLength > 22
+        ? "text-xs md:text-xl"
+        : "text-sm md:text-2xl";
+  const availabilityLabel =
+    normalizedCategory === "t-shirts"
+      ? "styles available"
+      : normalizedCategory === "accessories"
+        ? "Variants available"
+        : "flavors available";
 
   return (
     <motion.div
@@ -57,13 +71,13 @@ const ProductCard = ({
         }}
         transition={{ duration: 0.4, ease: "circOut" }}
         className={`
-          relative flex-grow flex flex-col overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem]
+          relative h-[350px] md:h-[560px] flex flex-col overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem]
           backdrop-blur-3xl border shadow-xl
           ${isOutOfStock ? "opacity-60" : ""}
         `}
       >
         {/* --- Image Section --- */}
-        <div className='relative h-44 md:h-72 shrink-0 overflow-hidden bg-zinc-900'>
+        <div className='relative h-44 md:h-100 shrink-0 overflow-hidden bg-zinc-900'>
           {/* Smooth Zoom Effect - NO Color Change */}
           <motion.img
             src={productImage[0] || "/placeholder.jpg"}
@@ -116,19 +130,27 @@ const ProductCard = ({
               {brandName}
             </span>
 
-            <h3 className='text-sm md:text-2xl font-bold text-white tracking-tight mb-2 uppercase'>
+            <h3
+              className={`${nameSizeClass} font-bold text-white tracking-tight mb-2 uppercase leading-none whitespace-nowrap overflow-hidden text-ellipsis`}
+              title={name}
+            >
               {name}
             </h3>
 
-            <div className='flex items-baseline gap-3'>
-              <span className='text-sm md:text-lg font-medium text-zinc-300'>
+            <div className='flex items-center justify-between gap-2'>
+              <span className='text-sm md:text-lg font-medium text-zinc-300 whitespace-nowrap'>
                 Rs.{basePrice.toLocaleString()}
               </span>
-              {!isOutOfStock && (
-                <span className='inline-flex items-center gap-1 text-[9px] text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded text-xs'>
-                  <Sparkles size={8} /> In Stock
-                </span>
-              )}
+              <span
+                className={`inline-flex items-center gap-1 whitespace-nowrap rounded px-2 py-0.5 text-[9px] font-medium ${
+                  isOutOfStock
+                    ? "bg-rose-500/10 text-rose-300"
+                    : "bg-[#D4AF37]/10 text-[#D4AF37]"
+                }`}
+              >
+                <Sparkles size={8} />
+                {isOutOfStock ? "Out of Stock" : "In Stock"}
+              </span>
             </div>
           </div>
 
@@ -162,7 +184,7 @@ const ProductCard = ({
                       ))}
                     </div>
                     <span className='text-[9px] text-zinc-600 font-bold uppercase tracking-widest'>
-                      {variants.length} variants
+                      {variants.length} {availabilityLabel}
                     </span>
                   </div>
                 </motion.div>
@@ -187,7 +209,7 @@ const ProductCard = ({
           {/* Mobile Bottom Bar (Always Visible) */}
           <div className='flex md:hidden items-center justify-between mt-4 pt-3 border-t border-white/5'>
             <span className='text-[10px] text-zinc-400'>
-              {variants.length} Variants Available
+              {variants.length} {availabilityLabel}
             </span>
             <div className='p-2 bg-white/5 rounded-full'>
               <ArrowRight size={12} className='text-[#D4AF37]' />
