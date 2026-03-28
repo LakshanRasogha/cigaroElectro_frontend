@@ -4,33 +4,27 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ShoppingBag, Zap, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-interface Variant {
-  flavor: string;
-  emoji: string;
-  stock: number;
-  availability: boolean;
-}
+import type { ProductVariant } from "@/app/lib/types";
 
 interface ProductProps {
   productKey: string;
   name: string;
-  tagline: string;
+  tagline?: string;
   basePrice: number;
-  productImage: string[];
-  variants: Variant[];
-  category: string;
+  productImage?: string[];
+  variants?: ProductVariant[];
+  category?: string;
   index?: number;
 }
 
 const ProductCard = ({
   productKey,
   name,
-  tagline,
+  tagline = "",
   basePrice,
-  productImage,
+  productImage = [],
   variants = [],
-  category,
+  category = "",
   index = 0,
 }: ProductProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -72,7 +66,7 @@ const ProductCard = ({
         <div className='relative h-44 md:h-72 shrink-0 overflow-hidden bg-zinc-900'>
           {/* Smooth Zoom Effect - NO Color Change */}
           <motion.img
-            src={productImage[0]}
+            src={productImage[0] || "/placeholder.jpg"}
             alt={name}
             animate={{ scale: isHovered ? 1.08 : 1 }}
             transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }} // Custom Bezier for premium feel

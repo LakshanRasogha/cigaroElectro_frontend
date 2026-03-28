@@ -23,6 +23,7 @@ import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
 import PhoneRegionSelect from "@/app/components/phone_region_select";
 import {
   DEFAULT_PHONE_REGION,
@@ -101,9 +102,11 @@ export default function Register() {
           router.push("/auth/login");
         }, 2000);
       }
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.message || "Registration failed.";
-      setMessage({ type: "error", text: errorMsg });
+    } catch (error: unknown) {
+      setMessage({
+        type: "error",
+        text: getErrorMessage(error, "Registration failed."),
+      });
     } finally {
       setLoading(false);
     }
@@ -387,6 +390,17 @@ export default function Register() {
 }
 
 // Mobile-Optimized Input Field Component
+interface InputFieldProps {
+  icon: React.ReactNode;
+  iconSm?: React.ReactNode;
+  label: string;
+  name: string;
+  type: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: boolean;
+}
+
 const InputField = ({
   icon,
   iconSm,
@@ -396,7 +410,7 @@ const InputField = ({
   value,
   onChange,
   error = false,
-}: any) => {
+}: InputFieldProps) => {
   const isPasswordField = type === "password";
   const [showPassword, setShowPassword] = useState(false);
 

@@ -45,6 +45,7 @@ import InventoryPage from "../inventory/page";
 // IMPORTANT: Ensure you have created this file at src/app/orders/page.tsx or equivalent
 import OrdersPage from "../orders/page";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
 
 // --- TYPES & INTERFACES ---
 
@@ -508,9 +509,9 @@ export default function App() {
           Array.isArray(ordersResponse.data) ? ordersResponse.data : [],
         ),
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       setCustomersError(
-        error.response?.data?.message || "Failed to load customer records.",
+        getErrorMessage(error, "Failed to load customer records."),
       );
     } finally {
       setCustomersLoading(false);
@@ -552,9 +553,9 @@ export default function App() {
             }
           : prev,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       setCustomersError(
-        error.response?.data?.message || "Failed to update customer access.",
+        getErrorMessage(error, "Failed to update customer access."),
       );
     } finally {
       setUpdatingCustomerId(null);
@@ -780,7 +781,7 @@ export default function App() {
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
               <div className='lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm'>
                 <div className='h-[300px] w-full'>
-                  <ResponsiveContainer width='100%' height='100%'>
+                  <ResponsiveContainer width='100%' height={300} minWidth={0}>
                     <AreaChart data={revenueData}>
                       <defs>
                         <linearGradient

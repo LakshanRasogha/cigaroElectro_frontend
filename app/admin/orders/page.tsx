@@ -25,6 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 import { getEntityId, getListKey } from "@/app/lib/entity_id";
+import { getErrorMessage } from "@/app/lib/errors";
 
 // --- TYPES ---
 
@@ -453,14 +454,17 @@ export default function OrdersPage() {
       });
 
       setOrders(response.data);
-    } catch (err: any) {
-      console.error("Fetch error:", err);
-      if (err.response?.status === 403 || err.response?.status === 401) {
+    } catch (error: unknown) {
+      console.error("Fetch error:", error);
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 403 || error.response?.status === 401)
+      ) {
         setError(
           "Unauthorized: You do not have permission to view these orders.",
         );
       } else {
-        setError("Failed to load orders. Check your connection.");
+        setError(getErrorMessage(error, "Failed to load orders. Check your connection."));
       }
     } finally {
       setLoading(false);
@@ -473,7 +477,7 @@ export default function OrdersPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await axios.put(
+      await axios.put(
         apiUrl(`/orders/status/${encodeURIComponent(orderId)}`),
         { status: newStatus },
         { headers: getAuthHeaders() },
@@ -491,9 +495,14 @@ export default function OrdersPage() {
             : order,
         ),
       );
-    } catch (err: any) {
-      console.error("Update status error:", err);
-      alert("Failed to update status. Please check permissions or network.");
+    } catch (error: unknown) {
+      console.error("Update status error:", error);
+      alert(
+        getErrorMessage(
+          error,
+          "Failed to update status. Please check permissions or network.",
+        ),
+      );
     }
   };
 

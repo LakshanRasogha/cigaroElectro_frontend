@@ -14,9 +14,10 @@ import axios from "axios";
 import Navbar from "../components/navbar";
 import { apiUrl } from "@/app/lib/api";
 import { getListKey } from "@/app/lib/entity_id";
+import type { Product } from "@/app/lib/types";
 
 const ProductsPage = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -34,7 +35,9 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(apiUrl("/products/get"));
+        const res = await axios.get(
+          apiUrl("/products/get"),
+        );
         const data = Array.isArray(res.data)
           ? res.data
           : res.data.products || [];
@@ -262,7 +265,7 @@ const MobileProductCard = ({
   product,
   index,
 }: {
-  product: any;
+  product: Product;
   index: number;
 }) => {
   const router = useRouter();
@@ -329,11 +332,11 @@ const MobileProductCard = ({
         <span className='px-2 py-0.5 bg-black/80 backdrop-blur-sm text-[#D4AF37] rounded-full text-[6px] font-black uppercase tracking-wider border border-[#D4AF37]/30'>
           {product.category?.slice(0, 8)}
         </span>
-        {product.variants?.length > 1 && (
+        {(product.variants?.length ?? 0) > 1 && (
           <div className='flex items-center gap-0.5 px-1.5 py-0.5 bg-[#D4AF37]/10 backdrop-blur-sm rounded-full border border-[#D4AF37]/30'>
             <Package size={8} className='text-[#D4AF37]' />
             <span className='text-[5px] font-black text-[#D4AF37]'>
-              {product.variants.length}
+              {product.variants?.length ?? 0}
             </span>
           </div>
         )}

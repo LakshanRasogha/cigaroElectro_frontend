@@ -28,19 +28,46 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
+import type { AppUser, CartItem } from "@/app/lib/types";
+
+interface AddressForm {
+  address: string;
+  city: string;
+  postalCode: string;
+  phone: string;
+}
+
+interface CartItemCardProps {
+  item: CartItem;
+  onUpdate: (cartId: string, delta: number) => void;
+  onRemove: (cartId: string) => void;
+}
+
+interface AddressModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user: AppUser | null;
+  option: "profile" | "new";
+  setOption: React.Dispatch<React.SetStateAction<"profile" | "new">>;
+  newAddress: AddressForm;
+  setNewAddress: React.Dispatch<React.SetStateAction<AddressForm>>;
+  onConfirm: () => void;
+  loading: boolean;
+}
 
 const CartPage = () => {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isSyncing, setIsSyncing] = useState(true);
   const [isOrderLoading, setIsOrderLoading] = useState(false);
 
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [addressOption, setAddressOption] = useState<"profile" | "new">(
     "profile",
   );
-  const [newAddress, setNewAddress] = useState({
+  const [newAddress, setNewAddress] = useState<AddressForm>({
     address: "",
     city: "",
     postalCode: "",
@@ -56,14 +83,14 @@ const CartPage = () => {
 
     if (savedBag) {
       try {
-        setCartItems(JSON.parse(savedBag));
+        setCartItems(JSON.parse(savedBag) as CartItem[]);
       } catch (err) {
         console.error("Cart Sync Error:", err);
       }
     }
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        setUser(JSON.parse(storedUser) as AppUser);
       } catch (err) {
         console.error("User Sync Error:", err);
       }
@@ -138,12 +165,12 @@ const CartPage = () => {
         setShowAddressModal(false);
         router.push("/profile");
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message;
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "Dispatch failure.");
       alert(
         errorMessage === "Sorry your account is Blocked"
           ? "Sorry your account is Blocked"
-          : errorMessage || "Dispatch failure.",
+          : errorMessage,
       );
     } finally {
       setIsOrderLoading(false);
@@ -339,7 +366,7 @@ const CartPage = () => {
 };
 
 /* --- RESPONSIVE GRID CARD --- */
-const CartItemCard = ({ item, onUpdate, onRemove }: any) => {
+const CartItemCard = ({ item, onUpdate, onRemove }: CartItemCardProps) => {
   return (
     <motion.div
       layout
@@ -414,7 +441,7 @@ const AddressModal = ({
   setNewAddress,
   onConfirm,
   loading,
-}: any) => {
+}: AddressModalProps) => {
   if (!isOpen) return null;
   return (
     <div className='fixed inset-0 z-[120] flex items-center justify-center p-6'>

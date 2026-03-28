@@ -15,6 +15,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { apiUrl } from "@/app/lib/api";
 import { getListKey } from "@/app/lib/entity_id";
+import type { Product } from "@/app/lib/types";
 
 // --- Swiper Imports ---
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,28 +23,6 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-
-// --- TypeScript Interfaces ---
-interface Variant {
-  flavor: string;
-  emoji: string;
-  stock: number;
-  availability: boolean;
-}
-
-interface Product {
-  id?: string;
-  _id?: string;
-  key: string;
-  name: string;
-  tagline: string;
-  basePrice: number;
-  productImage: string[];
-  variants: Variant[];
-  category: string;
-  sale?: string;
-  [key: string]: any;
-}
 
 const TshirtSection = () => {
   const [products, setProducts] = useState<Product[]>([]);

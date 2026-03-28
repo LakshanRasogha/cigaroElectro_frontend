@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, Variants } from 'framer-motion';
 import { getEntityId } from '@/app/lib/entity_id';
+import type { ProductVariant } from '@/app/lib/types';
 import { 
   ShoppingBag, 
   CheckCircle2, 
@@ -16,11 +17,11 @@ import {
 } from 'lucide-react';
 
 interface VariantCardProps {
-  variant: any;
+  variant: ProductVariant;
   index: number;
   isActive: boolean;
   onSelect: () => void;
-  onAddToCart: (variant: any) => void;
+  onAddToCart: (variant: ProductVariant) => void;
 }
 
 const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: VariantCardProps) => {
@@ -78,21 +79,23 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
     return 'from-[#D4AF37]/20 to-[#AA771C]/20'; // Default gold gradient
   };
 
-  const particleVariants: Variants[] = [...Array(12)].map((_, i) => ({
-    initial: { x: 0, y: 0, opacity: 0, scale: 0 },
-    animate: { 
-      x: (Math.random() - 0.5) * 150,
-      y: (Math.random() - 0.5) * 150,
-      opacity: [0, 1, 0],
-      scale: [0, 1, 0],
-      transition: { 
-        duration: 3 + Math.random() * 2,
-        repeat: Infinity,
-        delay: i * 0.15,
-        ease: "easeOut" 
-      }
-    }
-  }));
+  const [particleVariants] = useState<Variants[]>(() =>
+    Array.from({ length: 12 }, (_, i) => ({
+      initial: { x: 0, y: 0, opacity: 0, scale: 0 },
+      animate: {
+        x: (i % 2 === 0 ? 1 : -1) * (60 + i * 5),
+        y: (i % 3 === 0 ? -1 : 1) * (40 + i * 6),
+        opacity: [0, 1, 0],
+        scale: [0, 1, 0],
+        transition: {
+          duration: 3 + (i % 4) * 0.5,
+          repeat: Infinity,
+          delay: i * 0.15,
+          ease: "easeOut",
+        },
+      },
+    })),
+  );
 
   return (
     <motion.div

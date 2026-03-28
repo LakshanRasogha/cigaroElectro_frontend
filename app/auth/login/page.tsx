@@ -21,6 +21,8 @@ import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
+import type { AppUser } from "@/app/lib/types";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -35,7 +37,7 @@ const LoginPage = () => {
   const backdropUrl =
     "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop";
 
-  const completeLogin = (user: any, token: string) => {
+  const completeLogin = (user: AppUser, token: string) => {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
@@ -66,10 +68,12 @@ const LoginPage = () => {
 
       const { user, token } = response.data;
       completeLogin(user, token);
-    } catch (err: any) {
+    } catch (error: unknown) {
       setError(
-        err.response?.data?.message ||
+        getErrorMessage(
+          error,
           "Access Denied. Terminal could not verify credentials.",
+        ),
       );
     } finally {
       setLoading(false);
@@ -92,10 +96,12 @@ const LoginPage = () => {
 
       const { user, token } = response.data;
       completeLogin(user, token);
-    } catch (err: any) {
+    } catch (error: unknown) {
       setError(
-        err.response?.data?.message ||
+        getErrorMessage(
+          error,
           "Google authentication failed. Check your Google client setup.",
+        ),
       );
     } finally {
       setGoogleLoading(false);

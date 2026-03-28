@@ -24,6 +24,7 @@ import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import Navbar from "../components/navbar";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
 import PhoneRegionSelect from "@/app/components/phone_region_select";
 import {
   DEFAULT_PHONE_REGION,
@@ -31,6 +32,7 @@ import {
   normalizePhoneDigits,
   splitPhoneNumber,
 } from "@/app/lib/phone";
+import type { AppUser } from "@/app/lib/types";
 
 // Initialize Supabase Client
 const supabase = createClient(
@@ -58,7 +60,7 @@ interface ShippingAddress {
   phone: string;
 }
 
-interface User {
+interface User extends AppUser {
   _id: string;
   firstName: string;
   lastName: string;
@@ -209,8 +211,8 @@ const ProfilePage = () => {
         setEditForm((prev) => ({ ...prev, profilePicture: publicUrl }));
         window.dispatchEvent(new Event("storage"));
       }
-    } catch (err: any) {
-      alert("Upload failed: " + err.message);
+    } catch (error: unknown) {
+      alert(`Upload failed: ${getErrorMessage(error, "Upload failed.")}`);
     } finally {
       setIsUploading(false);
     }
@@ -249,8 +251,8 @@ const ProfilePage = () => {
         setIsEditModalOpen(false);
         window.dispatchEvent(new Event("storage"));
       }
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || "Update failed.");
+    } catch (error: unknown) {
+      setErrorMsg(getErrorMessage(error, "Update failed."));
     } finally {
       setIsUpdating(false);
     }

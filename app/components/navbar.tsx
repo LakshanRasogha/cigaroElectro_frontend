@@ -13,12 +13,15 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { AppUser, CartItem } from "@/app/lib/types";
 
 // --- Types ---
-interface CartItem {
-  quantity: number;
-  price: number;
-  [key: string]: any;
+interface NavbarSnapshot {
+  user: AppUser | null;
+  cartStats: {
+    count: number;
+    total: number;
+  };
 }
 
 const BrandLogo = ({
@@ -38,49 +41,67 @@ const BrandLogo = ({
 );
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const readNavbarSnapshot = (): NavbarSnapshot => {
+    if (typeof window === "undefined") {
+      return {
+        user: null,
+        cartStats: { count: 0, total: 0 },
+      };
+    }
+
+    let user: AppUser | null = null;
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      try {
+        user = JSON.parse(savedUser) as AppUser;
+      } catch {
+        user = null;
+      }
+    }
+
+    let cartStats = { count: 0, total: 0 };
+    const savedBag = localStorage.getItem("bag");
+
+    if (savedBag) {
+      try {
+        const items = JSON.parse(savedBag) as CartItem[];
+        cartStats = {
+          count: items.reduce(
+            (acc: number, item: CartItem) => acc + item.quantity,
+            0,
+          ),
+          total: items.reduce(
+            (acc: number, item: CartItem) => acc + item.price * item.quantity,
+            0,
+          ),
+        };
+      } catch {
+        cartStats = { count: 0, total: 0 };
+      }
+    }
+
+    return { user, cartStats };
+  };
+
+  const initialSnapshot = readNavbarSnapshot();
+  const [isScrolled, setIsScrolled] = useState(
+    typeof window !== "undefined" ? window.scrollY > 20 : false,
+  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [cartStats, setCartStats] = useState({ count: 0, total: 0 });
+  const [user, setUser] = useState<AppUser | null>(initialSnapshot.user);
+  const [cartStats, setCartStats] = useState(initialSnapshot.cartStats);
 
   const pathname = usePathname();
   const router = useRouter();
 
   const syncNavbarData = () => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (err) {
-        setUser(null);
-      }
-    } else {
-      setUser(null);
-    }
-
-    const savedBag = localStorage.getItem("bag");
-    if (savedBag) {
-      try {
-        const items: CartItem[] = JSON.parse(savedBag);
-        const count = items.reduce(
-          (acc: number, item: CartItem) => acc + item.quantity,
-          0,
-        );
-        const total = items.reduce(
-          (acc: number, item: CartItem) => acc + item.price * item.quantity,
-          0,
-        );
-        setCartStats({ count, total });
-      } catch (err) {
-        setCartStats({ count: 0, total: 0 });
-      }
-    } else {
-      setCartStats({ count: 0, total: 0 });
-    }
+    const snapshot = readNavbarSnapshot();
+    setUser(snapshot.user);
+    setCartStats(snapshot.cartStats);
   };
 
   useEffect(() => {
-    syncNavbarData();
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("cartUpdated", syncNavbarData);

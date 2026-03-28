@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+
   // 1. Clears the cross-origin warning for your local network testing
   allowedDevOrigins: ["192.168.101.1", "localhost"],
 

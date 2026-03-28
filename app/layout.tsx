@@ -5,21 +5,21 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap", // Optimization 1: Added display swap
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap", // Optimization 1: Added display swap
 });
 
-export const metadata = {
-  // This tells Next.js the root URL for all your images and links
+// Optimization 2: Explicitly typed the metadata object
+export const metadata: Metadata = {
   metadataBase: new URL("https://cigarroelectrico.com"),
-
   title: "CigarroElectrico",
   description:
-    "Shop premium vapes, exclusive accessories, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality.",
-
+    "Shop premium vapes, exclusive accessories, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality, Cigarro Electrico",
   openGraph: {
     title: "CigarroElectrico | Vapes & Culture",
     description:
@@ -29,7 +29,6 @@ export const metadata = {
     locale: "en_US",
     type: "website",
   },
-
   twitter: {
     card: "summary_large_image",
     title: "CigarroElectrico | Vapes & Culture",
@@ -44,7 +43,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    // Optimization 3: Moved suppressHydrationWarning to the HTML tag
+    <html lang='en' suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
