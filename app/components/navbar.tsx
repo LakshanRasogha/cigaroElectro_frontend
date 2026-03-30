@@ -84,39 +84,60 @@ const Navbar = () => {
     return { user, cartStats };
   };
 
-  const initialSnapshot = readNavbarSnapshot();
   const [isScrolled, setIsScrolled] = useState(
     typeof window !== "undefined" ? window.scrollY > 20 : false,
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<AppUser | null>(initialSnapshot.user);
-  const [cartStats, setCartStats] = useState(initialSnapshot.cartStats);
+  const [navbarSnapshot, setNavbarSnapshot] = useState<NavbarSnapshot>(() =>
+    readNavbarSnapshot(),
+  );
+  const user = navbarSnapshot.user;
+  const cartStats = navbarSnapshot.cartStats;
 
   const pathname = usePathname();
   const router = useRouter();
 
-  const syncNavbarData = () => {
-    const snapshot = readNavbarSnapshot();
-    setUser(snapshot.user);
-    setCartStats(snapshot.cartStats);
-  };
-
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("cartUpdated", syncNavbarData);
-    window.addEventListener("storage", syncNavbarData);
+    let rafId = 0;
+
+    const updateScrollState = () => {
+      rafId = 0;
+      const nextIsScrolled = window.scrollY > 20;
+      setIsScrolled((prev) =>
+        prev === nextIsScrolled ? prev : nextIsScrolled,
+      );
+    };
+
+    const handleScroll = () => {
+      if (rafId !== 0) return;
+      rafId = window.requestAnimationFrame(updateScrollState);
+    };
+
+    const handleNavbarSync = () => {
+      setNavbarSnapshot(readNavbarSnapshot());
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("cartUpdated", handleNavbarSync);
+    window.addEventListener("storage", handleNavbarSync);
+
     return () => {
+      if (rafId !== 0) {
+        window.cancelAnimationFrame(rafId);
+      }
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("cartUpdated", syncNavbarData);
-      window.removeEventListener("storage", syncNavbarData);
+      window.removeEventListener("cartUpdated", handleNavbarSync);
+      window.removeEventListener("storage", handleNavbarSync);
     };
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    setUser(null);
+    setNavbarSnapshot((prev) => ({
+      ...prev,
+      user: null,
+    }));
     setIsMobileMenuOpen(false);
     router.push("/");
     router.refresh();
@@ -133,7 +154,7 @@ const Navbar = () => {
     <nav
       className={`fixed w-full z-[100] transition-all duration-500 ${
         isScrolled
-          ? "bg-black/80 backdrop-blur-2xl border-b border-[#D4AF37]/20 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+          ? "bg-black/92 border-b border-[#D4AF37]/20 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
           : "bg-transparent py-6"
       }`}
     >

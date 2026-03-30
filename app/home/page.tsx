@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 
 // Standardizing component imports
 import Footer from "../components/footer";
@@ -13,100 +12,67 @@ import Headers from "../components/header";
 import ShopSection from "../UI/shopsection";
 import HeritageSection from "../UI/aboutsection";
 import TshirtSection from "../UI/tshirtsection";
-
-// Register GSAP plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { apiUrl } from "@/app/lib/api";
+import type { Product } from "@/app/lib/types";
 
 const Home = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // 1. Nav Entrance
-      gsap.from(".navbar-anim", {
-        y: -100,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power4.out",
-        delay: 0.2,
+    let active = true;
+
+    axios
+      .get(apiUrl("/products/get"))
+      .then((response) => {
+        if (!active) return;
+        const data = Array.isArray(response.data)
+          ? response.data
+          : response.data.products || [];
+        setProducts(data);
+      })
+      .catch((error) => console.error("Failed to fetch products", error))
+      .finally(() => {
+        if (active) setLoading(false);
       });
 
-      // 2. Floating Gold Orbs
-      gsap.to(".gold-orb", {
-        y: "random(-100, 100)",
-        x: "random(-50, 50)",
-        duration: 12,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: 0.8,
-      });
-
-      // 3. Section Reveal (Updated for tighter layout)
-      const sections = gsap.utils.toArray<HTMLElement>(".reveal-section");
-      sections.forEach((section) => {
-        gsap.fromTo(
-          section,
-          { y: 50, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 85%",
-              toggleActions: "play none none reverse",
-            },
-          },
-        );
-      });
-
-      // 4. Parallax
-      gsap.to(".parallax-orb", {
-        scrollTrigger: {
-          trigger: "body",
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 2,
-        },
-        y: (i, target) => {
-          const speed = parseFloat(target.dataset.speed || "1");
-          return speed * 150;
-        },
-        ease: "none",
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
+    return () => {
+      active = false;
+    };
   }, []);
 
+  const hardwareProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const name = product.name.toLowerCase();
+        const category = product.category.toLowerCase();
+        return !name.includes("t-shirt") && !category.includes("t-shirt");
+      }),
+    [products],
+  );
+
+  const tshirtProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const name = product.name.toLowerCase();
+        const category = product.category.toLowerCase();
+        return name.includes("t-shirts") || category.includes("t-shirts");
+      }),
+    [products],
+  );
+
   return (
-    <div
-      ref={containerRef}
-      className='bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans'
-    >
+    <div className='bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans'>
       {/* --- FIXED NAVBAR --- */}
-      <div className='navbar-anim fixed top-0 left-0 right-0 z-[100]'>
+      <div className='fixed top-0 left-0 right-0 z-[100]'>
         <Navbar />
       </div>
 
       {/* --- Ambient Luxury Gold Background Elements --- */}
-      <div className='fixed inset-0 pointer-events-none z-0'>
-        <div
-          data-speed='1.2'
-          className='gold-orb parallax-orb absolute top-[-10%] left-[-5%] w-[800px] h-[800px] bg-[#D4AF37]/5 blur-[150px] rounded-full'
-        />
-        <div
-          data-speed='-0.8'
-          className='gold-orb parallax-orb absolute top-[30%] right-[-10%] w-[700px] h-[700px] bg-[#AA771C]/5 blur-[130px] rounded-full'
-        />
-        <div
-          data-speed='1.5'
-          className='gold-orb parallax-orb absolute bottom-[5%] left-[-5%] w-[600px] h-[600px] bg-[#D4AF37]/3 blur-[120px] rounded-full'
-        />
+      <div className='absolute inset-0 pointer-events-none z-0 overflow-hidden'>
+        <div className='absolute top-0 left-[-10%] w-[28rem] h-[28rem] bg-[#D4AF37]/5 blur-[110px] rounded-full' />
+        <div className='absolute top-[28%] right-[-8%] w-[24rem] h-[24rem] bg-[#AA771C]/5 blur-[100px] rounded-full' />
+        <div className='absolute bottom-[10%] left-[-6%] w-[22rem] h-[22rem] bg-[#D4AF37]/4 blur-[90px] rounded-full' />
       </div>
 
       {/* --- Main Content Wrap --- */}
@@ -117,19 +83,19 @@ const Home = () => {
 
         {/* Shop Section */}
         {/* Removed padding, keeping background consistent */}
-        <section className='reveal-section bg-[#050505]' id='shop'>
-          <ShopSection />
+        <section className='bg-[#050505]' id='shop'>
+          <ShopSection products={hardwareProducts} loading={loading} />
         </section>
 
         {/* T-Shirt Section */}
         {/* Removed 'py-20', added bg color to match previous section seamlessly */}
-        <section className='reveal-section bg-[#050505]'>
-          <TshirtSection />
+        <section className='bg-[#050505]'>
+          <TshirtSection products={tshirtProducts} loading={loading} />
         </section>
 
         {/* Heritage Section */}
         {/* Removed specific gradients that might cause visual breaks, ensuring seamless flow */}
-        <section className='reveal-section bg-[#050505]' id='about'>
+        <section className='bg-[#050505]' id='about'>
           <HeritageSection />
         </section>
 

@@ -1,45 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ProductCard from "../components/product_card";
 import { Loader2, ChevronLeft, ChevronRight, Shirt } from "lucide-react";
-import axios from "axios";
-import { motion } from "framer-motion";
-import { apiUrl } from "@/app/lib/api";
 import { getListKey } from "@/app/lib/entity_id";
 import type { Product } from "@/app/lib/types";
 
 // --- Swiper Imports ---
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-const TshirtSection = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+interface TshirtSectionProps {
+  products: Product[];
+  loading: boolean;
+}
 
-  useEffect(() => {
-    axios
-      .get(apiUrl("/products/get"))
-      .then((response) => {
-        const data = Array.isArray(response.data)
-          ? response.data
-          : response.data.products || [];
-
-        // --- FILTERING LOGIC: T-SHIRTS ONLY ---
-        const filteredProducts = data.filter((product: Product) => {
-          const name = product.name.toLowerCase();
-          const category = product.category.toLowerCase();
-          return name.includes("t-shirts") || category.includes("t-shirts");
-        });
-
-        setProducts(filteredProducts);
-      })
-      .catch((error) => console.error("Failed to fetch products", error))
-      .finally(() => setLoading(false));
-  }, []);
+const TshirtSection = ({ products, loading }: TshirtSectionProps) => {
 
   // If no t-shirts are found and not loading, we can return null
   if (!loading && products.length === 0) return null;
@@ -71,11 +50,7 @@ const TshirtSection = () => {
         {/* Header Section */}
         <div className='flex flex-col md:flex-row justify-between items-end md:items-center mb-10 md:mb-16 gap-6'>
           <div className='max-w-2xl'>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className='flex items-center gap-3 mb-3'
-            >
+            <div className='flex items-center gap-3 mb-3'>
               <div className='p-1.5 bg-white/10 rounded-lg shadow-lg border border-white/10 backdrop-blur-md'>
                 <Shirt
                   size={16}
@@ -88,7 +63,7 @@ const TshirtSection = () => {
               >
                 Limited Edition
               </span>
-            </motion.div>
+            </div>
           </div>
 
           <div className='flex flex-col sm:flex-row items-end sm:items-center gap-4 md:gap-6 w-full md:w-auto'>
@@ -112,14 +87,13 @@ const TshirtSection = () => {
           </div>
         ) : (
           <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
+            modules={[Navigation, Pagination]}
             spaceBetween={15}
             slidesPerView={2}
             navigation={{
               nextEl: ".swiper-next-btn-tshirt",
               prevEl: ".swiper-prev-btn-tshirt",
             }}
-            autoplay={{ delay: 6000, disableOnInteraction: false }}
             breakpoints={{
               768: {
                 slidesPerView: 3,
@@ -141,14 +115,8 @@ const TshirtSection = () => {
                   key={getListKey(prod, productKey || i)}
                   className='h-auto'
                 >
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
-                    className='group relative h-full py-2'
-                  >
-                    <div className='h-full rounded-[2rem] md:rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-xl border border-white/10 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/50 shadow-2xl'>
+                  <div className='relative h-full py-2'>
+                    <div className='h-full rounded-[2rem] md:rounded-[2.5rem] bg-[#0a0a0a] border border-white/10 overflow-hidden shadow-2xl'>
                       {prod.sale && (
                         <div className='absolute top-3 right-3 md:top-4 md:right-4 z-20 px-2.5 py-1 rounded-full bg-[#D4AF37] text-black shadow-lg'>
                           <span className='text-[7px] md:text-[8px] font-black uppercase'>
@@ -159,13 +127,12 @@ const TshirtSection = () => {
 
                       <ProductCard
                         productKey={productKey}
-                        index={i}
                         {...otherProps}
                         tagline={otherProps.tagline || "Premium Cotton Blend"}
                         category='T-shirts'
                       />
                     </div>
-                  </motion.div>
+                  </div>
                 </SwiperSlide>
               );
             })}

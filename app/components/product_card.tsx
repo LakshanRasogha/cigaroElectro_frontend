@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Zap, ArrowRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ProductVariant } from "@/app/lib/types";
@@ -14,7 +13,6 @@ interface ProductProps {
   productImage?: string[];
   variants?: ProductVariant[];
   category?: string;
-  index?: number;
 }
 
 const ProductCard = ({
@@ -25,9 +23,7 @@ const ProductCard = ({
   productImage = [],
   variants = [],
   category = "",
-  index = 0,
 }: ProductProps) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const router = useRouter();
 
@@ -43,40 +39,24 @@ const ProductCard = ({
         : "text-sm md:text-2xl";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+    <div
       onClick={() => router.push(`/collections/${productKey}`)}
-      className='relative flex flex-col h-full group cursor-pointer'
+      className='relative flex flex-col h-full cursor-pointer'
     >
-      <motion.div
-        animate={{
-          y: isHovered ? -10 : 0,
-          borderColor: isHovered
-            ? "rgba(212,175,55,0.4)"
-            : "rgba(255,255,255,0.05)",
-          backgroundColor: isHovered
-            ? "rgba(255,255,255,0.03)"
-            : "rgba(255,255,255,0.02)",
-        }}
-        transition={{ duration: 0.4, ease: "circOut" }}
+      <div
         className={`
           relative h-[350px] md:h-[590px] flex flex-col overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem]
-          backdrop-blur-3xl border shadow-xl
+          border border-white/5 shadow-xl bg-white/[0.02]
           ${isOutOfStock ? "opacity-60" : ""}
         `}
       >
         {/* --- Image Section --- */}
         <div className='relative h-44 md:h-84 shrink-0 overflow-hidden bg-zinc-900'>
-          {/* Smooth Zoom Effect - NO Color Change */}
-          <motion.img
+          <img
             src={productImage[0] || "/placeholder.jpg"}
             alt={name}
-            animate={{ scale: isHovered ? 1.08 : 1 }}
-            transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }} // Custom Bezier for premium feel
+            loading='lazy'
+            decoding='async'
             className='w-full h-full object-cover'
           />
 
@@ -91,14 +71,12 @@ const ProductCard = ({
           </div>
 
           {/* Like Button */}
-          <motion.button
-            whileTap={{ scale: 0.8 }}
-            whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.8)" }}
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setIsLiked(!isLiked);
             }}
-            className='absolute top-3 right-3 md:top-6 md:right-6 z-20 p-2.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10 transition-colors'
+            className='absolute top-3 right-3 md:top-6 md:right-6 z-20 p-2.5 bg-black/60 rounded-full border border-white/10'
           >
             <Heart
               size={14}
@@ -106,13 +84,9 @@ const ProductCard = ({
                 isLiked ? "fill-[#D4AF37] text-[#D4AF37]" : "text-white"
               }
             />
-          </motion.button>
+          </button>
 
-          {/* Gradient Overlay - Slightly stronger on hover */}
-          <motion.div
-            animate={{ opacity: isHovered ? 0.6 : 0.4 }}
-            className='absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent'
-          />
+          <div className='absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-45' />
         </div>
 
         {/* --- Content Section --- */}
@@ -142,56 +116,30 @@ const ProductCard = ({
             </div>
           </div>
 
-          {/* --- Desktop Interactive Area (The "Switch") --- */}
-          {/* This area swaps the description for the button smoothly */}
-          <div className='hidden md:block mt-6 h-[60px] relative'>
-            <AnimatePresence mode='wait'>
-              {!isHovered ? (
-                // STATE 1: Default Tagline & Variants
-                <motion.div
-                  key='info'
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className='absolute inset-0'
-                >
-                  <p className='text-[11px] text-zinc-500 font-medium leading-relaxed line-clamp-2 mb-3'>
-                    {tagline}
-                  </p>
-                  {/* Mini Variant Bubbles */}
-                  <div className='flex items-center gap-2'>
-                    <div className='flex -space-x-2'>
-                      {variants.slice(0, 3).map((v, i) => (
-                        <div
-                          key={i}
-                          className='w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[8px]'
-                        >
-                          {v.emoji}
-                        </div>
-                      ))}
+          <div className='hidden md:block mt-6'>
+            <p className='text-[11px] text-zinc-500 font-medium leading-relaxed line-clamp-2 mb-3 min-h-[34px]'>
+              {tagline}
+            </p>
+            <div className='flex items-center justify-between gap-3'>
+              <div className='flex items-center gap-2'>
+                <div className='flex -space-x-2'>
+                  {variants.slice(0, 3).map((v, i) => (
+                    <div
+                      key={i}
+                      className='w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[8px]'
+                    >
+                      {v.emoji}
                     </div>
-                    <span className='text-[9px] text-zinc-600 font-bold uppercase tracking-widest'>
-                      {variants.length} variants
-                    </span>
-                  </div>
-                </motion.div>
-              ) : (
-                // STATE 2: The "View" Button
-                <motion.div
-                  key='action'
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.3 }}
-                  className='absolute inset-0 flex items-center'
-                >
-                  <button className='w-full h-[50px] bg-[#D4AF37] hover:bg-[#c5a028] text-black font-bold uppercase tracking-[0.2em] text-[10px] rounded-xl flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all'>
-                    View Collection <ArrowRight size={14} />
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  ))}
+                </div>
+                <span className='text-[9px] text-zinc-600 font-bold uppercase tracking-widest'>
+                  {variants.length} variants
+                </span>
+              </div>
+              <div className='flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]'>
+                View Collection <ArrowRight size={14} />
+              </div>
+            </div>
           </div>
 
           {/* Mobile Bottom Bar (Always Visible) */}
@@ -204,8 +152,8 @@ const ProductCard = ({
             </div>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 

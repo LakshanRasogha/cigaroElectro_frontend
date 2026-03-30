@@ -22,15 +22,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
 import Link from "next/link";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -64,10 +59,7 @@ const AboutPage = () => {
         opacity: 0,
         duration: 1,
         stagger: 0.1,
-        scrollTrigger: {
-          trigger: statsRef.current,
-          start: "top 90%",
-        },
+        delay: 0.3,
       });
     }, containerRef);
 
