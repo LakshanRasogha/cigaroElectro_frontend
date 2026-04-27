@@ -476,9 +476,7 @@ export default function App() {
           address: user.address,
           orders: relatedOrders.slice(0, 5).map((order) => ({
             id: order.orderId,
-            date: new Date(
-              order.orderDate || order.createdAt || Date.now(),
-            ).toLocaleDateString("en-US", {
+            date: new Date(order.orderDate || order.createdAt || 0).toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -603,6 +601,7 @@ export default function App() {
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className='p-2 hover:bg-slate-100 rounded-full'
+                suppressHydrationWarning
               >
                 <X size={20} />
               </button>
@@ -709,6 +708,7 @@ export default function App() {
             <button
               className='lg:hidden p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors'
               onClick={() => setIsMobileMenuOpen(true)}
+              suppressHydrationWarning
             >
               <Menu size={24} />
             </button>
@@ -736,9 +736,13 @@ export default function App() {
                 className='pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                suppressHydrationWarning
               />
             </div>
-            <button className='p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-500 transition-colors relative'>
+            <button
+              className='p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-500 transition-colors relative'
+              suppressHydrationWarning
+            >
               <Bell size={20} />
               <span className='absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white' />
             </button>

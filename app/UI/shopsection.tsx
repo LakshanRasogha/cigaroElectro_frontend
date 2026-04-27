@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import ProductCard from "../components/product_card";
 import {
   Zap,
@@ -26,6 +26,7 @@ interface ShopSectionProps {
 }
 
 const ShopSection = ({ products, loading }: ShopSectionProps) => {
+  const visibleProducts = useMemo(() => products.slice(0, 7), [products]);
 
   return (
     <section
@@ -118,7 +119,7 @@ const ShopSection = ({ products, loading }: ShopSectionProps) => {
             }}
             className='pb-10 custom-gold-swiper !overflow-visible'
           >
-            {products.map((prod, i) => {
+            {visibleProducts.map((prod, i) => {
               // Destructure 'key' to avoid React 19 spread error
               const { key: productKey, ...otherProps } = prod;
 

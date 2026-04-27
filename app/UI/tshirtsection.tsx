@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import ProductCard from "../components/product_card";
 import { Loader2, ChevronLeft, ChevronRight, Shirt } from "lucide-react";
 import { getListKey } from "@/app/lib/entity_id";
@@ -19,9 +19,10 @@ interface TshirtSectionProps {
 }
 
 const TshirtSection = ({ products, loading }: TshirtSectionProps) => {
+  const visibleProducts = useMemo(() => products.slice(0, 5), [products]);
 
   // If no t-shirts are found and not loading, we can return null
-  if (!loading && products.length === 0) return null;
+  if (!loading && visibleProducts.length === 0) return null;
 
   return (
     <section className='relative bg-[#050505] overflow-hidden' id='merch'>
@@ -107,7 +108,7 @@ const TshirtSection = ({ products, loading }: TshirtSectionProps) => {
             }}
             className='pb-10 custom-tshirt-swiper !overflow-visible'
           >
-            {products.map((prod, i) => {
+            {visibleProducts.map((prod, i) => {
               const { key: productKey, ...otherProps } = prod;
 
               return (

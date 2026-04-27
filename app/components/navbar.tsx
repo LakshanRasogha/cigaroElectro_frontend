@@ -88,11 +88,17 @@ const Navbar = () => {
     typeof window !== "undefined" ? window.scrollY > 20 : false,
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [navbarSnapshot, setNavbarSnapshot] = useState<NavbarSnapshot>(() =>
-    readNavbarSnapshot(),
-  );
+  const [navbarSnapshot, setNavbarSnapshot] = useState<NavbarSnapshot>({
+    user: null,
+    cartStats: { count: 0, total: 0 },
+  });
   const user = navbarSnapshot.user;
   const cartStats = navbarSnapshot.cartStats;
+  const profileImageSrc = user?.profilePicture
+    ? user.profilePicture
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        user?.firstName || user?.name || user?.email || "User",
+      )}&background=D4AF37&color=000`;
 
   const pathname = usePathname();
   const router = useRouter();
@@ -117,6 +123,7 @@ const Navbar = () => {
       setNavbarSnapshot(readNavbarSnapshot());
     };
 
+    handleNavbarSync();
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("cartUpdated", handleNavbarSync);
     window.addEventListener("storage", handleNavbarSync);
@@ -195,24 +202,23 @@ const Navbar = () => {
             <div className='relative group'>
               {user ? (
                 <>
-                  <button
-                    type='button'
-                    onClick={() => router.push("/profile")}
+                  <Link
+                    href='/profile'
                     className='md:hidden flex items-center justify-center p-1 rounded-full transition-all duration-300 hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
                   >
                     <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
                       <img
-                        src={
-                          user.profilePicture ||
-                          `https://ui-avatars.com/api/?name=${user.name || "User"}&background=D4AF37&color=000`
-                        }
+                        src={profileImageSrc}
                         alt='Profile'
                         className='w-full h-full object-cover'
                       />
                     </div>
-                  </button>
+                  </Link>
 
-                  <div className='hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'>
+                  <Link
+                    href='/profile'
+                    className='hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
+                  >
                     <div className='text-right hidden lg:block'>
                       <p className='text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white'>
                         {user.firstName || user.name?.split(" ")[0] || "Member"}
@@ -226,15 +232,12 @@ const Navbar = () => {
                     </div>
                     <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
                       <img
-                        src={
-                          user.profilePicture ||
-                          `https://ui-avatars.com/api/?name=${user.name || "User"}&background=D4AF37&color=000`
-                        }
+                        src={profileImageSrc}
                         alt='Profile'
                         className='w-full h-full object-cover'
                       />
                     </div>
-                  </div>
+                  </Link>
                 </>
               ) : (
                 <Link
@@ -410,10 +413,7 @@ const Navbar = () => {
                 >
                   <img
                     className='w-14 h-14 rounded-xl object-cover border-2 border-[#D4AF37]'
-                    src={
-                      user.profilePicture ||
-                      `https://ui-avatars.com/api/?name=${user.firstName || user.name}&background=D4AF37&color=000`
-                    }
+                    src={profileImageSrc}
                     alt='user'
                   />
                   <div className='overflow-hidden'>

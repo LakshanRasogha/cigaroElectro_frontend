@@ -42,7 +42,7 @@ const supabase = createClient(
 
 // --- Interfaces ---
 interface OrderedItem {
-  _id: string;
+  id: string;
   name: string;
   basePrice: number;
   variant: {
@@ -78,7 +78,7 @@ interface User extends AppUser {
 }
 
 interface Order {
-  _id: string;
+  id: string;
   orderId: string;
   totalAmount: number;
   status: string;
@@ -433,7 +433,7 @@ const ProfilePage = () => {
                   </div>
                 ) : orders.length > 0 ? (
                   orders.map((order) => (
-                    <OrderRow key={order._id} order={order} />
+                    <OrderRow key={order.id} order={order} />
                   ))
                 ) : (
                   <div className='p-20 text-center text-zinc-600 font-black uppercase text-xs tracking-widest'>
@@ -586,7 +586,7 @@ const OrderRow = ({ order }: { order: Order }) => {
           <div className='min-w-0'>
             <div className='flex items-center gap-2'>
               <p className='text-sm font-black uppercase tracking-tight truncate'>
-                {order.orderId || `Order #${order._id.slice(-6).toUpperCase()}`}
+                {order.orderId || `Order #${order.id.slice(-6).toUpperCase()}`}
               </p>
               <ChevronRight
                 size={14}
@@ -637,7 +637,7 @@ const OrderRow = ({ order }: { order: Order }) => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                 {order.orderedItems.map((item) => (
                   <div
-                    key={item._id}
+                    key={item.id}
                     className='flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2 rounded-xl group/item transition-colors hover:border-[#D4AF37]/30'
                   >
                     <div className='w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-800 border border-white/5'>

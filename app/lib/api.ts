@@ -1,4 +1,8 @@
-const rawApiBaseUrl = process.env.NEXT_PUBLIC_API?.trim() ?? "";
+const defaultApiBaseUrl =
+  process.env.NODE_ENV === "development" ? "http://localhost:3001" : "";
+
+const rawApiBaseUrl =
+  process.env.NEXT_PUBLIC_API?.trim() || defaultApiBaseUrl;
 
 export const apiBaseUrl = rawApiBaseUrl.endsWith("/")
   ? rawApiBaseUrl.slice(0, -1)
