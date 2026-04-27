@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import type { CredentialResponse } from "@react-oauth/google";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { motion } from "framer-motion";
 import {
   Mail,
-  Lock,
+  Eye,
+  EyeOff,
   ArrowRight,
-  Github,
-  Chrome,
-  Zap,
   Loader2,
   Sparkles,
   ShieldCheck,
@@ -20,16 +20,40 @@ import {
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { apiUrl } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
+import type { AppUser } from "@/app/lib/types";
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   const backdropUrl =
     "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop";
+
+  const completeLogin = (user: AppUser, token: string) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
+    const secureCookie = window.location.protocol === "https:" ? " Secure;" : "";
+    document.cookie = `session=${token}; path=/;${secureCookie} SameSite=Strict`;
+
+    window.dispatchEvent(new Event("storage"));
+
+    if (user.role === "admin") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/");
+    }
+
+    router.refresh();
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,37 +61,55 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API}/users/login`,
-        {
-          email,
-          password,
-        },
-      );
+      const response = await axios.post(apiUrl("/users/login"), {
+        email,
+        password,
+      });
 
       const { user, token } = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", token);
-
-      document.cookie = `session=${token}; path=/; Secure; SameSite=Strict`;
-
-      window.dispatchEvent(new Event("storage"));
-
-      if (user.role === "admin") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/");
-      }
-
-      router.refresh();
-    } catch (err: any) {
+      completeLogin(user, token);
+    } catch (error: unknown) {
       setError(
-        err.response?.data?.message ||
+        getErrorMessage(
+          error,
           "Access Denied. Terminal could not verify credentials.",
+        ),
       );
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError("Google sign-in did not return a valid credential.");
+      return;
+    }
+
+    setGoogleLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post(apiUrl("/users/google"), {
+        token: credentialResponse.credential,
+      });
+
+      const { user, token } = response.data;
+      completeLogin(user, token);
+    } catch (error: unknown) {
+      setError(
+        getErrorMessage(
+          error,
+          "Google authentication failed. Check your Google client setup.",
+        ),
+      );
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google authentication failed before the token reached the server.");
   };
 
   return (
@@ -126,8 +168,13 @@ const LoginPage = () => {
                   className='w-full h-full object-cover'
                 />
               </div>
+              <img
+                src='/logo 2 gld.png'
+                alt='CigaroElectro wordmark'
+                className='h-10 w-auto object-contain'
+              />
               <span
-                className='text-2xl font-normal tracking-tight text-white'
+                className='hidden text-2xl font-normal tracking-tight text-white'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 <span className='text-[#D4AF37]'>Cigarro</span>Eléctrico
@@ -200,8 +247,13 @@ const LoginPage = () => {
                 className='w-full h-full object-cover'
               />
             </div>
+            <img
+              src='/logo 2 gld.png'
+              alt='CigaroElectro wordmark'
+              className='h-8 w-auto object-contain'
+            />
             <span
-              className='text-base font-normal text-white'
+              className='hidden text-base font-normal text-white'
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
               <span className='text-[#D4AF37]'>Cigarro</span>Eléctrico
@@ -283,13 +335,21 @@ const LoginPage = () => {
                   size={16}
                 />
                 <input
-                  type='password'
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder='••••••••'
-                  className='w-full bg-white/[0.03] border border-white/5 rounded-xl sm:rounded-2xl pl-10 pr-4 py-3 sm:py-4 text-white text-xs sm:text-sm font-bold placeholder:text-zinc-800 focus:bg-white/[0.05] focus:border-[#D4AF37]/30 focus:ring-2 focus:ring-[#D4AF37]/10 transition-all outline-none'
+                  className='w-full bg-white/[0.03] border border-white/5 rounded-xl sm:rounded-2xl pl-10 pr-12 py-3 sm:py-4 text-white text-xs sm:text-sm font-bold placeholder:text-zinc-800 focus:bg-white/[0.05] focus:border-[#D4AF37]/30 focus:ring-2 focus:ring-[#D4AF37]/10 transition-all outline-none'
                 />
+                <button
+                  type='button'
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-[#D4AF37] transition-colors'
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
@@ -338,47 +398,62 @@ const LoginPage = () => {
             </div>
 
             {/* Social Buttons - Mobile Optimized */}
-            <div className='grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
-              <SocialButton
-                icon={<Chrome size={14} className='sm:hidden' />}
-                iconSm={<Chrome size={16} className='hidden sm:block' />}
-                label='Google'
-              />
-              <SocialButton
-                icon={<Github size={14} className='sm:hidden' />}
-                iconSm={<Github size={16} className='hidden sm:block' />}
-                label='Github'
-              />
+            <div className='grid gap-3 sm:gap-4'>
+              {googleClientId ? (
+                <GoogleOAuthProvider clientId={googleClientId}>
+                  <div className='space-y-2'>
+                    <div className='min-h-11 rounded-xl sm:rounded-2xl overflow-hidden'>
+                      <div className='w-full [&>div]:!w-full [&_iframe]:!w-full'>
+                        <GoogleLogin
+                          onSuccess={handleGoogleSuccess}
+                          onError={handleGoogleError}
+                          text='signin_with'
+                          shape='pill'
+                          theme='outline'
+                          size='large'
+                          width='100%'
+                        />
+                      </div>
+                    </div>
+                    {googleLoading && (
+                      <div className='flex items-center justify-center gap-2 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#D4AF37]'>
+                        <Loader2 className='animate-spin' size={14} />
+                        Verifying Google Identity
+                      </div>
+                    )}
+                  </div>
+                </GoogleOAuthProvider>
+              ) : (
+                <div className='rounded-xl sm:rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-amber-400 text-center'>
+                  Set NEXT_PUBLIC_GOOGLE_CLIENT_ID to enable Google sign-in
+                </div>
+              )}
             </div>
+
+            <p className='text-[9px] sm:text-[10px] md:text-[11px] leading-6 text-zinc-500 font-medium text-center'>
+              By continuing, you confirm that you are an adult and have read
+              and accepted our{" "}
+              <Link
+                href='/free-membership-agreement'
+                className='text-[#D4AF37] hover:text-[#F2D37D] transition-colors underline underline-offset-4'
+              >
+                CigarroElectrico Free Membership Agreement
+              </Link>{" "}
+              and{" "}
+              <Link
+                href='/privacy-policy'
+                className='text-[#D4AF37] hover:text-[#F2D37D] transition-colors underline underline-offset-4'
+              >
+                Privacy Policy
+              </Link>
+              . Your information may be used for marketing purposes, but you
+              can opt out at any time.
+            </p>
           </form>
         </div>
       </div>
     </div>
   );
 };
-
-// Social Button Component - Mobile Optimized
-const SocialButton = ({
-  icon,
-  iconSm,
-  label,
-}: {
-  icon: React.ReactNode;
-  iconSm?: React.ReactNode;
-  label: string;
-}) => (
-  <motion.button
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-    type='button'
-    className='flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#D4AF37]/30 transition-all duration-500 text-zinc-400 hover:text-[#D4AF37] font-bold uppercase text-[7px] sm:text-[8px] md:text-[9px] tracking-widest group'
-  >
-    <span className='sm:hidden'>{icon}</span>
-    <span className='hidden sm:block'>{iconSm || icon}</span>
-    <span className='group-hover:text-[#D4AF37] transition-colors'>
-      {label}
-    </span>
-  </motion.button>
-);
 
 export default LoginPage;

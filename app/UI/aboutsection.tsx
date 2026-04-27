@@ -1,12 +1,21 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { ShieldCheck, Zap, ArrowRight, ChevronRight } from "lucide-react";
+import { ShieldCheck, Zap, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const HeritageSection = () => {
   const router = useRouter();
+  const partners = [
+    "Elfbar",
+    "Vozol",
+    "Voltbar",
+    "Lost Mary",
+    "Nasty",
+    "Tkyo",
+    "GeekVape",
+    "Caliburn",
+  ];
 
   const handleNavigation = () => {
     router.push("/about");
@@ -20,13 +29,7 @@ const HeritageSection = () => {
 
       <div className='max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-20 relative z-10'>
         {/* --- Video Card Side --- */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className='lg:w-1/2 relative group'
-        >
+        <div className='lg:w-1/2 relative group'>
           {/* Top-Left Gold Accent */}
           <div className='absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-[#D4AF37] rounded-tl-[3rem] z-20 group-hover:-translate-x-2 group-hover:-translate-y-2 transition-all duration-700 shadow-[0_0_25px_rgba(212,175,55,0.4)]' />
 
@@ -37,7 +40,9 @@ const HeritageSection = () => {
               loop
               muted
               playsInline
-              className='w-full h-full object-cover opacity-80 transition-transform duration-[3s] group-hover:scale-105'
+              preload='metadata'
+              poster='/Poster.jpeg'
+              className='w-full h-full object-cover opacity-80'
             >
               <source src='/vape4.mp4' type='video/mp4' />
             </video>
@@ -56,16 +61,11 @@ const HeritageSection = () => {
 
           {/* Bottom-Right Gold Accent */}
           <div className='absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 border-[#D4AF37]/50 rounded-br-[3rem] z-20 group-hover:translate-x-2 group-hover:translate-y-2 transition-all duration-700 shadow-[0_0_25px_rgba(212,175,55,0.2)]' />
-        </motion.div>
+        </div>
 
         {/* --- Content Side --- */}
         <div className='lg:w-1/2'>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
+          <div>
             <div className='flex items-center gap-6 mb-10'>
               <span className='h-[1px] w-16 bg-gradient-to-r from-[#D4AF37] to-transparent'></span>
               <span className='text-[#D4AF37] uppercase tracking-[0.5em] text-[10px] font-black block'>
@@ -122,16 +122,30 @@ const HeritageSection = () => {
               </div>
             </div>
 
+            <div className='mb-16'>
+              <div className='flex items-center gap-4 mb-6'>
+                <span className='h-[1px] w-12 bg-gradient-to-r from-[#D4AF37] to-transparent' />
+                <span className='text-[#D4AF37] uppercase tracking-[0.35em] text-[10px] font-black'>
+                  Partner Network
+                </span>
+              </div>
+
+              <div className='flex flex-wrap gap-3 max-w-2xl'>
+                {partners.map((partner) => (
+                  <div
+                    key={partner}
+                    className='rounded-full border border-[#D4AF37]/20 bg-white/[0.03] px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-200 transition-colors hover:border-[#D4AF37]/40 hover:text-[#D4AF37]'
+                  >
+                    {partner}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Primary Action Button */}
             <div className='flex flex-col sm:flex-row gap-6 items-start sm:items-center'>
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
+              <button
                 onClick={handleNavigation}
-                // UPDATED: px-5 (was px-7) and py-2.5 (was py-3) for a slimmer look
                 className='group relative bg-[#D4AF37] text-black px-5 py-2.5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.25em] transition-all shadow-[0_10px_25px_rgba(212,175,55,0.25)]'
               >
                 <span
@@ -142,9 +156,9 @@ const HeritageSection = () => {
                   <ChevronRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5' />
                 </span>
                 <div className='absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out' />
-              </motion.button>
+              </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 

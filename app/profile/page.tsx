@@ -23,6 +23,16 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
 import Navbar from "../components/navbar";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
+import PhoneRegionSelect from "@/app/components/phone_region_select";
+import {
+  DEFAULT_PHONE_REGION,
+  combinePhoneNumber,
+  normalizePhoneDigits,
+  splitPhoneNumber,
+} from "@/app/lib/phone";
+import type { AppUser } from "@/app/lib/types";
 
 // Initialize Supabase Client
 const supabase = createClient(
@@ -32,7 +42,7 @@ const supabase = createClient(
 
 // --- Interfaces ---
 interface OrderedItem {
-  _id: string;
+  id: string;
   name: string;
   basePrice: number;
   variant: {
@@ -50,7 +60,7 @@ interface ShippingAddress {
   phone: string;
 }
 
-interface User {
+interface User extends AppUser {
   _id: string;
   firstName: string;
   lastName: string;
@@ -68,7 +78,7 @@ interface User {
 }
 
 interface Order {
-  _id: string;
+  id: string;
   orderId: string;
   totalAmount: number;
   status: string;
@@ -80,7 +90,8 @@ interface Order {
 interface EditForm {
   firstName: string;
   lastName: string;
-  phone: string;
+  phoneRegion: string;
+  phoneNumber: string;
   address: string;
   city: string;
   postalCode: string;
@@ -102,7 +113,8 @@ const ProfilePage = () => {
   const [editForm, setEditForm] = useState<EditForm>({
     firstName: "",
     lastName: "",
-    phone: "",
+    phoneRegion: DEFAULT_PHONE_REGION,
+    phoneNumber: "",
     address: "",
     city: "",
     postalCode: "",
@@ -121,12 +133,9 @@ const ProfilePage = () => {
     }
 
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await axios.get(apiUrl("/orders/getOrders"), {
+        headers: getAuthHeaders(),
+      });
       setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -140,11 +149,13 @@ const ProfilePage = () => {
     if (storedUser) {
       try {
         const parsed: User = JSON.parse(storedUser);
+        const parsedPhone = splitPhoneNumber(parsed.phone);
         setUser(parsed);
         setEditForm({
           firstName: parsed.firstName || "",
           lastName: parsed.lastName || "",
-          phone: parsed.phone || "",
+          phoneRegion: parsedPhone.regionCode,
+          phoneNumber: parsedPhone.localNumber,
           address: parsed.address?.address || "",
           city: parsed.address?.city || "",
           postalCode: parsed.address?.postalCode || "",
@@ -184,14 +195,12 @@ const ProfilePage = () => {
       } = supabase.storage.from("profile").getPublicUrl(filePath);
 
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`,
+        apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
         {
           profilePicture: publicUrl,
         },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: getAuthHeaders(),
         },
       );
 
@@ -202,8 +211,8 @@ const ProfilePage = () => {
         setEditForm((prev) => ({ ...prev, profilePicture: publicUrl }));
         window.dispatchEvent(new Event("storage"));
       }
-    } catch (err: any) {
-      alert("Upload failed: " + err.message);
+    } catch (error: unknown) {
+      alert(`Upload failed: ${getErrorMessage(error, "Upload failed.")}`);
     } finally {
       setIsUploading(false);
     }
@@ -218,7 +227,7 @@ const ProfilePage = () => {
     const payload = {
       firstName: editForm.firstName,
       lastName: editForm.lastName,
-      phone: editForm.phone,
+      phone: combinePhoneNumber(editForm.phoneRegion, editForm.phoneNumber),
       address: {
         address: editForm.address,
         city: editForm.city,
@@ -228,12 +237,10 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/users/edit/${user.email}`,
+        apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
         payload,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: getAuthHeaders(),
         },
       );
 
@@ -244,8 +251,8 @@ const ProfilePage = () => {
         setIsEditModalOpen(false);
         window.dispatchEvent(new Event("storage"));
       }
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || "Update failed.");
+    } catch (error: unknown) {
+      setErrorMsg(getErrorMessage(error, "Update failed."));
     } finally {
       setIsUpdating(false);
     }
@@ -328,9 +335,18 @@ const ProfilePage = () => {
                   {user.firstName} {user.lastName}
                 </h1>
                 <div className='flex items-center justify-center gap-2 mt-2'>
-                  <Crown size={14} className='text-[#D4AF37]' />
-                  <span className='text-[10px] font-black uppercase tracking-widest text-[#D4AF37] px-3 py-1 bg-[#D4AF37]/10 rounded-full border border-[#D4AF37]/20'>
-                    {user.role}
+                  <Crown
+                    size={14}
+                    className={user.isBlocked ? "text-rose-400" : "text-[#D4AF37]"}
+                  />
+                  <span
+                    className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                      user.isBlocked
+                        ? "text-rose-400 bg-rose-500/10 border-rose-500/20"
+                        : "text-[#D4AF37] bg-[#D4AF37]/10 border-[#D4AF37]/20"
+                    }`}
+                  >
+                    {user.isBlocked ? "User Blocked" : user.role}
                   </span>
                 </div>
               </div>
@@ -342,6 +358,14 @@ const ProfilePage = () => {
                 >
                   <Edit3 size={16} /> Edit Profile
                 </button>
+                {user.isBlocked && (
+                  <button
+                    onClick={() => router.push("/contact")}
+                    className='w-full py-4 bg-rose-500/10 text-rose-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/15 transition-colors'
+                  >
+                    Contact Us
+                  </button>
+                )}
                 <button
                   onClick={handleLogout}
                   className='w-full py-4 bg-white/5 text-zinc-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500/10 transition-colors'
@@ -409,7 +433,7 @@ const ProfilePage = () => {
                   </div>
                 ) : orders.length > 0 ? (
                   orders.map((order) => (
-                    <OrderRow key={order._id} order={order} />
+                    <OrderRow key={order.id} order={order} />
                   ))
                 ) : (
                   <div className='p-20 text-center text-zinc-600 font-black uppercase text-xs tracking-widest'>
@@ -446,7 +470,7 @@ const ProfilePage = () => {
 
               <div className='p-6 overflow-y-auto max-h-[calc(90vh-100px)]'>
                 <form onSubmit={handleUpdate} className='space-y-6'>
-                  <div className='grid grid-cols-2 gap-4'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <SimpleInput
                       label='First Name'
                       value={editForm.firstName}
@@ -463,10 +487,19 @@ const ProfilePage = () => {
                     />
                   </div>
 
-                  <SimpleInput
-                    label='Phone Number'
-                    value={editForm.phone}
-                    onChange={(v) => setEditForm({ ...editForm, phone: v })}
+                  <PhoneField
+                    label='WhatsApp Number'
+                    regionCode={editForm.phoneRegion}
+                    localNumber={editForm.phoneNumber}
+                    onRegionChange={(value) =>
+                      setEditForm({ ...editForm, phoneRegion: value })
+                    }
+                    onLocalNumberChange={(value) =>
+                      setEditForm({
+                        ...editForm,
+                        phoneNumber: normalizePhoneDigits(value),
+                      })
+                    }
                   />
 
                   <div className='space-y-4 pt-4 border-t border-white/5'>
@@ -477,12 +510,14 @@ const ProfilePage = () => {
                       label='Street Address'
                       value={editForm.address}
                       onChange={(v) => setEditForm({ ...editForm, address: v })}
+                      autoComplete='shipping address-line1'
                     />
-                    <div className='grid grid-cols-2 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                       <SimpleInput
                         label='City'
                         value={editForm.city}
                         onChange={(v) => setEditForm({ ...editForm, city: v })}
+                        autoComplete='shipping address-level2'
                       />
                       <SimpleInput
                         label='Postal Code'
@@ -490,6 +525,7 @@ const ProfilePage = () => {
                         onChange={(v) =>
                           setEditForm({ ...editForm, postalCode: v })
                         }
+                        autoComplete='shipping postal-code'
                       />
                     </div>
                   </div>
@@ -521,6 +557,18 @@ const ProfilePage = () => {
 
 const OrderRow = ({ order }: { order: Order }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const normalizedStatus = order.status?.toLowerCase() || "pending";
+
+  const statusClassName =
+    normalizedStatus === "delivered" || normalizedStatus === "approved"
+      ? "border-emerald-500/20 text-emerald-400 bg-emerald-500/5"
+      : normalizedStatus === "shipped"
+        ? "border-sky-500/20 text-sky-400 bg-sky-500/5"
+        : normalizedStatus === "pending" ||
+            normalizedStatus === "cancelled" ||
+            normalizedStatus === "rejected"
+          ? "border-rose-500/20 text-rose-400 bg-rose-500/5"
+          : "border-amber-500/20 text-amber-400 bg-amber-500/5";
 
   return (
     <motion.div
@@ -538,7 +586,7 @@ const OrderRow = ({ order }: { order: Order }) => {
           <div className='min-w-0'>
             <div className='flex items-center gap-2'>
               <p className='text-sm font-black uppercase tracking-tight truncate'>
-                {order.orderId || `Order #${order._id.slice(-6).toUpperCase()}`}
+                {order.orderId || `Order #${order.id.slice(-6).toUpperCase()}`}
               </p>
               <ChevronRight
                 size={14}
@@ -558,12 +606,7 @@ const OrderRow = ({ order }: { order: Order }) => {
             Rs. {order.totalAmount?.toLocaleString()}
           </p>
           <span
-            className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border backdrop-blur-md ${
-              order.status.toLowerCase() === "delivered" ||
-              order.status.toLowerCase() === "approved"
-                ? "border-emerald-500/20 text-emerald-400 bg-emerald-500/5"
-                : "border-amber-500/20 text-amber-400 bg-amber-500/5"
-            }`}
+            className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full border backdrop-blur-md ${statusClassName}`}
           >
             {order.status}
           </span>
@@ -594,7 +637,7 @@ const OrderRow = ({ order }: { order: Order }) => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                 {order.orderedItems.map((item) => (
                   <div
-                    key={item._id}
+                    key={item.id}
                     className='flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2 rounded-xl group/item transition-colors hover:border-[#D4AF37]/30'
                   >
                     <div className='w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-800 border border-white/5'>
@@ -673,10 +716,12 @@ const SimpleInput = ({
   label,
   value,
   onChange,
+  autoComplete,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  autoComplete?: string;
 }) => (
   <div className='space-y-1'>
     <label className='text-[9px] font-black uppercase text-zinc-500 ml-2'>
@@ -684,11 +729,48 @@ const SimpleInput = ({
     </label>
     <input
       type='text'
+      autoComplete={autoComplete}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       required
       className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#D4AF37]/50 outline-none transition-all'
     />
+  </div>
+);
+
+const PhoneField = ({
+  label,
+  regionCode,
+  localNumber,
+  onRegionChange,
+  onLocalNumberChange,
+}: {
+  label: string;
+  regionCode: string;
+  localNumber: string;
+  onRegionChange: (value: string) => void;
+  onLocalNumberChange: (value: string) => void;
+}) => (
+  <div className='space-y-1'>
+    <label className='text-[9px] font-black uppercase text-zinc-500 ml-2'>
+      {label}
+    </label>
+    <div className='grid grid-cols-[108px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-3'>
+      <PhoneRegionSelect
+        value={regionCode}
+        onChange={onRegionChange}
+        buttonClassName='bg-white/5 border-white/10 rounded-xl px-2.5 sm:px-3 py-3 text-sm'
+      />
+      <input
+        type='tel'
+        inputMode='numeric'
+        required
+        value={localNumber}
+        onChange={(e) => onLocalNumberChange(e.target.value)}
+        placeholder='WhatsApp number'
+        className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#D4AF37]/50 outline-none transition-all placeholder:text-zinc-500 placeholder:opacity-100'
+      />
+    </div>
   </div>
 );
 

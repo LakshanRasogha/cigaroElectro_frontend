@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  Truck,
   ThumbsUp,
   ThumbsDown,
   Loader2,
@@ -22,6 +23,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getEntityId, getListKey } from "@/app/lib/entity_id";
+import { getErrorMessage } from "@/app/lib/errors";
 
 // --- TYPES ---
 
@@ -33,6 +37,7 @@ interface Variant {
 }
 
 interface OrderedItem {
+  id?: string;
   _id: string;
   productKey: string;
   name: string;
@@ -49,6 +54,7 @@ interface ShippingAddress {
 }
 
 interface Order {
+  id?: string;
   _id: string;
   orderId: string;
   email: string;
@@ -74,6 +80,9 @@ const StatusBadge = ({ status }: { status: string }) => {
   if (normalizedStatus === "approved") {
     style = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
     icon = <CheckCircle2 size={12} />;
+  } else if (normalizedStatus === "shipped") {
+    style = "bg-sky-500/10 text-sky-600 border-sky-500/20";
+    icon = <Truck size={12} />;
   } else if (
     normalizedStatus === "cancelled" ||
     normalizedStatus === "rejected"
@@ -235,6 +244,12 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                           <XCircle size={14} /> Cancel
                         </button>
                         <button
+                          onClick={(e) => handleAction(e, "Shipped")}
+                          className='w-full text-left px-3 py-2 text-xs font-bold text-sky-600 hover:bg-sky-50 rounded-lg flex items-center gap-2'
+                        >
+                          <Truck size={14} /> Mark Shipped
+                        </button>
+                        <button
                           onClick={(e) => handleAction(e, "Pending")}
                           className='w-full text-left px-3 py-2 text-xs font-bold text-amber-600 hover:bg-amber-50 rounded-lg flex items-center gap-2'
                         >
@@ -268,7 +283,10 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                 </h4>
                 {order.orderedItems?.map((item) => (
                   <div
-                    key={item._id}
+                    key={getListKey(
+                      item,
+                      `${item.productKey}-${item.variant?.vKey || item.name}`,
+                    )}
                     className='flex gap-4 p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors'
                   >
                     <div className='w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200'>
@@ -431,22 +449,22 @@ export default function OrdersPage() {
         return;
       }
 
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/getOrders`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await axios.get(apiUrl("/orders/getOrders"), {
+        headers: getAuthHeaders(),
+      });
 
       setOrders(response.data);
-    } catch (err: any) {
-      console.error("Fetch error:", err);
-      if (err.response?.status === 403 || err.response?.status === 401) {
+    } catch (error: unknown) {
+      console.error("Fetch error:", error);
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 403 || error.response?.status === 401)
+      ) {
         setError(
           "Unauthorized: You do not have permission to view these orders.",
         );
       } else {
-        setError("Failed to load orders. Check your connection.");
+        setError(getErrorMessage(error, "Failed to load orders. Check your connection."));
       }
     } finally {
       setLoading(false);
@@ -459,10 +477,10 @@ export default function OrdersPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API}/api/orders/status/${orderId}`,
+      await axios.put(
+        apiUrl(`/orders/status/${encodeURIComponent(orderId)}`),
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: getAuthHeaders() },
       );
 
       // Optimistically update the UI
@@ -477,9 +495,14 @@ export default function OrdersPage() {
             : order,
         ),
       );
-    } catch (err: any) {
-      console.error("Update status error:", err);
-      alert("Failed to update status. Please check permissions or network.");
+    } catch (error: unknown) {
+      console.error("Update status error:", error);
+      alert(
+        getErrorMessage(
+          error,
+          "Failed to update status. Please check permissions or network.",
+        ),
+      );
     }
   };
 
@@ -572,7 +595,7 @@ export default function OrdersPage() {
           <div className='space-y-4'>
             {filteredOrders.map((order) => (
               <OrderCard
-                key={order._id}
+                key={getListKey(order, order.orderId || getEntityId(order))}
                 order={order}
                 onUpdateStatus={handleUpdateStatus}
               />

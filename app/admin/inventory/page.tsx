@@ -20,19 +20,23 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { supabase } from "@/app/lib/supabase";
+import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { getErrorMessage } from "@/app/lib/errors";
+import { getListKey } from "@/app/lib/entity_id";
+import type { Product, ProductVariant } from "@/app/lib/types";
 
 const InventoryRow = ({
   product,
   onEdit,
   onDelete,
 }: {
-  product: any;
-  onEdit: (p: any) => void;
+  product: Product;
+  onEdit: (p: Product) => void;
   onDelete: (key: string) => void;
 }) => {
   const totalStock =
     product.variants?.reduce(
-      (acc: number, curr: any) => acc + (Number(curr.stock) || 0),
+      (acc: number, curr: ProductVariant) => acc + (Number(curr.stock) || 0),
       0,
     ) || 0;
   const status =
@@ -66,7 +70,7 @@ const InventoryRow = ({
                 alt={product.name}
                 className='w-full h-full object-cover'
                 onError={(e) => {
-                  (e.target as any).src =
+                  e.currentTarget.src =
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=random`;
                 }}
               />
@@ -128,7 +132,7 @@ const InventoryRow = ({
 };
 
 export default function InventoryPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,12 +164,10 @@ export default function InventoryPage() {
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const api = process.env.NEXT_PUBLIC_API;
-
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${api}/api/products/get`);
+      const res = await axios.get(apiUrl("/products/get"));
       const data = Array.isArray(res.data) ? res.data : res.data.products || [];
       setProducts(data);
     } catch (err) {
@@ -213,28 +215,36 @@ export default function InventoryPage() {
       } else {
         setFormData({ ...formData, productImage: [data.publicUrl] });
       }
-    } catch (err: any) {
+    } catch (error: unknown) {
       setErrorMsg(
-        err.message ||
+        getErrorMessage(
+          error,
           "Upload failed. Check if bucket 'Laki' exists and is Public.",
+        ),
       );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleEdit = (product: any) => {
+  const handleEdit = (product: Product) => {
     setEditingKey(product.key);
     setFormData({
       key: product.key,
       name: product.name,
-      tagline: product.tagline,
+      tagline: product.tagline || "",
       basePrice: product.basePrice.toString(),
-      deliveryFee: product.deliveryFee.toString(),
+      deliveryFee: String(product.deliveryFee ?? 0),
       category: product.category || "Disposable",
-      description: product.description,
-      productImage: product.productImage,
-      variants: product.variants,
+      description: product.description || "",
+      productImage: product.productImage || [""],
+      variants:
+        product.variants?.map((variant) => ({
+          flavor: variant.flavor,
+          emoji: variant.emoji || "",
+          stock: String(variant.stock ?? 0),
+          variantImage: variant.variantImage || [""],
+        })) || [],
     });
     setIsModalOpen(true);
   };
@@ -243,9 +253,11 @@ export default function InventoryPage() {
     if (!key || key === "N/A" || !window.confirm(`Delete product "${key}"?`))
       return;
     try {
-      await axios.delete(`${api}/api/products/delete/${key}`);
+      await axios.delete(apiUrl(`/products/delete/${encodeURIComponent(key)}`), {
+        headers: getAuthHeaders(),
+      });
       fetchData();
-    } catch (err: any) {
+    } catch {
       setErrorMsg("Failed to delete product.");
     }
   };
@@ -270,16 +282,22 @@ export default function InventoryPage() {
       };
 
       if (editingKey) {
-        await axios.put(`${api}/api/products/update/${editingKey}`, payload);
+        await axios.put(
+          apiUrl(`/products/update/${encodeURIComponent(editingKey)}`),
+          payload,
+          { headers: getAuthHeaders() },
+        );
       } else {
-        await axios.post(`${api}/api/products/add`, payload);
+        await axios.post(apiUrl("/products/add"), payload, {
+          headers: getAuthHeaders(),
+        });
       }
 
       setIsModalOpen(false);
       setEditingKey(null);
       setFormData(initialFormState);
       fetchData();
-    } catch (err: any) {
+    } catch {
       setErrorMsg("Error submitting product.");
     } finally {
       setSubmitting(false);
@@ -383,7 +401,7 @@ export default function InventoryPage() {
                 <tbody>
                   {filteredProducts.map((prod) => (
                     <InventoryRow
-                      key={prod._id}
+                      key={getListKey(prod, prod.key)}
                       product={prod}
                       onEdit={handleEdit}
                       onDelete={handleDelete}

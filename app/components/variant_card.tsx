@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, Variants } from 'framer-motion';
+import { getEntityId } from '@/app/lib/entity_id';
+import type { ProductVariant } from '@/app/lib/types';
 import { 
   ShoppingBag, 
   CheckCircle2, 
@@ -15,11 +17,11 @@ import {
 } from 'lucide-react';
 
 interface VariantCardProps {
-  variant: any;
+  variant: ProductVariant;
   index: number;
   isActive: boolean;
   onSelect: () => void;
-  onAddToCart: (variant: any) => void;
+  onAddToCart: (variant: ProductVariant) => void;
 }
 
 const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: VariantCardProps) => {
@@ -27,6 +29,7 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const controls = useAnimation();
+  const variantCardId = `variant-card-${getEntityId(variant) || index}`;
 
   // Mouse move effect for 3D parallax tilt
   useEffect(() => {
@@ -39,12 +42,13 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
       }
     };
 
-    const element = document.getElementById(`variant-card-${variant._id}`);
+    const element = document.getElementById(variantCardId);
     if (element) {
-      element.addEventListener('mousemove', (e) => handleMouseMove(e as unknown as MouseEvent));
-      return () => element.removeEventListener('mousemove', (e) => handleMouseMove(e as unknown as MouseEvent));
+      const listener = (e: Event) => handleMouseMove(e as MouseEvent);
+      element.addEventListener('mousemove', listener);
+      return () => element.removeEventListener('mousemove', listener);
     }
-  }, [isHovered, variant._id]);
+  }, [isHovered, variantCardId]);
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -75,25 +79,27 @@ const VariantCard = ({ variant, index, isActive, onSelect, onAddToCart }: Varian
     return 'from-[#D4AF37]/20 to-[#AA771C]/20'; // Default gold gradient
   };
 
-  const particleVariants: Variants[] = [...Array(12)].map((_, i) => ({
-    initial: { x: 0, y: 0, opacity: 0, scale: 0 },
-    animate: { 
-      x: (Math.random() - 0.5) * 150,
-      y: (Math.random() - 0.5) * 150,
-      opacity: [0, 1, 0],
-      scale: [0, 1, 0],
-      transition: { 
-        duration: 3 + Math.random() * 2,
-        repeat: Infinity,
-        delay: i * 0.15,
-        ease: "easeOut" 
-      }
-    }
-  }));
+  const [particleVariants] = useState<Variants[]>(() =>
+    Array.from({ length: 12 }, (_, i) => ({
+      initial: { x: 0, y: 0, opacity: 0, scale: 0 },
+      animate: {
+        x: (i % 2 === 0 ? 1 : -1) * (60 + i * 5),
+        y: (i % 3 === 0 ? -1 : 1) * (40 + i * 6),
+        opacity: [0, 1, 0],
+        scale: [0, 1, 0],
+        transition: {
+          duration: 3 + (i % 4) * 0.5,
+          repeat: Infinity,
+          delay: i * 0.15,
+          ease: "easeOut",
+        },
+      },
+    })),
+  );
 
   return (
     <motion.div
-      id={`variant-card-${variant._id}`}
+      id={variantCardId}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}

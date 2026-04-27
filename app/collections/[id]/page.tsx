@@ -22,13 +22,16 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/app/components/navbar";
+import { apiUrl } from "@/app/lib/api";
+import { getEntityId } from "@/app/lib/entity_id";
+import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
 
 const ProductDetailView = () => {
   const params = useParams();
   const router = useRouter();
   const productKey = params.id;
 
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeVariantIdx, setActiveVariantIdx] = useState(0);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -39,13 +42,13 @@ const ProductDetailView = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/api/products/getOne/${productKey}`,
+          apiUrl(`/products/getOne/${encodeURIComponent(String(productKey))}`),
         );
         const data = response.data;
 
         if (Array.isArray(data)) {
           const found = data.find(
-            (p: any) => p.key === productKey || p._id === productKey,
+            (p: Product) => p.key === productKey || getEntityId(p) === productKey,
           );
           setProduct(found || null);
         } else {
@@ -64,12 +67,16 @@ const ProductDetailView = () => {
     setSelectedImage(0);
   }, [activeVariantIdx]);
 
-  const handleAddToCart = (variant: any) => {
-    const cartItem = {
+  const handleAddToCart = (variant: ProductVariant) => {
+    if (!product) {
+      return;
+    }
+
+    const cartItem: CartItem = {
       cartId: `${product.key}-${variant.vKey}`,
       key: product.key,
       vKey: variant.vKey,
-      productId: product._id,
+      productId: getEntityId(product),
       name: product.name,
       flavor: variant.flavor,
       emoji: variant.emoji,
@@ -79,9 +86,9 @@ const ProductDetailView = () => {
       quantity: 1,
     };
 
-    const existingCart = JSON.parse(localStorage.getItem("bag") || "[]");
+    const existingCart = JSON.parse(localStorage.getItem("bag") || "[]") as CartItem[];
     const itemIndex = existingCart.findIndex(
-      (item: any) => item.cartId === cartItem.cartId,
+      (item: CartItem) => item.cartId === cartItem.cartId,
     );
 
     if (itemIndex > -1) {
@@ -262,7 +269,7 @@ const ProductDetailView = () => {
                   {product.name}
                 </h1>
                 <p className='text-xl text-zinc-400 font-light italic'>
-                  "{product.tagline}"
+                  &quot;{product.tagline}&quot;
                 </p>
                 <p className='text-base text-zinc-500 leading-relaxed max-w-xl'>
                   {product.description}
@@ -325,7 +332,7 @@ const ProductDetailView = () => {
             </div>
 
             <div className='grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
-              {product.variants?.map((variant: any, idx: number) => (
+              {product.variants?.map((variant: ProductVariant, idx: number) => (
                 <div key={variant.vKey || idx}>
                   {/* Mobile Card (shows on small screens) */}
                   <div className='lg:hidden'>
@@ -362,7 +369,17 @@ const ProductDetailView = () => {
 };
 
 // NEW: Premium Big Font PC Card
-const PCVariantCard = ({ variant, isActive, onSelect, onAddToCart }: any) => {
+const PCVariantCard = ({
+  variant,
+  isActive,
+  onSelect,
+  onAddToCart,
+}: {
+  variant: ProductVariant;
+  isActive: boolean;
+  onSelect: () => void;
+  onAddToCart: (variant: ProductVariant) => void;
+}) => {
   const [isAdded, setIsAdded] = useState(false);
 
   return (
@@ -442,7 +459,12 @@ const MobileVariantCard = ({
   isActive,
   onSelect,
   onAddToCart,
-}: any) => {
+}: {
+  variant: ProductVariant;
+  isActive: boolean;
+  onSelect: () => void;
+  onAddToCart: (variant: ProductVariant) => void;
+}) => {
   const [isAdded, setIsAdded] = useState(false);
 
   return (

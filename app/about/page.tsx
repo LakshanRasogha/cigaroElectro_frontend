@@ -22,15 +22,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
 import Link from "next/link";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -45,7 +40,7 @@ const AboutPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
 
   useIsomorphicLayoutEffect(() => {
-    let ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {
       gsap.from(".hero-title", {
         y: 40,
         opacity: 0,
@@ -64,10 +59,7 @@ const AboutPage = () => {
         opacity: 0,
         duration: 1,
         stagger: 0.1,
-        scrollTrigger: {
-          trigger: statsRef.current,
-          start: "top 90%",
-        },
+        delay: 0.3,
       });
     }, containerRef);
 
@@ -162,7 +154,7 @@ const AboutPage = () => {
           </h1>
 
           <p className='hero-subtitle max-w-xl mx-auto text-[10px] sm:text-xs text-zinc-500 font-light tracking-[0.15em] leading-loose mb-10 uppercase'>
-            Sri Lanka's premier destination for high-quality vaping hardware,
+            Sri Lanka&apos;s premier destination for high-quality vaping hardware,
             accessories, and apparel. Seven years of trusted curation.
           </p>
 

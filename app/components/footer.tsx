@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Facebook, Instagram, Twitter, MapPin, Mail, Phone, Zap } from 'lucide-react';
+import { Facebook, Instagram, Twitter, MapPin, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
   const socialIcons = [
@@ -21,11 +21,14 @@ const Footer = () => {
         
         {/* Brand Section */}
         <div className="space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#D4AF37] rounded-2xl flex items-center justify-center text-black shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-transform hover:scale-110 duration-500">
-              <Zap size={24} fill="currentColor" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter text-white">
+          <div className="flex items-center">
+            <img
+              src="/logo 2 gld.png"
+              alt="CigaroElectro logo"
+              className="h-14 md:h-16 w-auto object-contain"
+            />
+            <div className="hidden" />
+            <span className="hidden text-2xl font-black tracking-tighter text-white">
               Cigarro<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] italic" style={{ fontFamily: "'Dancing Script', cursive" }}>Eléctrico</span>
             </span>
           </div>

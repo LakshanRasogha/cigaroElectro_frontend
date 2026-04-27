@@ -11,76 +11,140 @@ import {
   LogOut,
   Settings,
   LayoutDashboard,
-  Crown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { AppUser, CartItem } from "@/app/lib/types";
 
 // --- Types ---
-interface CartItem {
-  quantity: number;
-  price: number;
-  [key: string]: any;
+interface NavbarSnapshot {
+  user: AppUser | null;
+  cartStats: {
+    count: number;
+    total: number;
+  };
 }
 
+const BrandLogo = ({
+  mobile = false,
+  onClick,
+}: {
+  mobile?: boolean;
+  onClick?: () => void;
+}) => (
+  <Link href='/' onClick={onClick} className='flex items-center shrink-0'>
+    <img
+      src='/logo 2 gld.png'
+      alt='CigaroElectro logo'
+      className={`w-auto object-contain ${mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"}`}
+    />
+  </Link>
+);
+
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const readNavbarSnapshot = (): NavbarSnapshot => {
+    if (typeof window === "undefined") {
+      return {
+        user: null,
+        cartStats: { count: 0, total: 0 },
+      };
+    }
+
+    let user: AppUser | null = null;
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      try {
+        user = JSON.parse(savedUser) as AppUser;
+      } catch {
+        user = null;
+      }
+    }
+
+    let cartStats = { count: 0, total: 0 };
+    const savedBag = localStorage.getItem("bag");
+
+    if (savedBag) {
+      try {
+        const items = JSON.parse(savedBag) as CartItem[];
+        cartStats = {
+          count: items.reduce(
+            (acc: number, item: CartItem) => acc + item.quantity,
+            0,
+          ),
+          total: items.reduce(
+            (acc: number, item: CartItem) => acc + item.price * item.quantity,
+            0,
+          ),
+        };
+      } catch {
+        cartStats = { count: 0, total: 0 };
+      }
+    }
+
+    return { user, cartStats };
+  };
+
+  const [isScrolled, setIsScrolled] = useState(
+    typeof window !== "undefined" ? window.scrollY > 20 : false,
+  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [cartStats, setCartStats] = useState({ count: 0, total: 0 });
+  const [navbarSnapshot, setNavbarSnapshot] = useState<NavbarSnapshot>({
+    user: null,
+    cartStats: { count: 0, total: 0 },
+  });
+  const user = navbarSnapshot.user;
+  const cartStats = navbarSnapshot.cartStats;
+  const profileImageSrc = user?.profilePicture
+    ? user.profilePicture
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        user?.firstName || user?.name || user?.email || "User",
+      )}&background=D4AF37&color=000`;
 
   const pathname = usePathname();
   const router = useRouter();
 
-  const syncNavbarData = () => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (err) {
-        setUser(null);
-      }
-    } else {
-      setUser(null);
-    }
-
-    const savedBag = localStorage.getItem("bag");
-    if (savedBag) {
-      try {
-        const items: CartItem[] = JSON.parse(savedBag);
-        const count = items.reduce(
-          (acc: number, item: CartItem) => acc + item.quantity,
-          0,
-        );
-        const total = items.reduce(
-          (acc: number, item: CartItem) => acc + item.price * item.quantity,
-          0,
-        );
-        setCartStats({ count, total });
-      } catch (err) {
-        setCartStats({ count: 0, total: 0 });
-      }
-    } else {
-      setCartStats({ count: 0, total: 0 });
-    }
-  };
-
   useEffect(() => {
-    syncNavbarData();
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("cartUpdated", syncNavbarData);
-    window.addEventListener("storage", syncNavbarData);
+    let rafId = 0;
+
+    const updateScrollState = () => {
+      rafId = 0;
+      const nextIsScrolled = window.scrollY > 20;
+      setIsScrolled((prev) =>
+        prev === nextIsScrolled ? prev : nextIsScrolled,
+      );
+    };
+
+    const handleScroll = () => {
+      if (rafId !== 0) return;
+      rafId = window.requestAnimationFrame(updateScrollState);
+    };
+
+    const handleNavbarSync = () => {
+      setNavbarSnapshot(readNavbarSnapshot());
+    };
+
+    handleNavbarSync();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("cartUpdated", handleNavbarSync);
+    window.addEventListener("storage", handleNavbarSync);
+
     return () => {
+      if (rafId !== 0) {
+        window.cancelAnimationFrame(rafId);
+      }
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("cartUpdated", syncNavbarData);
-      window.removeEventListener("storage", syncNavbarData);
+      window.removeEventListener("cartUpdated", handleNavbarSync);
+      window.removeEventListener("storage", handleNavbarSync);
     };
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    setUser(null);
+    setNavbarSnapshot((prev) => ({
+      ...prev,
+      user: null,
+    }));
     setIsMobileMenuOpen(false);
     router.push("/");
     router.refresh();
@@ -97,21 +161,14 @@ const Navbar = () => {
     <nav
       className={`fixed w-full z-[100] transition-all duration-500 ${
         isScrolled
-          ? "bg-black/80 backdrop-blur-2xl border-b border-[#D4AF37]/20 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+          ? "bg-black/92 border-b border-[#D4AF37]/20 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
           : "bg-transparent py-6"
       }`}
     >
       <div className='max-w-7xl mx-auto px-6 lg:px-10'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo Section */}
-          <Link href='/' className='flex items-center gap-3 group'>
-            <span
-              className='text-2xl font-normal tracking-tight text-white flex flex-col md:flex-row md:gap-1 leading-none'
-              style={{ fontFamily: "'Dancing Script', cursive" }}
-            >
-              <span className='text-[#D4AF37]'>CigarroEléctrico</span>
-            </span>
-          </Link>
+          <BrandLogo />
 
           {/* Desktop Navigation */}
           <div className='hidden md:flex space-x-10 items-center font-bold uppercase text-[10px] tracking-[0.25em]'>
@@ -144,29 +201,44 @@ const Navbar = () => {
             {/* User Profile */}
             <div className='relative group'>
               {user ? (
-                <div className='flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'>
-                  <div className='text-right hidden lg:block'>
-                    <p className='text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white'>
-                      {user.firstName || user.name?.split(" ")[0] || "Member"}
-                    </p>
-                    <div className='flex items-center justify-end gap-1'>
-                      <div className='w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse' />
-                      <p className='text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none'>
-                        Elite
-                      </p>
+                <>
+                  <Link
+                    href='/profile'
+                    className='md:hidden flex items-center justify-center p-1 rounded-full transition-all duration-300 hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
+                  >
+                    <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
+                      <img
+                        src={profileImageSrc}
+                        alt='Profile'
+                        className='w-full h-full object-cover'
+                      />
                     </div>
-                  </div>
-                  <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
-                    <img
-                      src={
-                        user.profilePicture ||
-                        `https://ui-avatars.com/api/?name=${user.name || "User"}&background=D4AF37&color=000`
-                      }
-                      alt='Profile'
-                      className='w-full h-full object-cover'
-                    />
-                  </div>
-                </div>
+                  </Link>
+
+                  <Link
+                    href='/profile'
+                    className='hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
+                  >
+                    <div className='text-right hidden lg:block'>
+                      <p className='text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white'>
+                        {user.firstName || user.name?.split(" ")[0] || "Member"}
+                      </p>
+                      <div className='flex items-center justify-end gap-1'>
+                        <div className='w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse' />
+                        <p className='text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none'>
+                          Elite
+                        </p>
+                      </div>
+                    </div>
+                    <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
+                      <img
+                        src={profileImageSrc}
+                        alt='Profile'
+                        className='w-full h-full object-cover'
+                      />
+                    </div>
+                  </Link>
+                </>
               ) : (
                 <Link
                   href='/auth/login'
@@ -278,9 +350,9 @@ const Navbar = () => {
           >
             {/* Header Section */}
             <div className='flex justify-between items-center p-8 shrink-0'>
-              {/* UPDATED: Removed font-bold, added text-2xl and font-normal to match the main desktop logo exactly */}
+              <BrandLogo mobile onClick={() => setIsMobileMenuOpen(false)} />
               <span
-                className='text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
+                className='hidden text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 CigarroEléctrico
@@ -311,6 +383,22 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navLinks.length * 0.1 }}
+                >
+                  <button
+                    type='button'
+                    onClick={handleLogout}
+                    className='text-[9px] font-black text-rose-500 hover:text-rose-400 transition-colors tracking-[0.2em] block uppercase text-right'
+                  >
+                    Logout
+                  </button>
+                </motion.div>
+              )}
             </div>
 
             {/* Footer / User Section */}
@@ -325,25 +413,16 @@ const Navbar = () => {
                 >
                   <img
                     className='w-14 h-14 rounded-xl object-cover border-2 border-[#D4AF37]'
-                    src={
-                      user.profilePicture ||
-                      `https://ui-avatars.com/api/?name=${user.firstName || user.name}&background=D4AF37&color=000`
-                    }
+                    src={profileImageSrc}
                     alt='user'
                   />
                   <div className='overflow-hidden'>
                     <p className='text-xl font-bold text-white truncate'>
                       {user.firstName || user.name}
                     </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Stop click from triggering profile navigation
-                        handleLogout();
-                      }}
-                      className='text-[9px] font-black text-rose-500 uppercase tracking-[0.2em] mt-1 hover:text-rose-400 transition-colors'
-                    >
-                      Log Out
-                    </button>
+                    <p className='text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mt-1'>
+                      View Profile
+                    </p>
                   </div>
                 </div>
               ) : (
