@@ -71,7 +71,7 @@ function buildWhatsAppMessage(
 ): string {
   const lines: string[] = [];
 
-  lines.push("🛒 *NEW ORDER — CIGARO ELECTRO*");
+  lines.push("🛒 *NEW ORDER — CIGARRO ELECTRICO*");
   lines.push("─────────────────────────────");
 
   // Customer details
@@ -112,7 +112,7 @@ function buildWhatsAppMessage(
   lines.push(`*GRAND TOTAL: Rs. ${total.toLocaleString()}*`);
   lines.push("");
   lines.push("─────────────────────────────");
-  lines.push("_Sent via CigaroElectro.lk_");
+  lines.push("_Sent via CigarroElectrico.com_");
 
   return lines.join("\n");
 }
@@ -206,7 +206,7 @@ const CartPage = () => {
     (acc, item) =>
       acc +
       toCurrencyNumber(item.price) *
-        Math.max(1, toCurrencyNumber(item.quantity)),
+      Math.max(1, toCurrencyNumber(item.quantity)),
     0,
   );
   const totalDelivery = cartItems.reduce(
@@ -492,7 +492,13 @@ const CartPage = () => {
                     color: "#fff",
                   }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowAddressModal(true)}
+                  onClick={() => {
+                    if (!localStorage.getItem("token")) {
+                      router.push("/auth/login");
+                      return;
+                    }
+                    setShowAddressModal(true);
+                  }}
                   disabled={cartItems.length === 0}
                   className='w-full py-6 border border-[#25D366]/40 text-[#25D366] rounded-2xl font-black uppercase tracking-[0.4em] text-[9px] flex items-center justify-center gap-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed'
                 >

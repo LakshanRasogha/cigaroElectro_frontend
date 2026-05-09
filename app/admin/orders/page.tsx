@@ -58,7 +58,6 @@ interface Order {
   _id: string;
   orderId: string;
   email: string;
-  // Added these fields based on your backend update
   firstName?: string;
   lastName?: string;
   shippingAddress: ShippingAddress;
@@ -67,6 +66,7 @@ interface Order {
   isApproved: boolean;
   status: string;
   totalAmount: number;
+  packingNumber?: string;
 }
 
 // --- COMPONENTS ---
@@ -108,12 +108,16 @@ const StatusBadge = ({ status }: { status: string }) => {
 interface OrderCardProps {
   order: Order;
   onUpdateStatus: (orderId: string, newStatus: string) => Promise<void>;
+  onSetPackingNumber: (orderId: string, packingNumber: string) => Promise<void>;
 }
 
-const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
+const OrderCard = ({ order, onUpdateStatus, onSetPackingNumber }: OrderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [packingInput, setPackingInput] = useState(order.packingNumber || "");
+  const [isSavingPacking, setIsSavingPacking] = useState(false);
+  const [packingSaved, setPackingSaved] = useState(false);
 
   const totalItems =
     order.orderedItems?.reduce(
@@ -385,7 +389,55 @@ const OrderCard = ({ order, onUpdateStatus }: OrderCardProps) => {
                   </div>
                 </div>
 
-                {/* Quick Buttons for Pending Orders (Optional Visibility) */}
+                {/* Packing Number — shown for Approved or Shipped orders */}
+                {(order.status === "Approved" || order.status === "Shipped") && (
+                  <div className='bg-sky-50 border border-sky-100 rounded-2xl p-5 mt-4'>
+                    <h4 className='text-[10px] font-black uppercase tracking-widest text-sky-600 mb-3 flex items-center gap-2'>
+                      <Truck size={12} /> Packing / Tracking Number
+                    </h4>
+                    {order.packingNumber && (
+                      <p className='text-xs text-sky-700 font-bold mb-3 bg-white border border-sky-200 px-3 py-2 rounded-xl'>
+                        Current: <span className='font-black'>{order.packingNumber}</span>
+                      </p>
+                    )}
+                    <div className='flex gap-2'>
+                      <input
+                        type='text'
+                        value={packingInput}
+                        onChange={(e) => setPackingInput(e.target.value)}
+                        placeholder='Enter packing number...'
+                        className='flex-1 text-xs px-3 py-2 border border-sky-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400/30 bg-white'
+                      />
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!packingInput.trim()) return;
+                          setIsSavingPacking(true);
+                          await onSetPackingNumber(order.orderId, packingInput.trim());
+                          setIsSavingPacking(false);
+                          setPackingSaved(true);
+                          setTimeout(() => setPackingSaved(false), 2500);
+                        }}
+                        disabled={isSavingPacking || !packingInput.trim()}
+                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 ${
+                          packingSaved
+                            ? "bg-emerald-500 text-white"
+                            : "bg-sky-600 text-white hover:bg-sky-700"
+                        }`}
+                      >
+                        {isSavingPacking ? (
+                          <Loader2 size={14} className='animate-spin' />
+                        ) : packingSaved ? (
+                          <CheckCircle2 size={14} />
+                        ) : (
+                          "Save"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Buttons for Pending Orders */}
                 {order.status.toLowerCase() === "pending" && (
                   <div className='grid grid-cols-2 gap-3 mt-auto'>
                     <button
@@ -506,6 +558,32 @@ export default function OrdersPage() {
     }
   };
 
+  // --- Handle Packing Number ---
+  const handleSetPackingNumber = async (orderId: string, packingNumber: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await axios.put(
+        apiUrl(`/orders/packing/${encodeURIComponent(orderId)}`),
+        { packingNumber },
+        { headers: getAuthHeaders() },
+      );
+
+      // Optimistically update the UI
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.orderId === orderId
+            ? { ...order, packingNumber, status: "Shipped", isApproved: true }
+            : order,
+        ),
+      );
+    } catch (error: unknown) {
+      console.error("Set packing number error:", error);
+      alert(getErrorMessage(error, "Failed to save packing number."));
+    }
+  };
+
   const filteredOrders = orders.filter(
     (order) =>
       order.orderId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -598,6 +676,7 @@ export default function OrdersPage() {
                 key={getListKey(order, order.orderId || getEntityId(order))}
                 order={order}
                 onUpdateStatus={handleUpdateStatus}
+                onSetPackingNumber={handleSetPackingNumber}
               />
             ))}
           </div>

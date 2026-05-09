@@ -2,6 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import { UserCircle2, X } from "lucide-react";
+import Link from "next/link";
 
 // Standardizing component imports
 import Footer from "../components/footer";
@@ -16,6 +19,126 @@ import TrendingSection from "../UI/trendingsection";
 import { apiUrl } from "@/app/lib/api";
 import type { Product } from "@/app/lib/types";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile completion calculator (mirrors the profile page logic)
+// 7 fields, each worth 1/7 of 100%
+// ─────────────────────────────────────────────────────────────────────────────
+function getProfileCompletion(user: Record<string, unknown>): number {
+  const addr =
+    user.address && typeof user.address === "object"
+      ? (user.address as Record<string, unknown>)
+      : {};
+
+  const checks = [
+    Boolean(user.profilePicture && String(user.profilePicture).trim()),
+    Boolean(user.firstName && String(user.firstName).trim()),
+    Boolean(user.lastName && String(user.lastName).trim()),
+    Boolean(user.phone && String(user.phone).trim()),
+    Boolean(addr.address && String(addr.address).trim()),
+    Boolean(addr.city && String(addr.city).trim()),
+    Boolean(addr.postalCode && String(addr.postalCode).trim()),
+  ];
+  const filled = checks.filter(Boolean).length;
+  return Math.round((filled / checks.length) * 100);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile Nudge Banner — shown once per session for 3 s when pct < 100
+// ─────────────────────────────────────────────────────────────────────────────
+const NUDGE_KEY = "profile_nudge_shown";
+
+const ProfileNudgeBanner = () => {
+  const [visible, setVisible] = useState(false);
+  const [pct, setPct] = useState(0);
+
+  useEffect(() => {
+    // Only show once per browser session
+    if (sessionStorage.getItem(NUDGE_KEY)) return;
+
+    const raw = localStorage.getItem("user");
+    if (!raw) return;
+
+    try {
+      const user = JSON.parse(raw) as Record<string, unknown>;
+      const completion = getProfileCompletion(user);
+      if (completion >= 100) return; // Profile complete — no nudge needed
+
+      setPct(completion);
+      setVisible(true);
+      sessionStorage.setItem(NUDGE_KEY, "1");
+
+      // Auto-dismiss after 3 s
+      const timer = setTimeout(() => setVisible(false), 3000);
+      return () => clearTimeout(timer);
+    } catch {
+      /* Malformed user data — skip silently */
+    }
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ opacity: 0, y: -60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -60 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          className="fixed top-20 left-0 right-0 z-[200] flex justify-center px-4 pointer-events-none"
+        >
+          <div className="pointer-events-auto flex items-center gap-4 px-5 py-3.5 rounded-2xl bg-[#0d0d0d]/95 border border-[#D4AF37]/30 backdrop-blur-xl shadow-2xl max-w-sm w-full">
+            {/* Icon */}
+            <div className="shrink-0 w-9 h-9 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center">
+              <UserCircle2 size={18} className="text-[#D4AF37]" />
+            </div>
+
+            {/* Text + bar */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white leading-tight">
+                Complete your profile
+              </p>
+
+              {/* Progress bar */}
+              <div className="mt-1.5 h-1 rounded-full bg-white/10 overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-[#D4AF37] to-[#ffe066]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-[8px] text-zinc-500 tracking-wide">
+                  {pct}% done · add your missing details
+                </p>
+                <Link
+                  href="/profile"
+                  onClick={() => setVisible(false)}
+                  className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] hover:underline"
+                >
+                  Go →
+                </Link>
+              </div>
+            </div>
+
+            {/* Dismiss */}
+            <button
+              onClick={() => setVisible(false)}
+              className="shrink-0 text-zinc-600 hover:text-white transition-colors"
+              aria-label="Dismiss nudge"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Home Page
+// ─────────────────────────────────────────────────────────────────────────────
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,6 +199,9 @@ const Home = () => {
 
   return (
     <div className='bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans'>
+      {/* Profile completion nudge — auto-dismisses after 3 s, once per session */}
+      <ProfileNudgeBanner />
+
       {/* --- FIXED NAVBAR --- */}
       <div className='fixed top-0 left-0 right-0 z-[100]'>
         <Navbar />

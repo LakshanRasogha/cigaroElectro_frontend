@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   Zap,
   Heart,
-  Droplet,
-  Gauge,
-  Thermometer,
+  ChevronLeft,
   ChevronRight,
   XCircle,
   Check,
   Package,
+  Truck,
+  ShieldCheck,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
@@ -25,7 +25,6 @@ import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
 const ProductDetailView = () => {
   const params = useParams();
   const router = useRouter();
-  // The route is now /collections/[slug] — param.slug matches the backend's slug-based lookup
   const productSlug = params.slug;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -34,6 +33,8 @@ const ProductDetailView = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,7 +42,6 @@ const ProductDetailView = () => {
         const response = await axios.get(
           apiUrl(`/products/getOne/${encodeURIComponent(String(productSlug))}`),
         );
-        // Backend always returns a single product object
         setProduct(response.data);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -57,9 +57,7 @@ const ProductDetailView = () => {
   }, [activeVariantIdx]);
 
   const handleAddToCart = (variant: ProductVariant) => {
-    if (!product) {
-      return;
-    }
+    if (!product) return;
 
     const cartItem: CartItem = {
       cartId: `${product.key}-${variant.vKey}`,
@@ -75,7 +73,9 @@ const ProductDetailView = () => {
       quantity: 1,
     };
 
-    const existingCart = JSON.parse(localStorage.getItem("bag") || "[]") as CartItem[];
+    const existingCart = JSON.parse(
+      localStorage.getItem("bag") || "[]",
+    ) as CartItem[];
     const itemIndex = existingCart.findIndex(
       (item: CartItem) => item.cartId === cartItem.cartId,
     );
@@ -90,10 +90,15 @@ const ProductDetailView = () => {
     window.dispatchEvent(new Event("cartUpdated"));
     trackCartAdd(product.key);
 
+    setIsAdded(true);
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    setTimeout(() => {
+      setIsAdded(false);
+      setShowToast(false);
+    }, 2500);
   };
 
+  // ── Loading ──────────────────────────────────────────────────────────────
   if (loading)
     return (
       <div className='min-h-screen flex flex-col items-center justify-center bg-[#030303] gap-6'>
@@ -106,7 +111,7 @@ const ProductDetailView = () => {
           <div className='w-16 h-16 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin' />
         </motion.div>
         <span className='font-black text-[10px] uppercase tracking-[0.4em] text-zinc-700'>
-          Synchronizing Terminal...
+          Loading Product...
         </span>
       </div>
     );
@@ -118,11 +123,11 @@ const ProductDetailView = () => {
         <div className='relative z-10'>
           <XCircle className='text-[#D4AF37]/50 mb-6' size={48} />
           <h2 className='text-4xl font-black text-white mb-6 tracking-tighter'>
-            Hardware Not Located
+            Product Not Found
           </h2>
           <button
             onClick={() => router.back()}
-            className='px-10 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-2xl font-black uppercase text-[10px] tracking-widest hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] transition-all duration-300'
+            className='px-10 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-2xl font-black uppercase text-[10px] tracking-widest'
           >
             Return to Catalog
           </button>
@@ -140,226 +145,309 @@ const ProductDetailView = () => {
     <main className='bg-[#030303] min-h-screen selection:bg-[#D4AF37]/30 overflow-x-hidden'>
       <div className='fixed inset-0 z-0'>
         <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#1a1a1a,_#000000)]' />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMzAgMTBhMjAgMjAgMCAwIDEgMjAgMjAgMjAgMjAgMCAwIDEtNDAgMCAyMCAyMCAwIDAgMSAyMC0yMHoiIGZpbGw9IiNENEFGMzciIGZpbGwtb3BhY2l0eT0iMC4wMyIvPjwvc3ZnPg==')] opacity-20" />
       </div>
 
       <Navbar />
 
+      {/* ── Added-to-cart toast ───────────────────────────────────────────── */}
       <AnimatePresence>
         {showToast && (
           <motion.div
-            initial={{ opacity: 0, y: -100 }}
+            initial={{ opacity: 0, y: -80 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -100 }}
-            className='fixed top-24 left-1/2 -translate-x-1/2 z-[110] w-full max-w-md px-6'
+            exit={{ opacity: 0, y: -80 }}
+            className='fixed top-24 left-1/2 -translate-x-1/2 z-[110] w-full max-w-sm px-4'
           >
-            <div className='bg-gradient-to-br from-zinc-900 to-black backdrop-blur-2xl text-white p-5 rounded-[2rem] shadow-2xl flex items-center justify-between border border-[#D4AF37]/30'>
-              <div className='flex items-center gap-4'>
-                <div className='w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#B49450] rounded-xl flex items-center justify-center'>
-                  <Check size={16} className='text-black' />
-                </div>
-                <div>
-                  <p className='text-[10px] font-black uppercase tracking-widest text-[#D4AF37]'>
-                    Assigned
-                  </p>
-                  <p className='text-sm font-bold'>{currentVariant?.flavor}</p>
-                </div>
+            <div className='bg-zinc-900 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-[#D4AF37]/30'>
+              <div className='w-9 h-9 bg-[#D4AF37] rounded-xl flex items-center justify-center shrink-0'>
+                <Check size={16} className='text-black' />
+              </div>
+              <div className='flex-1'>
+                <p className='text-[10px] font-black uppercase tracking-widest text-[#D4AF37]'>
+                  Added to Cart
+                </p>
+                <p className='text-sm font-bold truncate'>
+                  {currentVariant?.flavor}
+                </p>
               </div>
               <button
                 onClick={() => router.push("/cart")}
-                className='px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all'
+                className='text-[9px] font-black uppercase tracking-widest text-[#D4AF37] border border-[#D4AF37]/30 px-3 py-1.5 rounded-lg shrink-0'
               >
-                View Bag
+                View Cart
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className='relative z-10 pt-32 pb-20 px-4 sm:px-6 lg:px-10'>
-        <section className='max-w-7xl mx-auto'>
-          {/* Breadcrumbs */}
-          <div className='flex items-center gap-3 text-zinc-600 mb-12'>
-            <button
-              onClick={() => router.push("/collections")}
-              className='hover:text-[#D4AF37] transition-colors text-[10px] font-bold uppercase tracking-widest'
+      {/* ── Main content ─────────────────────────────────────────────────── */}
+      <div className='relative z-10 pt-20 pb-32'>
+
+        {/* ── 1. Full-width image gallery ─────────────────────────────────── */}
+        <div className='relative bg-black'>
+          {/* Main image */}
+          <AnimatePresence mode='wait'>
+            <motion.div
+              key={selectedImage + "-" + activeVariantIdx}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className='relative w-full aspect-square max-h-[480px] overflow-hidden'
             >
-              Catalog
-            </button>
-            <ChevronRight size={14} />
-            <span className='text-[#D4AF37] font-black uppercase tracking-widest text-[10px]'>
-              {product.category}
-            </span>
-            <ChevronRight size={14} />
-            <span className='text-white font-bold text-[10px] uppercase tracking-widest'>
-              {product.name}
-            </span>
-          </div>
+              <img
+                src={gallery[selectedImage] || product.productImage?.[0]}
+                className='w-full h-full object-cover'
+                alt={product.name}
+              />
+              {/* Gradient fade at bottom */}
+              <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030303] to-transparent' />
 
-          <div className='grid lg:grid-cols-2 gap-12 lg:gap-20 items-start mb-40'>
-            {/* Gallery Section */}
-            <div className='space-y-8'>
-              <div className='relative sticky top-32'>
-                <AnimatePresence mode='wait'>
-                  <motion.div
-                    key={selectedImage + activeVariantIdx}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.05 }}
-                    className='aspect-[4/5] rounded-[3.5rem] overflow-hidden bg-white/[0.02] border border-white/10 shadow-2xl relative group'
-                  >
-                    <img
-                      src={gallery[selectedImage] || product.productImage?.[0]}
-                      className='w-full h-full object-cover'
-                      alt={product.name}
-                    />
-                    <div className='absolute top-8 right-8 flex flex-col gap-4'>
-                      <button
-                        onClick={() => setIsWishlisted(!isWishlisted)}
-                        className='p-4 bg-black/60 backdrop-blur-xl rounded-2xl border border-white/10'
-                      >
-                        <Heart
-                          size={20}
-                          className={
-                            isWishlisted
-                              ? "fill-[#D4AF37] text-[#D4AF37]"
-                              : "text-white/70"
-                          }
-                        />
-                      </button>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-              <div className='flex gap-4 overflow-x-auto pb-4 no-scrollbar'>
-                {gallery.map((img: string, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(idx)}
-                    className={`min-w-[110px] h-[110px] rounded-3xl overflow-hidden border-2 transition-all ${selectedImage === idx ? "border-[#D4AF37]" : "border-transparent opacity-40"}`}
-                  >
-                    <img
-                      src={img}
-                      className='w-full h-full object-cover'
-                      alt='thumb'
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Product Info */}
-            <div className='space-y-12'>
-              <div className='space-y-6'>
-                <span className='px-5 py-2.5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-full text-[10px] font-black uppercase tracking-[0.4em] inline-flex items-center gap-3 border border-[#D4AF37]/20'>
-                  <Zap size={14} className='fill-current' /> {product.category}{" "}
-                  Series
-                </span>
-                <h1 className='text-5xl lg:text-7xl xl:text-8xl font-black text-white tracking-tighter leading-[0.85]'>
-                  {product.name}
-                </h1>
-                <p className='text-xl text-zinc-400 font-light italic'>
-                  &quot;{product.tagline}&quot;
-                </p>
-                <p className='text-base text-zinc-500 leading-relaxed max-w-xl'>
-                  {product.description}
-                </p>
-              </div>
-
-              <div className='grid grid-cols-3 gap-8 py-10 border-y border-white/5'>
-                {[
-                  { icon: Droplet, label: "Pure Flavor" },
-                  { icon: Gauge, label: "High Efficiency" },
-                  { icon: Thermometer, label: "Temp Control" },
-                ].map((spec, i) => (
-                  <div key={i} className='text-center'>
-                    <spec.icon
-                      className='mx-auto text-[#D4AF37] mb-3'
-                      size={20}
-                    />
-                    <p className='text-[9px] font-black uppercase tracking-widest text-zinc-600'>
-                      {spec.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className='p-12 rounded-[3.5rem] bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-3xl border border-white/10 shadow-2xl relative overflow-hidden'>
-                <div className='relative z-10 flex justify-between items-center'>
-                  <div>
-                    <p className='text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.5em] mb-2'>
-                      Unit Valuation
-                    </p>
-                    <span className='text-4xl lg:text-6xl font-black text-white tracking-tighter'>
-                      Rs. {product.basePrice?.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className='text-right'>
-                    <p className='text-zinc-600 text-[10px] font-black uppercase tracking-widest mb-1'>
-                      Delivery
-                    </p>
-                    <p className='font-black text-2xl text-white'>
-                      Rs. {product.deliveryFee?.toLocaleString()}
-                    </p>
-                  </div>
+              {/* Image counter */}
+              {gallery.length > 1 && (
+                <div className='absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full'>
+                  {selectedImage + 1}/{gallery.length}
                 </div>
-              </div>
-            </div>
-          </div>
+              )}
 
-          {/* Variants Section */}
-          <div className='space-y-12'>
-            <div className='border-b border-white/5 pb-8 flex items-end justify-between'>
-              <h2 className='text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase'>
-                Editions<span className='text-[#D4AF37]'>.</span>
-              </h2>
-              <div className='flex items-center gap-2 text-zinc-500'>
-                <Package size={20} className='text-[#D4AF37]' />
-                <span className='text-xs font-black uppercase tracking-widest'>
-                  {product.variants?.length} Variants Available
-                </span>
-              </div>
-            </div>
+              {/* Wishlist */}
+              <button
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                className='absolute top-4 right-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10'
+              >
+                <Heart
+                  size={18}
+                  className={
+                    isWishlisted
+                      ? "fill-[#D4AF37] text-[#D4AF37]"
+                      : "text-white/70"
+                  }
+                />
+              </button>
 
-            <div className='grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
-              {product.variants?.map((variant: ProductVariant, idx: number) => (
-                <div key={variant.vKey || idx}>
-                  {/* Mobile Card (shows on small screens) */}
-                  <div className='lg:hidden'>
-                    <MobileVariantCard
-                      variant={variant}
-                      isActive={activeVariantIdx === idx}
-                      onSelect={() => {
-                        setActiveVariantIdx(idx);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      onAddToCart={handleAddToCart}
-                    />
-                  </div>
-                  {/* PC View Card (shows on lg and up) */}
-                  <div className='hidden lg:block'>
-                    <PCVariantCard
-                      variant={variant}
-                      isActive={activeVariantIdx === idx}
-                      onSelect={() => {
-                        setActiveVariantIdx(idx);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      onAddToCart={handleAddToCart}
-                    />
-                  </div>
-                </div>
+              {/* Back button */}
+              <button
+                onClick={() => router.back()}
+                className='absolute top-4 left-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10'
+              >
+                <ChevronLeft size={20} className='text-white' />
+              </button>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Thumbnail strip */}
+          {gallery.length > 1 && (
+            <div
+              ref={galleryRef}
+              className='flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar'
+            >
+              {gallery.map((img: string, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedImage(idx)}
+                  className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                    selectedImage === idx
+                      ? "border-[#D4AF37]"
+                      : "border-transparent opacity-40"
+                  }`}
+                >
+                  <img
+                    src={img}
+                    className='w-full h-full object-cover'
+                    alt='thumb'
+                  />
+                </button>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* ── 2. Price block ──────────────────────────────────────────────── */}
+        <div className='px-4 pt-4 pb-2'>
+          <div className='flex items-baseline gap-3'>
+            <span className='text-3xl font-black text-[#D4AF37]'>
+              Rs. {Number(product.basePrice).toLocaleString()}
+            </span>
+            <span className='text-sm text-zinc-500 font-medium'>+ shipping</span>
           </div>
-        </section>
+          {product.deliveryFee !== undefined && (
+            <p className='text-[11px] text-zinc-500 mt-1 flex items-center gap-1.5'>
+              <Truck size={11} className='text-zinc-600' />
+              Delivery fee: Rs. {Number(product.deliveryFee).toLocaleString()}
+            </p>
+          )}
+        </div>
+
+        {/* ── 3. Product name + tagline ───────────────────────────────────── */}
+        <div className='px-4 pb-4 border-b border-white/5'>
+          <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2'>
+            <Zap size={10} className='fill-current' />
+            {product.category}
+          </span>
+          <h1 className='text-2xl font-black text-white tracking-tight leading-tight'>
+            {product.name}
+          </h1>
+          {product.tagline && (
+            <p className='text-sm text-zinc-500 italic mt-1'>
+              &quot;{product.tagline}&quot;
+            </p>
+          )}
+        </div>
+
+        {/* ── 4. Variant (flavor) selector ────────────────────────────────── */}
+        <div className='px-4 py-5 border-b border-white/5'>
+          <div className='flex items-center justify-between mb-3'>
+            <p className='text-[10px] font-black uppercase tracking-widest text-zinc-400'>
+              Flavor
+            </p>
+            <span className='text-[10px] text-[#D4AF37] font-black'>
+              {currentVariant?.flavor} {currentVariant?.emoji}
+            </span>
+          </div>
+          <div className='flex gap-2.5 overflow-x-auto no-scrollbar pb-1'>
+            {product.variants?.map((variant: ProductVariant, idx: number) => (
+              <button
+                key={variant.vKey || idx}
+                onClick={() => {
+                  setActiveVariantIdx(idx);
+                  setSelectedImage(0);
+                }}
+                className={`relative shrink-0 w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all ${
+                  activeVariantIdx === idx
+                    ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
+                    : "border-white/10 opacity-60"
+                }`}
+              >
+                <img
+                  src={variant.variantImage?.[0] || product.productImage?.[0]}
+                  className='w-full h-full object-cover'
+                  alt={variant.flavor}
+                />
+                {activeVariantIdx === idx && (
+                  <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-2xl' />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── 5. Delivery & stock info ─────────────────────────────────────── */}
+        <div className='px-4 py-4 border-b border-white/5 space-y-3'>
+          <div className='flex items-center gap-3 text-sm'>
+            <Truck size={16} className='text-[#D4AF37] shrink-0' />
+            <div>
+              <p className='text-white font-bold text-[12px]'>
+                Island-wide delivery
+              </p>
+              <p className='text-zinc-500 text-[10px]'>
+                Rs. {Number(product.deliveryFee).toLocaleString()} · 2–5 business days
+              </p>
+            </div>
+          </div>
+          <div className='flex items-center gap-3 text-sm'>
+            <ShieldCheck size={16} className='text-[#D4AF37] shrink-0' />
+            <div>
+              <p className='text-white font-bold text-[12px]'>
+                Authentic product
+              </p>
+              <p className='text-zinc-500 text-[10px]'>
+                100% genuine · secure ordering
+              </p>
+            </div>
+          </div>
+          {currentVariant && (
+            <div className='flex items-center gap-3 text-sm'>
+              <Package size={16} className='text-[#D4AF37] shrink-0' />
+              <div>
+                <p className='text-white font-bold text-[12px]'>
+                  {currentVariant.stock > 0
+                    ? `${currentVariant.stock} units in stock`
+                    : "Out of stock"}
+                </p>
+                <p className='text-zinc-500 text-[10px]'>
+                  {currentVariant.nicotine || "Premium formulation"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── 6. All flavors grid ─────────────────────────────────────────── */}
+        <div className='px-4 py-6 border-b border-white/5'>
+          <div className='flex items-center justify-between mb-4'>
+            <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400'>
+              All Editions
+            </h2>
+            <span className='text-[10px] text-zinc-600 font-bold'>
+              {product.variants?.length} variants
+            </span>
+          </div>
+          <div className='grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4'>
+            {product.variants?.map((variant: ProductVariant, idx: number) => (
+              <FlavorCard
+                key={variant.vKey || idx}
+                variant={variant}
+                isActive={activeVariantIdx === idx}
+                onSelect={() => {
+                  setActiveVariantIdx(idx);
+                  setSelectedImage(0);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ── 7. Description ──────────────────────────────────────────────── */}
+        {product.description && (
+          <div className='px-4 py-6'>
+            <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-3'>
+              Product Details
+            </h2>
+            <p className='text-zinc-400 text-sm leading-relaxed'>
+              {product.description}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Sticky bottom "Add to Cart" bar ─────────────────────────────── */}
+      <div className='fixed bottom-0 left-0 right-0 z-[100] px-4 py-4 bg-[#030303]/95 backdrop-blur-xl border-t border-white/5'>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => currentVariant && handleAddToCart(currentVariant)}
+          disabled={!currentVariant || currentVariant.stock <= 0}
+          className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all duration-300 ${
+            isAdded
+              ? "bg-emerald-500 text-white"
+              : currentVariant && currentVariant.stock > 0
+              ? "bg-[#D4AF37] text-black hover:bg-[#c9a432]"
+              : "bg-white/10 text-zinc-600 cursor-not-allowed"
+          }`}
+        >
+          {isAdded ? (
+            <>
+              <Check size={16} />
+              Added to Cart
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={16} />
+              {currentVariant && currentVariant.stock > 0
+                ? "Add to Cart"
+                : "Out of Stock"}
+            </>
+          )}
+        </motion.button>
       </div>
     </main>
   );
 };
 
-// NEW: Premium Big Font PC Card
-const PCVariantCard = ({
+// ── Compact flavor card for the grid ─────────────────────────────────────────
+const FlavorCard = ({
   variant,
   isActive,
   onSelect,
@@ -370,132 +458,67 @@ const PCVariantCard = ({
   onSelect: () => void;
   onAddToCart: (variant: ProductVariant) => void;
 }) => {
-  const [isAdded, setIsAdded] = useState(false);
+  const [added, setAdded] = useState(false);
 
   return (
-    <motion.div
-      whileHover={{ y: -10 }}
+    <div
       onClick={onSelect}
-      className={`relative h-[450px] rounded-[3rem] overflow-hidden cursor-pointer group transition-all duration-500 border-2
-        ${isActive ? "border-[#D4AF37] shadow-[0_30px_60px_-15px_rgba(212,175,55,0.3)]" : "border-white/5 hover:border-white/20"}`}
+      className={`relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-300 ${
+        isActive
+          ? "border-[#D4AF37] shadow-lg shadow-[#D4AF37]/10"
+          : "border-white/5"
+      }`}
     >
-      {/* Background with parallax-like effect */}
-      <div className='absolute inset-0'>
+      {/* Image */}
+      <div className='aspect-square relative'>
         <img
           src={variant.variantImage?.[0] || "/placeholder.jpg"}
-          className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
+          className='w-full h-full object-cover'
           alt={variant.flavor}
         />
-        <div className='absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent' />
-      </div>
+        <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent' />
 
-      {/* Side Label */}
-      <div className='absolute top-10 left-0 origin-top-left -rotate-90 translate-y-full'>
-        <span className='text-[10px] font-black uppercase tracking-[0.8em] text-white/30 whitespace-nowrap'>
-          Hardware Edition 2026
-        </span>
-      </div>
-
-      <div className='relative z-10 h-full p-10 flex flex-col justify-between'>
-        <div className='flex justify-between items-start'>
-          <div className='w-14 h-14 bg-white/10 backdrop-blur-2xl rounded-2xl flex items-center justify-center text-3xl border border-white/20'>
-            {variant.emoji}
-          </div>
-          {variant.stock > 0 && (
-            <div className='px-4 py-2 bg-[#D4AF37] text-black rounded-full text-[10px] font-black uppercase tracking-widest'>
-              In Stock
-            </div>
-          )}
-        </div>
-
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <h3 className='text-4xl xl:text-5xl font-black text-white tracking-tighter leading-none group-hover:text-[#D4AF37] transition-colors'>
-              {variant.flavor}
-            </h3>
-            <div className='flex items-center gap-4 text-zinc-400'>
-              <span className='text-xs font-bold uppercase tracking-widest'>
-                {variant.nicotine || "5% Strength"}
-              </span>
-              <div className='w-1.5 h-1.5 rounded-full bg-[#D4AF37]' />
-              <span className='text-xs font-bold uppercase tracking-widest'>
-                {variant.stock} Units Left
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(variant);
-              setIsAdded(true);
-              setTimeout(() => setIsAdded(false), 2000);
-            }}
-            className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 transition-all
-              ${isAdded ? "bg-emerald-500 text-white" : "bg-white text-black hover:bg-[#D4AF37]"}`}
-          >
-            {isAdded ? <Check size={18} /> : <ShoppingBag size={18} />}
-            {isAdded ? "Added to Terminal" : "Deploy to Bag"}
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// Mobile Variant Card (Kept 2x2 style as requested)
-const MobileVariantCard = ({
-  variant,
-  isActive,
-  onSelect,
-  onAddToCart,
-}: {
-  variant: ProductVariant;
-  isActive: boolean;
-  onSelect: () => void;
-  onAddToCart: (variant: ProductVariant) => void;
-}) => {
-  const [isAdded, setIsAdded] = useState(false);
-
-  return (
-    <motion.div
-      onClick={onSelect}
-      className={`relative aspect-[3/4] rounded-2xl overflow-hidden border transition-all duration-300
-        ${isActive ? "border-[#D4AF37] shadow-lg" : "border-white/10"}`}
-    >
-      <div className='absolute inset-0'>
-        <img
-          src={variant.variantImage?.[0]}
-          className='w-full h-full object-cover opacity-60'
-          alt={variant.flavor}
-        />
-        <div className='absolute inset-0 bg-gradient-to-t from-black to-transparent' />
-      </div>
-
-      <div className='relative z-10 h-full p-3 flex flex-col justify-between'>
-        <div className='w-8 h-8 bg-black/40 backdrop-blur-md rounded-lg flex items-center justify-center text-lg'>
+        {/* Emoji badge */}
+        <div className='absolute top-2 left-2 w-7 h-7 bg-black/50 backdrop-blur-md rounded-lg flex items-center justify-center text-base'>
           {variant.emoji}
         </div>
 
-        <div className='space-y-2'>
-          <h3 className='text-[10px] font-black text-white uppercase truncate'>
-            {variant.flavor}
-          </h3>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(variant);
-              setIsAdded(true);
-              setTimeout(() => setIsAdded(false), 2000);
-            }}
-            className={`w-full py-2 rounded-lg text-[8px] font-black uppercase tracking-widest
-              ${isAdded ? "bg-emerald-500 text-white" : "bg-[#D4AF37] text-black"}`}
-          >
-            {isAdded ? "Added" : "Add"}
-          </button>
-        </div>
+        {/* Stock badge */}
+        {variant.stock <= 0 && (
+          <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
+            <span className='text-[9px] font-black uppercase tracking-widest text-white/60'>
+              Out of Stock
+            </span>
+          </div>
+        )}
       </div>
-    </motion.div>
+
+      {/* Info + button */}
+      <div className='p-3 space-y-2 bg-zinc-900/80'>
+        <p className='text-[10px] font-black text-white uppercase tracking-wide truncate'>
+          {variant.flavor}
+        </p>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (variant.stock <= 0) return;
+            onAddToCart(variant);
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2000);
+          }}
+          disabled={variant.stock <= 0}
+          className={`w-full py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${
+            added
+              ? "bg-emerald-500 text-white"
+              : variant.stock > 0
+              ? "bg-[#D4AF37] text-black"
+              : "bg-white/5 text-zinc-600 cursor-not-allowed"
+          }`}
+        >
+          {added ? "Added ✓" : variant.stock > 0 ? "Add" : "N/A"}
+        </button>
+      </div>
+    </div>
   );
 };
 

@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import GlobalProviders from "./components/global_providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: "swap", // Optimization 1: Added display swap
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  display: "swap", // Optimization 1: Added display swap
+  display: "swap",
 });
 
-// Optimization 2: Explicitly typed the metadata object
 export const metadata: Metadata = {
   metadataBase: new URL("https://cigarroelectrico.com"),
   title: "CigarroElectrico",
@@ -43,13 +43,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Optimization 3: Moved suppressHydrationWarning to the HTML tag
     <html lang='en' suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        {children}
+        <GlobalProviders>{children}</GlobalProviders>
       </body>
     </html>
   );

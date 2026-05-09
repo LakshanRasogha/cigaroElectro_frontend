@@ -5,7 +5,7 @@ import { motion, Variants } from "framer-motion";
 import { Mail, Phone, Send, MessageCircle, Sparkles } from "lucide-react";
 import Navbar from "../components/navbar";
 
-const WHATSAPP_NUMBER = "94704859210";
+const WHATSAPP_NUMBER = "94709696180";
 
 const ContactPage = () => {
   const fadeUp: Variants = {
@@ -88,7 +88,7 @@ const ContactPage = () => {
                 <ContactMethod
                   icon={<MessageCircle size={20} className='text-[#D4AF37]' />}
                   title='SECURE WHATSAPP'
-                  detail='+94 70 485 9210'
+                  detail='+94 70 969 6180'
                   isExternal
                   link={`https://wa.me/${WHATSAPP_NUMBER}`}
                 />

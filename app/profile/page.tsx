@@ -18,6 +18,7 @@ import {
   Crown,
   Zap,
   ChevronRight,
+  CheckCircle2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -85,6 +86,7 @@ interface Order {
   createdAt: string;
   orderedItems: OrderedItem[];
   shippingAddress: ShippingAddress;
+  packingNumber?: string;
 }
 
 interface EditForm {
@@ -97,6 +99,137 @@ interface EditForm {
   postalCode: string;
   profilePicture: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile Completion Widget
+// ─────────────────────────────────────────────────────────────────────────────
+const COMPLETION_FIELDS = [
+  { key: "profilePicture", label: "Profile Photo" },
+  { key: "firstName",      label: "First Name" },
+  { key: "lastName",       label: "Last Name" },
+  { key: "phone",          label: "WhatsApp Number" },
+  { key: "address",        label: "Street Address" },
+  { key: "city",           label: "City" },
+  { key: "postalCode",     label: "Postal Code" },
+] as const;
+
+function calcCompletion(user: User): { pct: number; missing: string[] } {
+  const missing: string[] = [];
+  let filled = 0;
+  for (const field of COMPLETION_FIELDS) {
+    let value: unknown;
+    if (field.key === "address" || field.key === "city" || field.key === "postalCode") {
+      value = user.address?.[field.key as "address" | "city" | "postalCode"];
+    } else {
+      value = user[field.key as keyof User];
+    }
+    if (value && String(value).trim()) {
+      filled++;
+    } else {
+      missing.push(field.label);
+    }
+  }
+  return { pct: Math.round((filled / COMPLETION_FIELDS.length) * 100), missing };
+}
+
+const ProfileCompletion = ({ user }: { user: User }) => {
+  const { pct, missing } = calcCompletion(user);
+  const isComplete = pct === 100;
+
+  return (
+    <AnimatePresence mode="wait">
+      {isComplete ? (
+        /* ── 100% celebration banner ── */
+        <motion.div
+          key="complete"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30"
+        >
+          <CheckCircle2 size={20} className="text-[#D4AF37] shrink-0" />
+          <div>
+            <p className="text-[#D4AF37] font-black text-[10px] uppercase tracking-widest">
+              Profile Complete
+            </p>
+            <p className="text-zinc-400 text-[9px] mt-0.5 tracking-wide">
+              Your account is fully set up — you&apos;re ready to order!
+            </p>
+          </div>
+          <span className="ml-auto text-[#D4AF37] font-black text-xl font-serif">
+            100%
+          </span>
+        </motion.div>
+      ) : (
+        /* ── Progress bar ── */
+        <motion.div
+          key="progress"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="mb-8 p-6 rounded-2xl bg-zinc-900/60 border border-white/5 backdrop-blur-xl"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Sparkles size={12} className="text-[#D4AF37]" />
+              <span className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-400">
+                Profile Completion
+              </span>
+            </div>
+            <motion.span
+              key={pct}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="font-black font-serif text-lg"
+              style={{
+                color: pct < 40 ? "#ef4444" : pct < 75 ? "#f59e0b" : "#D4AF37",
+              }}
+            >
+              {pct}%
+            </motion.span>
+          </div>
+
+          {/* Bar track */}
+          <div className="h-1.5 rounded-full bg-white/5 overflow-hidden mb-4">
+            <motion.div
+              className="h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              style={{
+                background:
+                  pct < 40
+                    ? "linear-gradient(90deg,#ef4444,#f97316)"
+                    : pct < 75
+                    ? "linear-gradient(90deg,#f59e0b,#D4AF37)"
+                    : "linear-gradient(90deg,#D4AF37,#ffe066)",
+              }}
+            />
+          </div>
+
+          {/* Missing fields */}
+          {missing.length > 0 && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-[7px] font-bold uppercase tracking-widest text-zinc-600">
+                Missing:
+              </span>
+              {missing.map((label) => (
+                <span
+                  key={label}
+                  className="text-[7px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/5 bg-white/[0.03] text-zinc-500"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const ProfilePage = () => {
   const router = useRouter();
@@ -291,6 +424,9 @@ const ProfilePage = () => {
       </div>
 
       <div className='relative z-10 max-w-7xl mx-auto px-4 -mt-24'>
+        {/* ── Account Completion ─────────────────────────────────────────────── */}
+        <ProfileCompletion user={user} />
+
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-8'>
           <div className='lg:col-span-4 space-y-6'>
             <motion.div
@@ -669,6 +805,20 @@ const OrderRow = ({ order }: { order: Order }) => {
                   </div>
                 ))}
               </div>
+
+              {/* Packing / Tracking Number — visible when shipped */}
+              {order.packingNumber && (
+                <div className='flex items-center gap-3 p-3 rounded-xl bg-sky-500/5 border border-sky-500/20'>
+                  <div className='w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center shrink-0'>
+                    <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#38bdf8' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M1 3h15v13H1z'/><path d='M16 8h4l3 3v5h-7V8z'/><circle cx='5.5' cy='18.5' r='2.5'/><circle cx='18.5' cy='18.5' r='2.5'/></svg>
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-[8px] font-black uppercase tracking-widest text-sky-400'>Packing / Tracking No.</p>
+                    <p className='text-sm font-black text-white tracking-widest mt-0.5'>{order.packingNumber}</p>
+                  </div>
+                  <span className='text-[8px] font-black uppercase px-2 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400'>Shipped</span>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
