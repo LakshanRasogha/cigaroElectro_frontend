@@ -219,10 +219,11 @@ const CartPage = () => {
    * Order flow:
    * 1. Require login — redirect to /auth/login if no token.
    * 2. Validate form fields.
-   * 3. POST to /orders/create to persist the order in the DB.
-   * 4. Only on API success: open WhatsApp with the pre-filled message,
-   *    clear the cart, and show the success banner.
-   * If the API fails the cart is kept intact so the user can retry.
+   * 3. Open a blank window NOW (inside the user gesture, before any await)
+   *    so mobile browsers do not block the popup after the async API call.
+   * 4. POST to /orders/create to persist the order in the DB.
+   * 5. On success: navigate the pre-opened window to WhatsApp, clear cart.
+   *    On failure: close the window, show the real error, keep cart intact.
    */
   const handleOrder = async () => {
     // ── 1. Login guard ─────────────────────────────────────────────────────
@@ -249,7 +250,14 @@ const CartPage = () => {
 
     setIsOrderLoading(true);
 
-    // ── 3. Save order to DB first ──────────────────────────────────────────
+    // ── 3. Open a blank window SYNCHRONOUSLY inside the user gesture ────────
+    // Mobile browsers (Android Chrome, iOS Safari) block window.open() when
+    // called after an `await` because the user-gesture context is lost.
+    // Opening an empty window here keeps it within the gesture; we navigate
+    // it to WhatsApp only after the API call succeeds.
+    const whatsappWindow = window.open("", "_blank");
+
+    // ── 4. Save order to DB ────────────────────────────────────────────────
     try {
       await axios.post(
         apiUrl("/orders/create"),
@@ -269,15 +277,28 @@ const CartPage = () => {
         { headers: getAuthHeaders() },
       );
     } catch (err: unknown) {
-      // API failed — keep the cart intact so the user can retry.
+      // Close the blank tab so the user is not left with an empty window.
+      whatsappWindow?.close();
       setIsOrderLoading(false);
-      const msg =
-        err instanceof Error ? err.message : "Failed to place order. Please try again.";
+
+      // Surface the real backend message (e.g. "Insufficient stock for Mango")
+      // instead of the generic axios "Request failed with status code 400".
+      let msg = "Failed to place order. Please try again.";
+      const axiosErr = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      if (axiosErr?.response?.data?.message) {
+        msg = axiosErr.response.data.message;
+      } else if (axiosErr?.message) {
+        msg = axiosErr.message;
+      }
+
       alert(`Order failed: ${msg}`);
       return;
     }
 
-    // ── 4. API succeeded → build message and open WhatsApp ─────────────────
+    // ── 5. API succeeded → navigate pre-opened window to WhatsApp ──────────
     const message = buildWhatsAppMessage(
       form,
       cartItems,
@@ -287,7 +308,15 @@ const CartPage = () => {
     );
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
-    // Clear cart only after the API call succeeds
+    if (whatsappWindow) {
+      // Navigate the already-open window — works on all mobile browsers
+      whatsappWindow.location.href = whatsappUrl;
+    } else {
+      // Popup was blocked entirely — fall back to navigating the current tab
+      window.location.href = whatsappUrl;
+    }
+
+    // Clear cart only after everything succeeds
     setCartItems([]);
     localStorage.removeItem("bag");
     window.dispatchEvent(new Event("cartUpdated"));
@@ -295,9 +324,6 @@ const CartPage = () => {
     setShowAddressModal(false);
     setIsOrderLoading(false);
     setOrderSent(true);
-
-    // Open WhatsApp
-    window.open(whatsappUrl, "_blank");
   };
 
   const updateQuantity = (cartId: string, delta: number) => {
