@@ -1,31 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import { Heart, Zap, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, Zap, ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getProductSlug } from "@/app/lib/entity_id";
+import { trackProductClick } from "@/app/lib/analytics";
 import type { ProductVariant } from "@/app/lib/types";
 
 interface ProductProps {
   productKey: string;
+  slug?: string | null;
   name: string;
   tagline?: string;
   basePrice: number;
   productImage?: string[];
   variants?: ProductVariant[];
   category?: string;
+  /** Show the 🔥 Best Seller badge when this product is in the top cart-added list */
+  isBestSeller?: boolean;
 }
 
 const ProductCard = ({
   productKey,
+  slug,
   name,
   tagline = "",
   basePrice,
   productImage = [],
   variants = [],
   category = "",
+  isBestSeller = false,
 }: ProductProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const router = useRouter();
+  const productSlug = getProductSlug({ slug, key: productKey });
 
   const brandName = name.split(" ")[0];
   const inStockVariants = variants.filter((v) => v.stock > 0 && v.availability);
@@ -38,9 +46,14 @@ const ProductCard = ({
         ? "text-xs md:text-xl"
         : "text-sm md:text-2xl";
 
+  const handleClick = () => {
+    trackProductClick(productKey);
+    router.push(`/collections/${productSlug}`);
+  };
+
   return (
     <div
-      onClick={() => router.push(`/collections/${productKey}`)}
+      onClick={handleClick}
       className='relative flex flex-col h-full cursor-pointer'
     >
       <div
@@ -50,6 +63,16 @@ const ProductCard = ({
           ${isOutOfStock ? "opacity-60" : ""}
         `}
       >
+        {/* Best Seller Badge */}
+        {isBestSeller && (
+          <div className='absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] shadow-[0_4px_15px_rgba(212,175,55,0.5)] border border-[#F2D37D]/30'>
+            <TrendingUp size={9} className='text-black fill-black' />
+            <span className='text-[7px] font-black text-black uppercase tracking-[0.2em] whitespace-nowrap'>
+              Best Seller
+            </span>
+          </div>
+        )}
+
         {/* --- Image Section --- */}
         <div className='relative h-44 md:h-84 shrink-0 overflow-hidden bg-zinc-900'>
           <img

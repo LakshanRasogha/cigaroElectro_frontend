@@ -85,6 +85,11 @@ const InventoryRow = ({
             <p className='text-[10px] font-medium text-slate-400 uppercase tracking-tight'>
               key: {product.key || "N/A"}
             </p>
+            {product.slug && (
+              <p className='text-[9px] font-medium text-indigo-400 tracking-tight truncate'>
+                /{product.slug}
+              </p>
+            )}
           </div>
         </div>
       </td>
@@ -154,6 +159,7 @@ export default function InventoryPage() {
   const initialFormState = {
     key: "",
     name: "",
+    slug: "",
     tagline: "",
     basePrice: "",
     deliveryFee: "",
@@ -232,6 +238,7 @@ export default function InventoryPage() {
     setFormData({
       key: product.key,
       name: product.name,
+      slug: (product.slug as string) || "",
       tagline: product.tagline || "",
       basePrice: product.basePrice.toString(),
       deliveryFee: String(product.deliveryFee ?? 0),
@@ -268,6 +275,8 @@ export default function InventoryPage() {
     try {
       const payload = {
         ...formData,
+        // send slug only if the admin typed one; otherwise let backend auto-generate
+        slug: formData.slug.trim() || undefined,
         basePrice: Number(formData.basePrice),
         deliveryFee: Number(formData.deliveryFee),
         variants: formData.variants.map((v) => ({
@@ -449,6 +458,26 @@ export default function InventoryPage() {
                   className='w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none text-sm focus:bg-white transition-all'
                   placeholder='Unique Key'
                 />
+              </div>
+
+              {/* Slug field */}
+              <div className='relative'>
+                <div className='flex items-center border border-slate-100 bg-slate-50 rounded-2xl overflow-hidden focus-within:bg-white transition-all'>
+                  <span className='pl-4 pr-2 text-xs text-slate-400 font-mono select-none whitespace-nowrap'>
+                    /collections/
+                  </span>
+                  <input
+                    value={formData.slug}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-') })
+                    }
+                    className='flex-1 p-4 pl-0 bg-transparent outline-none text-sm font-mono'
+                    placeholder='custom-slug (auto-generated if blank)'
+                  />
+                </div>
+                <p className='text-[10px] text-slate-400 mt-1.5 px-1'>
+                  Optional. Leave blank to auto-generate from product name.
+                </p>
               </div>
 
               <div className='relative'>

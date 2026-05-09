@@ -13,7 +13,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { apiUrl } from "@/app/lib/api";
-import { getListKey } from "@/app/lib/entity_id";
+import { getListKey, getProductSlug } from "@/app/lib/entity_id";
+import { trackProductClick } from "@/app/lib/analytics";
 import type { Product } from "@/app/lib/types";
 
 const ProductsPage = () => {
@@ -22,6 +23,7 @@ const ProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [bestsellerKeys, setBestsellerKeys] = useState<Set<string>>(new Set());
 
   const categories = [
     "All",
@@ -49,6 +51,15 @@ const ProductsPage = () => {
       }
     };
     fetchProducts();
+
+    // Fetch bestseller keys in parallel (non-critical)
+    axios
+      .get(apiUrl("/analytics/bestseller-keys?limit=20"))
+      .then((res) => {
+        const keys: string[] = Array.isArray(res.data) ? res.data : [];
+        setBestsellerKeys(new Set(keys));
+      })
+      .catch(() => {});
   }, []);
 
   const filteredProducts = products.filter((product) => {
@@ -234,6 +245,7 @@ const ProductsPage = () => {
                   key={getListKey(product, index)}
                   product={product}
                   index={index}
+                  isBestSeller={bestsellerKeys.has(product.key)}
                 />
               ))}
             </AnimatePresence>
@@ -264,9 +276,11 @@ const ProductsPage = () => {
 const MobileProductCard = ({
   product,
   index,
+  isBestSeller = false,
 }: {
   product: Product;
   index: number;
+  isBestSeller?: boolean;
 }) => {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
@@ -301,7 +315,10 @@ const MobileProductCard = ({
       animate='visible'
       exit={{ opacity: 0, scale: 0.9 }}
       whileTap={{ scale: 0.97 }}
-      onClick={() => router.push(`/collections/${product.key}`)}
+      onClick={() => {
+        trackProductClick(product.key);
+        router.push(`/collections/${getProductSlug(product)}`);
+      }}
       className='group relative aspect-[3/4] rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden bg-gradient-to-b from-[#0a0a0a] to-[#050505] cursor-pointer border border-white/5 transition-all duration-300 hover:border-[#D4AF37]/30 shadow-md hover:shadow-[0_10px_20px_rgba(212,175,55,0.1)]'
     >
       {/* Background Image */}
@@ -326,6 +343,13 @@ const MobileProductCard = ({
       {/* Gradients */}
       <div className='absolute inset-0 bg-gradient-to-t from-[#030303] via-[#030303]/60 to-transparent' />
       <div className='absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#D4AF37]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
+
+      {/* Best Seller badge */}
+      {isBestSeller && (
+        <div className='absolute top-0 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] shadow-[0_2px_8px_rgba(212,175,55,0.5)] rounded-b-lg border-b border-x border-[#F2D37D]/30'>
+          <span className='text-[5px] font-black text-black uppercase tracking-[0.15em] whitespace-nowrap'>🔥 Best Seller</span>
+        </div>
+      )}
 
       {/* Category Badge - Mobile optimized */}
       <div className='absolute top-2 left-2 right-2 flex items-center justify-between z-10'>

@@ -5,31 +5,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   Zap,
-  Shield,
-  Truck,
   Heart,
-  Share2,
   Droplet,
   Gauge,
   Thermometer,
   ChevronRight,
   XCircle,
   Check,
-  Star,
   Package,
-  ArrowRight,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/app/components/navbar";
 import { apiUrl } from "@/app/lib/api";
 import { getEntityId } from "@/app/lib/entity_id";
+import { trackCartAdd } from "@/app/lib/analytics";
 import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
 
 const ProductDetailView = () => {
   const params = useParams();
   const router = useRouter();
-  const productKey = params.id;
+  // The route is now /collections/[slug] — param.slug matches the backend's slug-based lookup
+  const productSlug = params.slug;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,26 +39,18 @@ const ProductDetailView = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          apiUrl(`/products/getOne/${encodeURIComponent(String(productKey))}`),
+          apiUrl(`/products/getOne/${encodeURIComponent(String(productSlug))}`),
         );
-        const data = response.data;
-
-        if (Array.isArray(data)) {
-          const found = data.find(
-            (p: Product) => p.key === productKey || getEntityId(p) === productKey,
-          );
-          setProduct(found || null);
-        } else {
-          setProduct(data);
-        }
+        // Backend always returns a single product object
+        setProduct(response.data);
       } catch (error) {
-        console.error("Error fetching inventory data:", error);
+        console.error("Error fetching product:", error);
       } finally {
         setLoading(false);
       }
     };
-    if (productKey) fetchData();
-  }, [productKey]);
+    if (productSlug) fetchData();
+  }, [productSlug]);
 
   useEffect(() => {
     setSelectedImage(0);
@@ -99,6 +88,7 @@ const ProductDetailView = () => {
 
     localStorage.setItem("bag", JSON.stringify(existingCart));
     window.dispatchEvent(new Event("cartUpdated"));
+    trackCartAdd(product.key);
 
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);

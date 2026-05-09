@@ -12,16 +12,19 @@ import Headers from "../components/header";
 import ShopSection from "../UI/shopsection";
 import HeritageSection from "../UI/aboutsection";
 import TshirtSection from "../UI/tshirtsection";
+import TrendingSection from "../UI/trendingsection";
 import { apiUrl } from "@/app/lib/api";
 import type { Product } from "@/app/lib/types";
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bestsellerKeys, setBestsellerKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let active = true;
 
+    // Fetch all products
     axios
       .get(apiUrl("/products/get"))
       .then((response) => {
@@ -35,6 +38,16 @@ const Home = () => {
       .finally(() => {
         if (active) setLoading(false);
       });
+
+    // Fetch bestseller keys in parallel (non-critical — silently ignore errors)
+    axios
+      .get(apiUrl("/analytics/bestseller-keys?limit=20"))
+      .then((res) => {
+        if (!active) return;
+        const keys: string[] = Array.isArray(res.data) ? res.data : [];
+        setBestsellerKeys(new Set(keys));
+      })
+      .catch(() => {/* no bestsellers yet — that's fine */});
 
     return () => {
       active = false;
@@ -82,19 +95,27 @@ const Home = () => {
         </header>
 
         {/* Shop Section */}
-        {/* Removed padding, keeping background consistent */}
         <section className='bg-[#050505]' id='shop'>
-          <ShopSection products={hardwareProducts} loading={loading} />
+          <ShopSection
+            products={hardwareProducts}
+            loading={loading}
+            bestsellerKeys={bestsellerKeys}
+          />
         </section>
 
+        {/* Trending / Most Viewed Section */}
+        <TrendingSection bestsellerKeys={bestsellerKeys} />
+
         {/* T-Shirt Section */}
-        {/* Removed 'py-20', added bg color to match previous section seamlessly */}
         <section className='bg-[#050505]'>
-          <TshirtSection products={tshirtProducts} loading={loading} />
+          <TshirtSection
+            products={tshirtProducts}
+            loading={loading}
+            bestsellerKeys={bestsellerKeys}
+          />
         </section>
 
         {/* Heritage Section */}
-        {/* Removed specific gradients that might cause visual breaks, ensuring seamless flow */}
         <section className='bg-[#050505]' id='about'>
           <HeritageSection />
         </section>

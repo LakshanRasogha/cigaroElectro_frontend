@@ -19,3 +19,14 @@ export function getListKey(
 ): string {
   return getEntityId(entity) || entity.name || String(fallback);
 }
+
+/**
+ * Returns the canonical URL segment for a product.
+ * Prefers the backend-generated slug; falls back to key for backward compatibility.
+ */
+export function getProductSlug(product: {
+  slug?: string | null;
+  key?: string | null;
+}): string {
+  return product.slug || product.key || "";
+}

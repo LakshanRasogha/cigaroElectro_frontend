@@ -38,6 +38,7 @@ export interface Product {
   id?: string;
   _id?: string;
   key: string;
+  slug?: string | null;
   name: string;
   tagline?: string;
   description?: string;

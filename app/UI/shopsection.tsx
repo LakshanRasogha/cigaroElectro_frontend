@@ -23,9 +23,10 @@ import "swiper/css/pagination";
 interface ShopSectionProps {
   products: Product[];
   loading: boolean;
+  bestsellerKeys?: Set<string>;
 }
 
-const ShopSection = ({ products, loading }: ShopSectionProps) => {
+const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSectionProps) => {
   const visibleProducts = useMemo(() => products.slice(0, 7), [products]);
 
   return (
@@ -140,8 +141,10 @@ const ShopSection = ({ products, loading }: ShopSectionProps) => {
 
                       <ProductCard
                         productKey={productKey}
+                        slug={prod.slug}
                         {...otherProps}
                         tagline={otherProps.tagline || ""}
+                        isBestSeller={bestsellerKeys.has(productKey || "")}
                       />
                     </div>
                   </div>

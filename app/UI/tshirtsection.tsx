@@ -16,9 +16,10 @@ import "swiper/css/pagination";
 interface TshirtSectionProps {
   products: Product[];
   loading: boolean;
+  bestsellerKeys?: Set<string>;
 }
 
-const TshirtSection = ({ products, loading }: TshirtSectionProps) => {
+const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: TshirtSectionProps) => {
   const visibleProducts = useMemo(() => products.slice(0, 5), [products]);
 
   // If no t-shirts are found and not loading, we can return null
@@ -128,9 +129,11 @@ const TshirtSection = ({ products, loading }: TshirtSectionProps) => {
 
                       <ProductCard
                         productKey={productKey}
+                        slug={prod.slug}
                         {...otherProps}
                         tagline={otherProps.tagline || "Premium Cotton Blend"}
                         category='T-shirts'
+                        isBestSeller={bestsellerKeys.has(productKey || "")}
                       />
                     </div>
                   </div>

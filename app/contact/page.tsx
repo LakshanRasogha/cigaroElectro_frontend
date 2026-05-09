@@ -1,14 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { Mail, Phone, Send, MessageCircle, Sparkles } from "lucide-react";
 import Navbar from "../components/navbar";
+
+const WHATSAPP_NUMBER = "94704859210";
 
 const ContactPage = () => {
   const fadeUp: Variants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
+  };
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [inquiry, setInquiry] = useState("Hardware Support");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = encodeURIComponent(
+      `Hello CigaroElectro! 👋\n\n` +
+      `*Name:* ${name}\n` +
+      `*Email:* ${email}\n` +
+      `*Inquiry:* ${inquiry}\n\n` +
+      `*Message:*\n${message}`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
   };
 
   return (
@@ -69,9 +88,9 @@ const ContactPage = () => {
                 <ContactMethod
                   icon={<MessageCircle size={20} className='text-[#D4AF37]' />}
                   title='SECURE WHATSAPP'
-                  detail='+94 77 123 4567'
+                  detail='+94 70 485 9210'
                   isExternal
-                  link='https://wa.me/94771234567'
+                  link={`https://wa.me/${WHATSAPP_NUMBER}`}
                 />
                 <ContactMethod
                   icon={<Mail size={20} className='text-[#D4AF37]' />}
@@ -106,12 +125,22 @@ const ContactPage = () => {
               {/* Form Glass Decoration */}
               <div className='absolute -top-20 -right-20 w-40 h-40 bg-[#D4AF37]/5 blur-[80px] rounded-full' />
 
-              <form className='space-y-12 relative z-10'>
+              <form className='space-y-12 relative z-10' onSubmit={handleSubmit}>
                 <div className='grid md:grid-cols-2 gap-10'>
-                  <InputField label='IDENTITY' placeholder='ENTER NAME' />
+                  <InputField
+                    label='IDENTITY'
+                    placeholder='ENTER NAME'
+                    value={name}
+                    onChange={(v) => setName(v)}
+                    required
+                  />
                   <InputField
                     label='TERMINAL EMAIL'
                     placeholder='USER@DOMAIN.COM'
+                    type='email'
+                    value={email}
+                    onChange={(v) => setEmail(v)}
+                    required
                   />
                 </div>
 
@@ -120,15 +149,15 @@ const ContactPage = () => {
                     INQUIRY VECTOR
                   </label>
                   <div className='relative'>
-                    <select className='w-full bg-white/[0.03] border border-white/5 rounded-xl px-6 py-4 text-[10px] text-white font-bold tracking-[0.2em] focus:border-[#D4AF37]/40 transition-all outline-none appearance-none cursor-pointer uppercase'>
+                    <select
+                      value={inquiry}
+                      onChange={(e) => setInquiry(e.target.value)}
+                      className='w-full bg-white/[0.03] border border-white/5 rounded-xl px-6 py-4 text-[10px] text-white font-bold tracking-[0.2em] focus:border-[#D4AF37]/40 transition-all outline-none appearance-none cursor-pointer uppercase'
+                    >
                       <option className='bg-[#030303]'>Hardware Support</option>
                       <option className='bg-[#030303]'>Order Logistics</option>
-                      <option className='bg-[#030303]'>
-                        Artisanal Curation
-                      </option>
-                      <option className='bg-[#030303]'>
-                        Partnership Terminal
-                      </option>
+                      <option className='bg-[#030303]'>Artisanal Curation</option>
+                      <option className='bg-[#030303]'>Partnership Terminal</option>
                     </select>
                     <div className='absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-40 text-[#D4AF37] text-[8px]'>
                       ▼
@@ -143,16 +172,20 @@ const ContactPage = () => {
                   <textarea
                     rows={4}
                     placeholder='INITIALIZE INPUT...'
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
                     className='w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-5 text-[10px] text-white font-medium tracking-[0.1em] placeholder:text-zinc-800 focus:border-[#D4AF37]/40 transition-all outline-none resize-none uppercase'
                   />
                 </div>
 
                 <motion.button
+                  type='submit'
                   whileHover={{ backgroundColor: "#D4AF37", color: "#000" }}
                   whileTap={{ scale: 0.98 }}
                   className='w-full border border-[#D4AF37]/40 text-[#D4AF37] py-6 rounded-xl font-bold uppercase tracking-[0.6em] text-[9px] flex items-center justify-center gap-4 transition-all duration-500'
                 >
-                  BROADCAST SIGNAL <Send size={14} />
+                  SEND VIA WHATSAPP <MessageCircle size={14} />
                 </motion.button>
               </form>
             </motion.div>
@@ -207,17 +240,28 @@ const ContactMethod = ({
 const InputField = ({
   label,
   placeholder,
+  value,
+  onChange,
+  type = "text",
+  required,
 }: {
   label: string;
   placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
 }) => (
   <div className='space-y-3 w-full'>
     <label className='text-[7px] font-bold uppercase tracking-[0.4em] text-zinc-600 ml-4'>
       {label}
     </label>
     <input
-      type='text'
+      type={type}
       placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
       className='w-full bg-white/[0.03] border border-white/5 rounded-xl px-6 py-4 text-[10px] text-white font-bold tracking-[0.2em] placeholder:text-zinc-800 focus:border-[#D4AF37]/40 transition-all outline-none uppercase'
     />
   </div>
