@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Facebook, Instagram, Twitter, MapPin, Mail, Phone } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
   const socialIcons = [
@@ -57,28 +57,20 @@ const Footer = () => {
             <h4 className="font-black uppercase tracking-[0.4em] text-[10px] mb-10 text-[#D4AF37] md:text-right">
               Terminal
             </h4>
-            <div className="flex items-start gap-5 text-sm text-zinc-500 group cursor-default">
-              <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-[#D4AF37]/30 transition-colors">
-                <MapPin className="text-[#D4AF37] h-4 w-4" />
-              </div>
-              <span className="font-light leading-relaxed group-hover:text-zinc-300 transition-colors">
-                101 Luxury Way, Capital City Plaza<br/>Floor 4, Colombo 03
-              </span>
-            </div>
             <div className="flex items-center gap-5 text-sm text-zinc-500 group cursor-default">
               <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-[#D4AF37]/30 transition-colors">
                 <Mail className="text-[#D4AF37] h-4 w-4" />
               </div>
-              <a href="mailto:concierge@cigaroelectrico.com" className="font-light group-hover:text-zinc-300 transition-colors">
-                concierge@cigaroelectrico.com
+              <a href="mailto:info@cigarroelectrico.com" className="font-light group-hover:text-zinc-300 transition-colors">
+                info@cigarroelectrico.com
               </a>
             </div>
             <div className="flex items-center gap-5 text-sm text-zinc-500 group cursor-default">
               <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-[#D4AF37]/30 transition-colors">
                 <Phone className="text-[#D4AF37] h-4 w-4" />
               </div>
-              <span className="font-bold tracking-[0.15em] text-white group-hover:text-[#D4AF37] transition-colors uppercase">
-                +94 11-GOLD-VAPE
+              <span className="font-bold tracking-[0.15em] text-white group-hover:text-[#D4AF37] transition-colors">
+                078 969 6180
               </span>
             </div>
           </div>

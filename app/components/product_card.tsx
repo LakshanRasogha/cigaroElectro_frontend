@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Heart, Zap, ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getProductSlug } from "@/app/lib/entity_id";
 import { trackProductClick } from "@/app/lib/analytics";
+import { useWishlist } from "@/app/lib/wishlist";
 import type { ProductVariant } from "@/app/lib/types";
 
 interface ProductProps {
@@ -31,7 +32,7 @@ const ProductCard = ({
   category = "",
   isBestSeller = false,
 }: ProductProps) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const { toggle, isWishlisted } = useWishlist();
   const router = useRouter();
   const productSlug = getProductSlug({ slug, key: productKey });
 
@@ -97,14 +98,14 @@ const ProductCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setIsLiked(!isLiked);
+              toggle(productKey);
             }}
-            className='absolute top-3 right-3 md:top-6 md:right-6 z-20 p-2.5 bg-black/60 rounded-full border border-white/10'
+            className='absolute top-3 right-3 md:top-6 md:right-6 z-20 p-2.5 bg-black/60 rounded-full border border-white/10 transition-transform active:scale-90'
           >
             <Heart
               size={14}
               className={
-                isLiked ? "fill-[#D4AF37] text-[#D4AF37]" : "text-white"
+                isWishlisted(productKey) ? "fill-[#D4AF37] text-[#D4AF37]" : "text-white"
               }
             />
           </button>

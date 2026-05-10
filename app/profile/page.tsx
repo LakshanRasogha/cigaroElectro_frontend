@@ -19,6 +19,7 @@ import {
   Zap,
   ChevronRight,
   CheckCircle2,
+  Heart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -34,6 +35,7 @@ import {
   splitPhoneNumber,
 } from "@/app/lib/phone";
 import type { AppUser } from "@/app/lib/types";
+import { useWishlist } from "@/app/lib/wishlist";
 
 // Initialize Supabase Client
 const supabase = createClient(
@@ -234,6 +236,7 @@ const ProfileCompletion = ({ user }: { user: User }) => {
 const ProfilePage = () => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { wishlist } = useWishlist();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -493,6 +496,18 @@ const ProfilePage = () => {
                   className='w-full py-4 bg-[#D4AF37] text-black rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2'
                 >
                   <Edit3 size={16} /> Edit Profile
+                </button>
+                <button
+                  onClick={() => router.push('/wishlist')}
+                  className='w-full py-4 bg-[#D4AF37]/10 text-[#D4AF37] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#D4AF37]/20 transition-colors flex items-center justify-center gap-2 border border-[#D4AF37]/20'
+                >
+                  <Heart size={16} className={wishlist.length > 0 ? 'fill-[#D4AF37]' : ''} />
+                  My Wishlist
+                  {wishlist.length > 0 && (
+                    <span className='bg-[#D4AF37] text-black text-[7px] font-black rounded-full w-4 h-4 flex items-center justify-center'>
+                      {wishlist.length}
+                    </span>
+                  )}
                 </button>
                 {user.isBlocked && (
                   <button

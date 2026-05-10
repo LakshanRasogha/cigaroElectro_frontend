@@ -7,7 +7,6 @@ import {
   Zap,
   Heart,
   ChevronLeft,
-  ChevronRight,
   XCircle,
   Check,
   Package,
@@ -20,6 +19,7 @@ import Navbar from "@/app/components/navbar";
 import { apiUrl } from "@/app/lib/api";
 import { getEntityId } from "@/app/lib/entity_id";
 import { trackCartAdd } from "@/app/lib/analytics";
+import { useWishlist } from "@/app/lib/wishlist";
 import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
 
 const ProductDetailView = () => {
@@ -31,9 +31,10 @@ const ProductDetailView = () => {
   const [loading, setLoading] = useState(true);
   const [activeVariantIdx, setActiveVariantIdx] = useState(0);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { toggle: toggleWishlist, isWishlisted } = useWishlist();
   const [showToast, setShowToast] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -136,6 +137,8 @@ const ProductDetailView = () => {
     );
 
   const currentVariant = product.variants?.[activeVariantIdx];
+  const isTshirt = (product.category || "").toLowerCase().trim() === "t-shirts";
+  const variantLabel = isTshirt ? "Design" : "Flavor";
   const gallery = [
     ...(product.productImage || []),
     ...(currentVariant?.variantImage || []),
@@ -213,13 +216,13 @@ const ProductDetailView = () => {
 
               {/* Wishlist */}
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className='absolute top-4 right-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10'
+                onClick={() => product && toggleWishlist(product.key)}
+                className='absolute top-4 right-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 transition-transform active:scale-90'
               >
                 <Heart
                   size={18}
                   className={
-                    isWishlisted
+                    product && isWishlisted(product.key)
                       ? "fill-[#D4AF37] text-[#D4AF37]"
                       : "text-white/70"
                   }
@@ -295,11 +298,11 @@ const ProductDetailView = () => {
           )}
         </div>
 
-        {/* ── 4. Variant (flavor) selector ────────────────────────────────── */}
+        {/* ── 4. Variant (flavor/design) selector ─────────────────────────── */}
         <div className='px-4 py-5 border-b border-white/5'>
           <div className='flex items-center justify-between mb-3'>
             <p className='text-[10px] font-black uppercase tracking-widest text-zinc-400'>
-              Flavor
+              {variantLabel}
             </p>
             <span className='text-[10px] text-[#D4AF37] font-black'>
               {currentVariant?.flavor} {currentVariant?.emoji}
@@ -373,14 +376,34 @@ const ProductDetailView = () => {
           )}
         </div>
 
-        {/* ── 6. All flavors grid ─────────────────────────────────────────── */}
+        {/* ── 5b. Description (below delivery fee) ────────────────────────── */}
+        {product.description && (
+          <div className='px-4 py-4 border-b border-white/5'>
+            <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-2'>
+              Product Details
+            </h2>
+            <p className={`text-zinc-400 text-sm leading-relaxed ${
+              descExpanded ? '' : 'truncate'
+            }`}>
+              {product.description}
+            </p>
+            <button
+              onClick={() => setDescExpanded((prev) => !prev)}
+              className='mt-1 text-[#D4AF37] text-[11px] font-black uppercase tracking-widest hover:underline'
+            >
+              {descExpanded ? 'less' : 'more..'}
+            </button>
+          </div>
+        )}
+
+        {/* ── 6. All flavors/designs grid ──────────────────────────────────── */}
         <div className='px-4 py-6 border-b border-white/5'>
           <div className='flex items-center justify-between mb-4'>
             <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400'>
-              All Editions
+              {isTshirt ? "All Designs" : "All Editions"}
             </h2>
             <span className='text-[10px] text-zinc-600 font-bold'>
-              {product.variants?.length} variants
+              {product.variants?.length} {isTshirt ? "designs" : "variants"}
             </span>
           </div>
           <div className='grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4'>
@@ -400,17 +423,7 @@ const ProductDetailView = () => {
           </div>
         </div>
 
-        {/* ── 7. Description ──────────────────────────────────────────────── */}
-        {product.description && (
-          <div className='px-4 py-6'>
-            <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-3'>
-              Product Details
-            </h2>
-            <p className='text-zinc-400 text-sm leading-relaxed'>
-              {product.description}
-            </p>
-          </div>
-        )}
+
       </div>
 
       {/* ── Sticky bottom "Add to Cart" bar ─────────────────────────────── */}

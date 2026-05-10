@@ -11,8 +11,10 @@ import {
   LogOut,
   Settings,
   LayoutDashboard,
+  Heart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useWishlist } from "@/app/lib/wishlist";
 import type { AppUser, CartItem } from "@/app/lib/types";
 
 // --- Types ---
@@ -94,6 +96,7 @@ const Navbar = () => {
   });
   const user = navbarSnapshot.user;
   const cartStats = navbarSnapshot.cartStats;
+  const { wishlist } = useWishlist();
   const profileImageSrc = user?.profilePicture
     ? user.profilePicture
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -274,6 +277,17 @@ const Navbar = () => {
                     >
                       <Settings size={14} /> Account
                     </Link>
+                    <Link
+                      href='/wishlist'
+                      className='flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-colors'
+                    >
+                      <Heart size={14} /> Wishlist
+                      {wishlist.length > 0 && (
+                        <span className='ml-auto bg-[#D4AF37] text-black text-[7px] font-black rounded-full w-4 h-4 flex items-center justify-center'>
+                          {wishlist.length}
+                        </span>
+                      )}
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className='w-full flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-colors'
@@ -383,6 +397,28 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navLinks.length * 0.1 }}
+                >
+                  <Link
+                    href='/wishlist'
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className='flex items-center justify-end gap-3 text-lg font-bold text-zinc-300 hover:text-[#D4AF37] transition-colors tracking-tight uppercase'
+                  >
+                    {wishlist.length > 0 && (
+                      <span className='bg-[#D4AF37] text-black text-[8px] font-black rounded-full w-5 h-5 flex items-center justify-center'>
+                        {wishlist.length}
+                      </span>
+                    )}
+                    Wishlist
+                    <Heart size={18} className={wishlist.length > 0 ? 'fill-[#D4AF37] text-[#D4AF37]' : ''} />
+                  </Link>
+                </motion.div>
+              )}
 
               {user && (
                 <motion.div
