@@ -21,6 +21,8 @@ import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
+import { persistAuthSession } from "@/app/lib/auth";
+import { staticAssets } from "@/app/lib/assets";
 import { getErrorMessage } from "@/app/lib/errors";
 import type { AppUser } from "@/app/lib/types";
 
@@ -38,13 +40,7 @@ const LoginPage = () => {
     "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop";
 
   const completeLogin = (user: AppUser, token: string) => {
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", token);
-
-    const secureCookie = window.location.protocol === "https:" ? " Secure;" : "";
-    document.cookie = `session=${token}; path=/;${secureCookie} SameSite=Strict`;
-
-    window.dispatchEvent(new Event("storage"));
+    persistAuthSession(user, token);
 
     if (user.role === "admin") {
       router.push("/admin/dashboard");
@@ -163,13 +159,13 @@ const LoginPage = () => {
             <Link href='/' className='flex items-center gap-3 group'>
               <div className='w-12 h-12 relative overflow-hidden rounded-xl border border-[#D4AF37]/30 shadow-lg shadow-[#D4AF37]/10 group-hover:scale-110 transition-transform duration-700'>
                 <img
-                  src='/logo.png'
+                  src={staticAssets.brandLogo}
                   alt='Logo'
                   className='w-full h-full object-cover'
                 />
               </div>
               <img
-                src='/logo 2 gld.png'
+                src={staticAssets.brandWordmark}
                 alt='CigaroElectro wordmark'
                 className='h-10 w-auto object-contain'
               />
@@ -242,13 +238,13 @@ const LoginPage = () => {
           <div className='lg:hidden flex items-center gap-2 mb-6'>
             <div className='w-8 h-8 rounded-lg border border-[#D4AF37]/30 overflow-hidden'>
               <img
-                src='/logo.png'
+                src={staticAssets.brandLogo}
                 alt='Logo'
                 className='w-full h-full object-cover'
               />
             </div>
             <img
-              src='/logo 2 gld.png'
+              src={staticAssets.brandWordmark}
               alt='CigaroElectro wordmark'
               className='h-8 w-auto object-contain'
             />

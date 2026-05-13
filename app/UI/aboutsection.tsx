@@ -3,6 +3,7 @@
 import React from "react";
 import { ShieldCheck, Zap, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { staticAssets } from "@/app/lib/assets";
 
 const HeritageSection = () => {
   const router = useRouter();
@@ -41,10 +42,10 @@ const HeritageSection = () => {
               muted
               playsInline
               preload='metadata'
-              poster='/Poster.jpeg'
+              poster={staticAssets.poster}
               className='w-full h-full object-cover opacity-80'
             >
-              <source src='/vape4.mp4' type='video/mp4' />
+              <source src={staticAssets.aboutVideo} type='video/mp4' />
             </video>
 
             {/* Inner Video Overlays */}

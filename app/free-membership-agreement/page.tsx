@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
+import { staticAssets } from "@/app/lib/assets";
 
 const sections = [
   {
@@ -38,7 +39,7 @@ export default function FreeMembershipAgreementPage() {
         <div className='absolute inset-0 pointer-events-none'>
           <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.14),_transparent_40%)]' />
           <img
-            src='/ptern.png'
+            src={staticAssets.backgroundPattern}
             alt='Background pattern'
             className='absolute inset-0 w-full h-full object-cover opacity-10'
           />

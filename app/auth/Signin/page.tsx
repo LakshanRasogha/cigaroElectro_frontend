@@ -23,6 +23,7 @@ import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
+import { staticAssets } from "@/app/lib/assets";
 import { getErrorMessage } from "@/app/lib/errors";
 import PhoneRegionSelect from "@/app/components/phone_region_select";
 import {
@@ -160,13 +161,13 @@ export default function Register() {
             <Link href='/' className='flex items-center gap-2 sm:gap-3 group'>
               <div className='w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 relative overflow-hidden rounded-full border border-[#D4AF37]/30 shadow-lg shadow-[#D4AF37]/10 group-hover:scale-110 transition-transform duration-500'>
                 <img
-                  src='/logo.png'
+                  src={staticAssets.brandLogo}
                   alt='CigarroElectrico Logo'
                   className='w-full h-full object-cover'
                 />
               </div>
               <img
-                src='/logo 2 gld.png'
+                src={staticAssets.brandWordmark}
                 alt='CigaroElectro wordmark'
                 className='h-8 sm:h-9 md:h-10 w-auto object-contain'
               />

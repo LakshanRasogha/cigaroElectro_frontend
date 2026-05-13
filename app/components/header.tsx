@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight, ShieldCheck, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { staticAssets } from "@/app/lib/assets";
 
 const Hero = () => {
   const router = useRouter();
@@ -18,7 +19,7 @@ const Hero = () => {
       <div className='absolute inset-0 z-0'>
         {/* 1. The Pattern Image (BRIGHTER) */}
         <img
-          src='/ptern.png'
+          src={staticAssets.backgroundPattern}
           alt='Background Pattern'
           className='absolute inset-0 w-full h-full object-cover'
           style={{ objectPosition: "center 15%" }}

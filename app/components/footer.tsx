@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
+import { staticAssets } from "@/app/lib/assets";
 
 const Footer = () => {
   const socialIcons = [
@@ -23,7 +24,7 @@ const Footer = () => {
         <div className="space-y-8">
           <div className="flex items-center">
             <img
-              src="/logo 2 gld.png"
+              src={staticAssets.brandWordmark}
               alt="CigaroElectro logo"
               className="h-14 md:h-16 w-auto object-contain"
             />

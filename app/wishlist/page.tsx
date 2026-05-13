@@ -2,20 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, ArrowRight, Sparkles, Loader2, Trash2 } from "lucide-react";
+import { Heart, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/app/components/navbar";
-import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { apiUrl } from "@/app/lib/api";
 import { useWishlist } from "@/app/lib/wishlist";
 import { getProductSlug } from "@/app/lib/entity_id";
 import type { Product } from "@/app/lib/types";
 
 const WishlistPage = () => {
   const router = useRouter();
-  const { wishlist, toggle, isWishlisted, loading: wishlistLoading } = useWishlist();
+  const { wishlist, toggle, loading: wishlistLoading } = useWishlist();
   const [products, setProducts] = useState<Product[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadedWishlistKey, setLoadedWishlistKey] = useState("");
 
   // Auth guard
   useEffect(() => {
@@ -26,25 +26,40 @@ const WishlistPage = () => {
   // Fetch full product details for all wishlisted keys
   useEffect(() => {
     if (wishlistLoading) return;
-    if (wishlist.length === 0) {
-      setProducts([]);
-      setLoadingProducts(false);
-      return;
-    }
-    setLoadingProducts(true);
+    if (wishlist.length === 0) return;
+
+    let active = true;
+    const requestKey = [...wishlist].sort().join("|");
+
     axios
       .get(apiUrl("/products/get"))
       .then((res) => {
+        if (!active) return;
         const all: Product[] = Array.isArray(res.data)
           ? res.data
           : res.data.products || [];
         setProducts(all.filter((p) => wishlist.includes(p.key)));
+        setLoadedWishlistKey(requestKey);
       })
-      .catch(() => setProducts([]))
-      .finally(() => setLoadingProducts(false));
+      .catch(() => {
+        if (active) {
+          setProducts([]);
+          setLoadedWishlistKey(requestKey);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [wishlist, wishlistLoading]);
 
-  const isLoading = wishlistLoading || loadingProducts;
+  const currentWishlistKey = [...wishlist].sort().join("|");
+  const visibleProducts = products.filter((product) =>
+    wishlist.includes(product.key),
+  );
+  const isLoading =
+    wishlistLoading ||
+    (wishlist.length > 0 && loadedWishlistKey !== currentWishlistKey);
 
   return (
     <main className="min-h-screen bg-[#030303] text-white selection:bg-[#D4AF37]/30 overflow-x-hidden">
@@ -79,7 +94,7 @@ const WishlistPage = () => {
           </h1>
           {!isLoading && (
             <p className="text-zinc-600 text-[10px] font-mono mt-2 uppercase tracking-widest">
-              {products.length} {products.length === 1 ? "item" : "items"} saved
+              {visibleProducts.length} {visibleProducts.length === 1 ? "item" : "items"} saved
             </p>
           )}
         </motion.div>
@@ -95,7 +110,7 @@ const WishlistPage = () => {
         )}
 
         {/* Empty state */}
-        {!isLoading && products.length === 0 && (
+        {!isLoading && visibleProducts.length === 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -118,13 +133,13 @@ const WishlistPage = () => {
         )}
 
         {/* Products grid */}
-        {!isLoading && products.length > 0 && (
+        {!isLoading && visibleProducts.length > 0 && (
           <motion.div
             layout
             className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
           >
             <AnimatePresence mode="popLayout">
-              {products.map((product, idx) => (
+              {visibleProducts.map((product, idx) => (
                 <WishlistCard
                   key={product.key}
                   product={product}

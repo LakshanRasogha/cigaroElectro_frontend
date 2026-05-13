@@ -53,7 +53,7 @@ const AgeGate = ({ onVerified }: { onVerified: () => void }) => (
       <button
         onClick={() => {
           // Navigate away — close the page
-          window.location.href = "https://www.google.com";
+          window.location.assign("https://www.google.com");
         }}
         className="w-full py-3.5 rounded-2xl border border-white/10 text-zinc-500 font-black text-[11px] uppercase tracking-[0.3em] hover:border-rose-500/40 hover:text-rose-400 transition-colors"
       >
@@ -111,9 +111,13 @@ export default function GlobalProviders({
   const [ageVerified, setAgeVerified] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Check sessionStorage so it shows once per browser session
-    const stored = sessionStorage.getItem(AGE_KEY);
-    setAgeVerified(stored === "1");
+    const timer = window.setTimeout(() => {
+      setAgeVerified(sessionStorage.getItem(AGE_KEY) === "1");
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const handleVerified = () => {

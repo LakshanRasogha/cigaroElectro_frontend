@@ -19,8 +19,8 @@ import {
   ImageIcon,
 } from "lucide-react";
 import axios from "axios";
-import { supabase } from "@/app/lib/supabase";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { uploadImageToCloudinary } from "@/app/lib/cloudinary";
 import { getErrorMessage } from "@/app/lib/errors";
 import { getListKey } from "@/app/lib/entity_id";
 import type { Product, ProductVariant } from "@/app/lib/types";
@@ -153,9 +153,6 @@ export default function InventoryPage() {
     "T-shirts",
   ];
 
-  // --- UPDATED BUCKET NAME ---
-  const BUCKET_NAME = "Laki";
-
   const initialFormState = {
     key: "",
     name: "",
@@ -198,34 +195,23 @@ export default function InventoryPage() {
     setSubmitting(true);
     setErrorMsg(null);
 
-    // Generate unique file path
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `inventory/${fileName}`;
-
     try {
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(filePath);
+      const { secureUrl } = await uploadImageToCloudinary(file, {
+        folder: "inventory",
+      });
 
       if (isVariant) {
         const updatedVariants = [...formData.variants];
-        updatedVariants[index].variantImage = [data.publicUrl];
+        updatedVariants[index].variantImage = [secureUrl];
         setFormData({ ...formData, variants: updatedVariants });
       } else {
-        setFormData({ ...formData, productImage: [data.publicUrl] });
+        setFormData({ ...formData, productImage: [secureUrl] });
       }
     } catch (error: unknown) {
       setErrorMsg(
         getErrorMessage(
           error,
-          "Upload failed. Check if bucket 'Laki' exists and is Public.",
+          "Upload failed. Check your Cloudinary cloud name and upload preset.",
         ),
       );
     } finally {

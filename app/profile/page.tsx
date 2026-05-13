@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { createClient } from "@supabase/supabase-js";
 import Navbar from "../components/navbar";
+import { clearAuthSession, isUnauthorizedError } from "@/app/lib/auth";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 import { getErrorMessage } from "@/app/lib/errors";
 import PhoneRegionSelect from "@/app/components/phone_region_select";
@@ -34,14 +34,9 @@ import {
   normalizePhoneDigits,
   splitPhoneNumber,
 } from "@/app/lib/phone";
+import { uploadImageToCloudinary } from "@/app/lib/cloudinary";
 import type { AppUser } from "@/app/lib/types";
 import { useWishlist } from "@/app/lib/wishlist";
-
-// Initialize Supabase Client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 // --- Interfaces ---
 interface OrderedItem {
@@ -260,6 +255,23 @@ const ProfilePage = () => {
   const coverPhoto =
     "https://images.unsplash.com/photo-1479669732031-affb2ce2d265?q=80&w=1332&auto=format&fit=crop";
 
+  const syncUserState = (nextUser: User) => {
+    const parsedPhone = splitPhoneNumber(nextUser.phone);
+    setUser(nextUser);
+    setEditForm({
+      firstName: nextUser.firstName || "",
+      lastName: nextUser.lastName || "",
+      phoneRegion: parsedPhone.regionCode,
+      phoneNumber: parsedPhone.localNumber,
+      address: nextUser.address?.address || "",
+      city: nextUser.address?.city || "",
+      postalCode: nextUser.address?.postalCode || "",
+      profilePicture: nextUser.profilePicture || "",
+    });
+    localStorage.setItem("user", JSON.stringify(nextUser));
+    window.dispatchEvent(new Event("storage"));
+  };
+
   const fetchOrderHistory = async () => {
     setIsLoadingOrders(true);
     const token = localStorage.getItem("token");
@@ -274,40 +286,56 @@ const ProfilePage = () => {
       });
       setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
+      if (isUnauthorizedError(err)) {
+        clearAuthSession();
+        router.push("/auth/login");
+        return;
+      }
       console.error("Failed to fetch orders:", err);
     } finally {
       setIsLoadingOrders(false);
     }
   };
 
-  const loadUserData = () => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+  const loadUserData = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      clearAuthSession();
+      router.push("/auth/login");
+      return;
+    }
+
+    try {
+      const response = await axios.get(apiUrl("/users"), {
+        headers: getAuthHeaders(),
+      });
+      syncUserState(response.data as User);
+      await fetchOrderHistory();
+    } catch (error) {
+      if (isUnauthorizedError(error)) {
+        clearAuthSession();
+        router.push("/auth/login");
+        return;
+      }
+
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        router.push("/auth/login");
+        return;
+      }
+
       try {
-        const parsed: User = JSON.parse(storedUser);
-        const parsedPhone = splitPhoneNumber(parsed.phone);
-        setUser(parsed);
-        setEditForm({
-          firstName: parsed.firstName || "",
-          lastName: parsed.lastName || "",
-          phoneRegion: parsedPhone.regionCode,
-          phoneNumber: parsedPhone.localNumber,
-          address: parsed.address?.address || "",
-          city: parsed.address?.city || "",
-          postalCode: parsed.address?.postalCode || "",
-          profilePicture: parsed.profilePicture || "",
-        });
-        fetchOrderHistory();
-      } catch (error) {
+        syncUserState(JSON.parse(storedUser) as User);
+        await fetchOrderHistory();
+      } catch {
+        clearAuthSession();
         router.push("/auth/login");
       }
-    } else {
-      router.push("/auth/login");
     }
   };
 
   useEffect(() => {
-    loadUserData();
+    void loadUserData();
   }, [router]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -316,19 +344,9 @@ const ProfilePage = () => {
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${user._id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("profile")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("profile").getPublicUrl(filePath);
+      const { secureUrl: publicUrl } = await uploadImageToCloudinary(file, {
+        folder: "cigarroelectrico/profiles",
+      });
 
       const response = await axios.put(
         apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
@@ -342,12 +360,14 @@ const ProfilePage = () => {
 
       if (response.status === 200) {
         const updatedUser = { ...user, profilePicture: publicUrl };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
-        setEditForm((prev) => ({ ...prev, profilePicture: publicUrl }));
-        window.dispatchEvent(new Event("storage"));
+        syncUserState(updatedUser);
       }
     } catch (error: unknown) {
+      if (isUnauthorizedError(error)) {
+        clearAuthSession();
+        router.push("/auth/login");
+        return;
+      }
       alert(`Upload failed: ${getErrorMessage(error, "Upload failed.")}`);
     } finally {
       setIsUploading(false);
@@ -382,12 +402,15 @@ const ProfilePage = () => {
 
       if (response.status === 200) {
         const updatedUser = { ...user, ...payload };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
+        syncUserState(updatedUser);
         setIsEditModalOpen(false);
-        window.dispatchEvent(new Event("storage"));
       }
     } catch (error: unknown) {
+      if (isUnauthorizedError(error)) {
+        clearAuthSession();
+        router.push("/auth/login");
+        return;
+      }
       setErrorMsg(getErrorMessage(error, "Update failed."));
     } finally {
       setIsUpdating(false);
@@ -395,8 +418,7 @@ const ProfilePage = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    clearAuthSession();
     router.push("/");
   };
 

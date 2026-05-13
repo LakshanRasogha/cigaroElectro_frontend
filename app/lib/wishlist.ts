@@ -11,7 +11,10 @@ export const WISHLIST_EVENT = "wishlistUpdated";
 export function useWishlist() {
   const router = useRouter();
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !!localStorage.getItem("token");
+  });
 
   const isLoggedIn = () => {
     if (typeof window === "undefined") return false;
@@ -20,18 +23,31 @@ export function useWishlist() {
 
   /** Load wishlist from backend on mount */
   useEffect(() => {
-    if (!isLoggedIn()) {
-      setLoading(false);
-      return;
-    }
+    if (!isLoggedIn()) return;
+
+    let active = true;
+
     axios
       .get(apiUrl("/users/wishlist"), { headers: getAuthHeaders() })
       .then((res) => {
+        if (!active) return;
         const data = Array.isArray(res.data) ? res.data : [];
         setWishlist(data);
       })
-      .catch(() => setWishlist([]))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (active) {
+          setWishlist([]);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   /** Sync across tabs / components */

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { apiUrl } from "@/app/lib/api";
+import { staticAssets } from "@/app/lib/assets";
 import { getListKey, getProductSlug } from "@/app/lib/entity_id";
 import { trackProductClick } from "@/app/lib/analytics";
 import type { Product } from "@/app/lib/types";
@@ -99,7 +100,7 @@ const ProductsPage = () => {
       {/* Background Image (Replaced Video) */}
       <div className='fixed inset-0 z-0 overflow-hidden pointer-events-none '>
         <img
-          src='/ptern.png'
+          src={staticAssets.backgroundPattern}
           alt='Background Pattern'
           className='w-full h-full object-cover'
         />

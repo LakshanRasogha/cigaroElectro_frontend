@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { Mail, Phone, Send, MessageCircle, Sparkles } from "lucide-react";
+import { staticAssets } from "@/app/lib/assets";
 import Navbar from "../components/navbar";
 
 const WHATSAPP_NUMBER = "94709696180";
@@ -41,7 +42,7 @@ const ContactPage = () => {
 
           {/* Static Background Image (Replaced Video) */}
           <img
-            src='/ptern.png'
+            src={staticAssets.backgroundPattern}
             alt='Background Pattern'
             className='w-full h-full object-cover opacity-99'
           />

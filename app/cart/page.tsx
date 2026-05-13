@@ -27,6 +27,7 @@ import gsap from "gsap";
 import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
 import Link from "next/link";
+import { staticAssets } from "@/app/lib/assets";
 import type { CartItem } from "@/app/lib/types";
 
 // WhatsApp business number
@@ -57,6 +58,71 @@ interface AddressModalProps {
   subtotal: number;
   totalDelivery: number;
   total: number;
+}
+
+function getInitialCartItems() {
+  if (typeof window === "undefined") {
+    return [] as CartItem[];
+  }
+
+  const savedBag = localStorage.getItem("bag");
+  if (!savedBag) {
+    return [] as CartItem[];
+  }
+
+  try {
+    return JSON.parse(savedBag) as CartItem[];
+  } catch (error) {
+    console.error("Cart Sync Error:", error);
+    return [] as CartItem[];
+  }
+}
+
+function getInitialAddressForm(): AddressForm {
+  const initialForm: AddressForm = {
+    name: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    phone: "",
+  };
+
+  if (typeof window === "undefined") {
+    return initialForm;
+  }
+
+  const storedUser = localStorage.getItem("user");
+  if (!storedUser) {
+    return initialForm;
+  }
+
+  try {
+    const user = JSON.parse(storedUser) as {
+      name?: string;
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+      address?: {
+        address?: string;
+        city?: string;
+        postalCode?: string;
+      };
+    };
+
+    return {
+      name:
+        user.name || user.firstName
+          ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+          : "",
+      phone: user.phone || "",
+      address: user.address?.address || "",
+      city: user.address?.city || "",
+      postalCode: user.address?.postalCode || "",
+    };
+  } catch (error) {
+    console.error("User Sync Error:", error);
+    return initialForm;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
@@ -128,49 +194,21 @@ const CartPage = () => {
   const [orderSent, setOrderSent] = useState(false);
 
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [form, setForm] = useState<AddressForm>({
-    name: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    phone: "",
-  });
+  const [form, setForm] = useState<AddressForm>(getInitialAddressForm);
 
   const containerRef = useRef(null);
 
   // Initialize from localStorage
   useEffect(() => {
-    const savedBag = localStorage.getItem("bag");
-    const storedUser = localStorage.getItem("user");
+    const timer = window.setTimeout(() => {
+      setCartItems(getInitialCartItems());
+      setForm(getInitialAddressForm());
+      setIsSyncing(false);
+    }, 0);
 
-    if (savedBag) {
-      try {
-        setCartItems(JSON.parse(savedBag) as CartItem[]);
-      } catch (err) {
-        console.error("Cart Sync Error:", err);
-      }
-    }
-
-    // Pre-fill form from stored user if available
-    if (storedUser) {
-      try {
-        const u = JSON.parse(storedUser);
-        setForm((prev) => ({
-          ...prev,
-          name: u.name || u.firstName
-            ? `${u.firstName || ""} ${u.lastName || ""}`.trim()
-            : prev.name,
-          phone: u.phone || prev.phone,
-          address: u.address?.address || prev.address,
-          city: u.address?.city || prev.city,
-          postalCode: u.address?.postalCode || prev.postalCode,
-        }));
-      } catch (err) {
-        console.error("User Sync Error:", err);
-      }
-    }
-
-    setIsSyncing(false);
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, []);
 
   // Persist bag changes
@@ -313,7 +351,7 @@ const CartPage = () => {
       whatsappWindow.location.href = whatsappUrl;
     } else {
       // Popup was blocked entirely — fall back to navigating the current tab
-      window.location.href = whatsappUrl;
+      window.location.assign(whatsappUrl);
     }
 
     // Clear cart only after everything succeeds
@@ -373,7 +411,7 @@ const CartPage = () => {
             playsInline
             className='w-full h-full object-cover'
           >
-            <source src='/vape2.mp4' type='video/mp4' />
+            <source src={staticAssets.cartVideo} type='video/mp4' />
           </video>
           <div className='absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]' />
         </div>

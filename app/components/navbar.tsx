@@ -14,6 +14,8 @@ import {
   Heart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { staticAssets } from "@/app/lib/assets";
+import { clearAuthSession } from "@/app/lib/auth";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { AppUser, CartItem } from "@/app/lib/types";
 
@@ -35,7 +37,7 @@ const BrandLogo = ({
 }) => (
   <Link href='/' onClick={onClick} className='flex items-center shrink-0'>
     <img
-      src='/logo 2 gld.png'
+      src={staticAssets.brandWordmark}
       alt='CigaroElectro logo'
       className={`w-auto object-contain ${mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"}`}
     />
@@ -142,8 +144,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    clearAuthSession();
     setNavbarSnapshot((prev) => ({
       ...prev,
       user: null,

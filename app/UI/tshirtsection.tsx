@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import ProductCard from "../components/product_card";
 import { Loader2, ChevronLeft, ChevronRight, Shirt } from "lucide-react";
+import { staticAssets } from "@/app/lib/assets";
 import { getListKey } from "@/app/lib/entity_id";
 import type { Product } from "@/app/lib/types";
 
@@ -36,7 +37,7 @@ const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: Tshirt
       <div
         className='absolute top-0 left-0 right-0 h-[250px] md:h-[600px] z-0'
         style={{
-          backgroundImage: "url('/Poster.jpeg')", // Ensure path matches public folder
+          backgroundImage: `url('${staticAssets.poster}')`,
           backgroundSize: "cover",
           backgroundPosition: "center", // Focused on middle
           backgroundRepeat: "no-repeat",

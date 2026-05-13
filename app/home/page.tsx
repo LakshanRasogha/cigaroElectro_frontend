@@ -47,33 +47,50 @@ function getProfileCompletion(user: Record<string, unknown>): number {
 // ─────────────────────────────────────────────────────────────────────────────
 const NUDGE_KEY = "profile_nudge_shown";
 
+function getInitialNudgeState() {
+  if (typeof window === "undefined") {
+    return { visible: false, pct: 0, shouldMark: false };
+  }
+
+  if (sessionStorage.getItem(NUDGE_KEY)) {
+    return { visible: false, pct: 0, shouldMark: false };
+  }
+
+  const raw = localStorage.getItem("user");
+  if (!raw) {
+    return { visible: false, pct: 0, shouldMark: false };
+  }
+
+  try {
+    const user = JSON.parse(raw) as Record<string, unknown>;
+    const completion = getProfileCompletion(user);
+
+    if (completion >= 100) {
+      return { visible: false, pct: 0, shouldMark: false };
+    }
+
+    return { visible: true, pct: completion, shouldMark: true };
+  } catch {
+    return { visible: false, pct: 0, shouldMark: false };
+  }
+}
+
 const ProfileNudgeBanner = () => {
-  const [visible, setVisible] = useState(false);
-  const [pct, setPct] = useState(0);
+  const [nudgeState, setNudgeState] = useState(getInitialNudgeState);
+  const { visible, pct, shouldMark } = nudgeState;
 
   useEffect(() => {
-    // Only show once per browser session
-    if (sessionStorage.getItem(NUDGE_KEY)) return;
-
-    const raw = localStorage.getItem("user");
-    if (!raw) return;
-
-    try {
-      const user = JSON.parse(raw) as Record<string, unknown>;
-      const completion = getProfileCompletion(user);
-      if (completion >= 100) return; // Profile complete — no nudge needed
-
-      setPct(completion);
-      setVisible(true);
+    if (visible && shouldMark) {
       sessionStorage.setItem(NUDGE_KEY, "1");
-
-      // Auto-dismiss after 3 s
-      const timer = setTimeout(() => setVisible(false), 3000);
-      return () => clearTimeout(timer);
-    } catch {
-      /* Malformed user data — skip silently */
     }
-  }, []);
+
+    if (!visible) return;
+
+    const timer = setTimeout(() => {
+      setNudgeState((prev) => ({ ...prev, visible: false }));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [shouldMark, visible]);
 
   return (
     <AnimatePresence>
@@ -113,7 +130,9 @@ const ProfileNudgeBanner = () => {
                 </p>
                 <Link
                   href="/profile"
-                  onClick={() => setVisible(false)}
+                  onClick={() =>
+                    setNudgeState((prev) => ({ ...prev, visible: false }))
+                  }
                   className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] hover:underline"
                 >
                   Go →
@@ -123,7 +142,9 @@ const ProfileNudgeBanner = () => {
 
             {/* Dismiss */}
             <button
-              onClick={() => setVisible(false)}
+              onClick={() =>
+                setNudgeState((prev) => ({ ...prev, visible: false }))
+              }
               className="shrink-0 text-zinc-600 hover:text-white transition-colors"
               aria-label="Dismiss nudge"
             >

@@ -26,6 +26,7 @@ import { motion } from "framer-motion";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
 import Link from "next/link";
+import { staticAssets } from "@/app/lib/assets";
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -127,7 +128,7 @@ const AboutPage = () => {
         <div className='absolute inset-0 z-0 opacity-30 pointer-events-none'>
           {/* Static Pattern Image */}
           <img
-            src='/ptern.png'
+            src={staticAssets.backgroundPattern}
             alt='Background Pattern'
             className='absolute top-0 left-0 w-full h-full object-cover opacity-20'
           />
