@@ -31,7 +31,7 @@ const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSect
 
   return (
     <section
-      className='pt-10 pb-20 md:pt-16 md:pb-32 bg-[#050505] overflow-hidden relative -mt-16 md:-mt-24'
+      className='pt-6 pb-10 md:pt-10 md:pb-14 bg-[#050505] overflow-hidden relative -mt-10 md:-mt-16'
       id='shop'
     >
       {/* Background Overlay */}
@@ -99,26 +99,18 @@ const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSect
         ) : (
           <Swiper
             modules={[Navigation, Pagination]}
-            spaceBetween={15}
-            slidesPerView={2} // Strictly 2 cards on smallest mobile
+            spaceBetween={8}
+            slidesPerView={2}
             navigation={{
               nextEl: ".swiper-next-btn",
               prevEl: ".swiper-prev-btn",
             }}
             breakpoints={{
-              // Tablet
-              768: {
-                slidesPerView: 3,
-                spaceBetween: 25,
-              },
-              // Desktop
-              1024: {
-                slidesPerView: 4,
-                spaceBetween: 30,
-                slidesPerGroup: 4, // Navigates by full pages of 4
-              },
+              640: { slidesPerView: 2, spaceBetween: 12 },
+              768: { slidesPerView: 3, spaceBetween: 16 },
+              1024: { slidesPerView: 4, spaceBetween: 20, slidesPerGroup: 4 },
             }}
-            className='pb-10 custom-gold-swiper !overflow-visible'
+            className='pb-4 custom-gold-swiper !overflow-visible'
           >
             {visibleProducts.map((prod, i) => {
               // Destructure 'key' to avoid React 19 spread error
@@ -129,25 +121,13 @@ const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSect
                   key={getListKey(prod, productKey || i)}
                   className='h-auto'
                 >
-                  <div className='relative h-full py-2'>
-                    <div className='h-full rounded-[2rem] md:rounded-[2.5rem] bg-[#0a0a0a] border border-white/5 overflow-hidden'>
-                      {prod.sale && (
-                        <div className='absolute top-3 right-3 md:top-4 md:right-4 z-20 px-2.5 py-1 rounded-full bg-[#D4AF37] shadow-lg'>
-                          <span className='text-[7px] md:text-[8px] font-black text-black uppercase'>
-                            {prod.sale}
-                          </span>
-                        </div>
-                      )}
-
-                      <ProductCard
-                        productKey={productKey}
-                        slug={prod.slug}
-                        {...otherProps}
-                        tagline={otherProps.tagline || ""}
-                        isBestSeller={bestsellerKeys.has(productKey || "")}
-                      />
-                    </div>
-                  </div>
+                  <ProductCard
+                    productKey={productKey}
+                    slug={prod.slug}
+                    {...otherProps}
+                    tagline={otherProps.tagline || ""}
+                    isBestSeller={bestsellerKeys.has(productKey || "")}
+                  />
                 </SwiperSlide>
               );
             })}

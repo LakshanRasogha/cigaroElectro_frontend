@@ -1,24 +1,30 @@
 'use client';
 
 import React from 'react';
-import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone } from 'lucide-react';
 import { staticAssets } from "@/app/lib/assets";
 
+const TikTokIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+  </svg>
+);
+
 const Footer = () => {
-  const socialIcons = [
-    { Icon: Facebook, url: '#' },
-    { Icon: Instagram, url: '#' },
-    { Icon: Twitter, url: '#' }
+  const socialLinks = [
+    { label: 'Facebook', href: '#', Icon: Facebook },
+    { label: 'Instagram', href: '#', Icon: Instagram },
+    { label: 'TikTok', href: '#', Icon: null },
   ];
 
   return (
-    <footer className="bg-[#050505] pt-32 pb-12 border-t border-white/5 relative overflow-hidden">
+    <footer className="bg-[#050505] pt-12 pb-10 border-t border-white/5 relative overflow-hidden">
       
       {/* Background Ambient Glows - Synced with The Vault's aesthetic */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full -z-10" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#AA771C]/5 blur-[120px] rounded-full -z-10" />
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 mb-32">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
         
         {/* Brand Section */}
         <div className="space-y-8">
@@ -38,15 +44,16 @@ const Footer = () => {
             The Gold Standard of vapor technology, engineered for excellence and designed in Sri Lanka.
           </p>
           <div className="flex gap-4">
-            {socialIcons.map(({ Icon, url }, i) => (
-              <a 
-                key={i} 
-                href={url} 
+            {socialLinks.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={label}
                 className="w-11 h-11 rounded-2xl border border-white/10 flex items-center justify-center text-zinc-400 bg-white/5 backdrop-blur-md transition-all duration-500 hover:text-black hover:bg-[#D4AF37] hover:border-transparent hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
               >
-                <Icon size={20} />
+                {Icon ? <Icon size={20} /> : <TikTokIcon />}
               </a>
             ))}
           </div>
@@ -79,7 +86,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+      <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <p className="text-[9px] text-zinc-700 uppercase tracking-[0.4em] font-black">
           © {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
         </p>

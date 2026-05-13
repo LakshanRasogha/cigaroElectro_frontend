@@ -38,9 +38,7 @@ const ProductsPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(
-          apiUrl("/products/get"),
-        );
+        const res = await axios.get(apiUrl("/products/get"));
         const data = Array.isArray(res.data)
           ? res.data
           : res.data.products || [];
@@ -97,8 +95,8 @@ const ProductsPage = () => {
 
       <Navbar />
 
-      {/* Background Image (Replaced Video) */}
-      <div className='fixed inset-0 z-0 overflow-hidden pointer-events-none '>
+      {/* Background Image */}
+      <div className='fixed inset-0 z-0 overflow-hidden pointer-events-none'>
         <img
           src={staticAssets.backgroundPattern}
           alt='Background Pattern'
@@ -145,7 +143,7 @@ const ProductsPage = () => {
               </span>
             </motion.h1>
 
-            {/* Search - Mobile Optimized */}
+            {/* Search */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -221,7 +219,7 @@ const ProductsPage = () => {
           )}
         </header>
 
-        {/* Grid Section - 2 columns on mobile */}
+        {/* Grid Section */}
         {loading ? (
           <div className='flex flex-col items-center justify-center py-16 sm:py-24 md:py-32'>
             <motion.div
@@ -273,7 +271,9 @@ const ProductsPage = () => {
   );
 };
 
-// Mobile-Optimized Product Card - Compact 2-column design
+// ── Event-style Product Card ──────────────────────────────────────────────────
+// Layout: large image on top (4:5) with overlay badges, dark content panel
+// below with series label, bold product name, tagline, price + "Shop Now" CTA.
 const MobileProductCard = ({
   product,
   index,
@@ -295,7 +295,7 @@ const MobileProductCard = ({
   }).format(product.basePrice || 0);
 
   const series =
-    product.key?.split("-")[0] || `0${(index + 1).toString().padStart(2, "0")}`;
+    product.key?.split("-")[0] || `${(index + 1).toString().padStart(2, "0")}`;
 
   return (
     <motion.div
@@ -316,95 +316,114 @@ const MobileProductCard = ({
       animate='visible'
       exit={{ opacity: 0, scale: 0.9 }}
       whileTap={{ scale: 0.97 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       onClick={() => {
         trackProductClick(product.key);
         router.push(`/collections/${getProductSlug(product)}`);
       }}
-      className='group relative aspect-[3/4] rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden bg-gradient-to-b from-[#0a0a0a] to-[#050505] cursor-pointer border border-white/5 transition-all duration-300 hover:border-[#D4AF37]/30 shadow-md hover:shadow-[0_10px_20px_rgba(212,175,55,0.1)]'
+      className='group relative flex flex-col rounded-xl sm:rounded-2xl overflow-hidden bg-[#0d0d0d] cursor-pointer border border-white/[0.08] transition-all duration-300 hover:border-[#D4AF37]/40 shadow-lg hover:shadow-[0_12px_32px_rgba(212,175,55,0.15)]'
     >
-      {/* Background Image */}
-      <div className='absolute inset-0 bg-[#0a0a0a]'>
+      {/* ── IMAGE BLOCK ── */}
+      <div className='relative w-full aspect-[4/5] overflow-hidden bg-[#0a0a0a] flex-shrink-0'>
+        {/* Skeleton loader */}
         {!imageLoaded && (
-          <div className='absolute inset-0 flex items-center justify-center'>
+          <div className='absolute inset-0 flex items-center justify-center bg-[#0a0a0a]'>
             <div className='w-5 h-5 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin' />
           </div>
         )}
+
         <img
-          src={
-            product.productImage?.[0] || "https://via.placeholder.com/400x600"
-          }
+          src={product.productImage?.[0] || "https://via.placeholder.com/400x500"}
           alt={product.name}
           onLoad={() => setImageLoaded(true)}
-          className={`w-full h-full object-cover transition-all duration-500 ${
-            imageLoaded ? "opacity-60 group-hover:opacity-40" : "opacity-0"
+          className={`w-full h-full object-cover transition-all duration-700 ${
+            imageLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0"
           }`}
         />
-      </div>
 
-      {/* Gradients */}
-      <div className='absolute inset-0 bg-gradient-to-t from-[#030303] via-[#030303]/60 to-transparent' />
-      <div className='absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#D4AF37]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
+        {/* Bottom vignette — blends image into the dark content panel */}
+        <div className='absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0d0d0d] to-transparent' />
 
-      {/* Best Seller badge */}
-      {isBestSeller && (
-        <div className='absolute top-0 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] shadow-[0_2px_8px_rgba(212,175,55,0.5)] rounded-b-lg border-b border-x border-[#F2D37D]/30'>
-          <span className='text-[5px] font-black text-black uppercase tracking-[0.15em] whitespace-nowrap'>🔥 Best Seller</span>
+        {/* ── TOP BADGES ── */}
+        <div className='absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between z-10'>
+          {/* Featured / Best Seller — top left */}
+          <div
+            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[6px] sm:text-[7px] font-black uppercase tracking-wider ${
+              isBestSeller
+                ? "bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black shadow-[0_2px_8px_rgba(212,175,55,0.5)]"
+                : "bg-black/70 backdrop-blur-sm text-[#D4AF37] border border-[#D4AF37]/40"
+            }`}
+          >
+            {isBestSeller ? "🔥 Best Seller" : "+ Featured"}
+          </div>
+
+          {/* Category — top right (gold pill, like the date badge in the reference) */}
+          <div className='flex items-center justify-center bg-[#D4AF37] text-black rounded-md px-2 py-1 shadow-[0_2px_8px_rgba(212,175,55,0.4)]'>
+            <span className='text-[7px] sm:text-[8px] font-black uppercase leading-none tracking-wide'>
+              {product.category?.slice(0, 7) ?? "NEW"}
+            </span>
+          </div>
         </div>
-      )}
 
-      {/* Category Badge - Mobile optimized */}
-      <div className='absolute top-2 left-2 right-2 flex items-center justify-between z-10'>
-        <span className='px-2 py-0.5 bg-black/80 backdrop-blur-sm text-[#D4AF37] rounded-full text-[6px] font-black uppercase tracking-wider border border-[#D4AF37]/30'>
-          {product.category?.slice(0, 8)}
-        </span>
-        {(product.variants?.length ?? 0) > 1 && (() => {
-          const isTshirt = (product.category || "").toLowerCase().trim() === "t-shirts";
-          return (
-            <div className='flex items-center gap-0.5 px-1.5 py-0.5 bg-[#D4AF37]/10 backdrop-blur-sm rounded-full border border-[#D4AF37]/30'>
-              <Package size={8} className='text-[#D4AF37]' />
-              <span className='text-[5px] font-black text-[#D4AF37]'>
-                {product.variants?.length ?? 0}{isTshirt ? " Designs" : ""}
-              </span>
-            </div>
-          );
-        })()}
+        {/* Variants pill — bottom-right of image */}
+        {(product.variants?.length ?? 0) > 1 && (
+          <div className='absolute bottom-2.5 right-2.5 z-10 flex items-center gap-0.5 px-1.5 py-0.5 bg-black/80 backdrop-blur-sm rounded-full border border-[#D4AF37]/30'>
+            <Package size={7} className='text-[#D4AF37]' />
+            <span className='text-[5px] font-black text-[#D4AF37]'>
+              {product.variants?.length ?? 0}{" "}
+              {(product.category || "").toLowerCase().trim() === "t-shirts"
+                ? "Designs"
+                : "Vars"}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Content - Compact for mobile */}
-      <div className='absolute bottom-0 left-0 right-0 p-2 sm:p-3 z-10'>
-        {/* Series */}
-        <p className='text-[#D4AF37] text-[5px] sm:text-[6px] font-black uppercase tracking-wider mb-0.5 opacity-70'>
-          Series_{series}
+      {/* ── CONTENT PANEL ── */}
+      <div className='flex flex-col flex-1 p-2.5 sm:p-3 bg-[#0d0d0d]'>
+        {/* Series — like "6:00 PM onwards" in the reference */}
+        <p className='text-[#D4AF37] text-[5px] sm:text-[6px] font-black uppercase tracking-[0.15em] mb-1 opacity-70'>
+          {series} onwards
         </p>
 
-        {/* Product Name */}
-        <h3 className='text-xs sm:text-sm font-bold text-white mb-1 leading-tight line-clamp-1 group-hover:text-[#D4AF37] transition-colors'>
+        {/* Product name — bold, uppercase */}
+        <h3 className='text-[11px] sm:text-[13px] font-black text-white uppercase tracking-tight leading-tight line-clamp-2 group-hover:text-[#D4AF37] transition-colors duration-300 mb-1'>
           {product.name}
         </h3>
 
-        {/* Tagline - Only show if space permits */}
+        {/* Tagline — like venue in the reference */}
         {product.tagline && (
-          <p className='text-[6px] sm:text-[7px] text-zinc-500 mb-1 line-clamp-1 font-light'>
+          <p className='text-[6px] sm:text-[7px] text-zinc-500 line-clamp-1 font-medium tracking-wide mb-2'>
             {product.tagline}
           </p>
         )}
 
-        {/* Price and Action */}
-        <div className='flex items-center justify-between mt-1'>
-          <span className='text-[8px] sm:text-[9px] font-black text-white bg-black/30 px-1.5 py-0.5 rounded-sm'>
-            {formattedPrice}
-          </span>
+        {/* Divider */}
+        <div className='h-px bg-white/5 mb-2' />
 
-          <motion.div
+        {/* Price + Shop Now CTA */}
+        <div className='flex items-center justify-between gap-1.5'>
+          <div className='flex flex-col'>
+            <span className='text-[5px] sm:text-[6px] text-zinc-600 uppercase tracking-wider font-medium'>
+              Starting at
+            </span>
+            <span className='text-[8px] sm:text-[10px] font-black text-white'>
+              {formattedPrice}
+            </span>
+          </div>
+
+          <motion.button
             whileTap={{ scale: 0.9 }}
-            className='p-1 bg-gradient-to-br from-[#D4AF37] to-[#B49450] rounded-md text-black'
+            className='flex items-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black text-[6px] sm:text-[7px] font-black uppercase tracking-wider rounded-md shadow-[0_4px_12px_rgba(212,175,55,0.3)] hover:shadow-[0_4px_18px_rgba(212,175,55,0.5)] transition-shadow duration-300 whitespace-nowrap'
           >
-            <ArrowUpRight size={10} strokeWidth={3} />
-          </motion.div>
+            Shop Now
+            <ArrowUpRight size={8} strokeWidth={3} />
+          </motion.button>
         </div>
       </div>
 
-      {/* Hover shimmer - Simplified for mobile */}
+      {/* Gold shimmer on hover */}
       <motion.div
         animate={{ x: isHovered ? "100%" : "-100%" }}
         transition={{ duration: 0.8 }}

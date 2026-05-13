@@ -35,7 +35,7 @@ const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: Tshirt
           - bg-center: Focuses on the middle of the image for mobile
       */}
       <div
-        className='absolute top-0 left-0 right-0 h-[250px] md:h-[600px] z-0'
+        className='absolute top-0 left-0 right-0 h-[180px] md:h-[360px] z-0'
         style={{
           backgroundImage: `url('${staticAssets.poster}')`,
           backgroundSize: "cover",
@@ -49,9 +49,9 @@ const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: Tshirt
 
       {/* --- 2. Main Content --- */}
       {/* Added pt-[70px] for mobile specific padding */}
-      <div className='relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-50 pb-2 lg:pt-130'>
+      <div className='relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-4 lg:pt-16'>
         {/* Header Section */}
-        <div className='flex flex-col md:flex-row justify-between items-end md:items-center mb-10 md:mb-16 gap-6'>
+        <div className='flex flex-col md:flex-row justify-between items-end md:items-center mb-6 md:mb-10 gap-4'>
           <div className='max-w-2xl'>
             <div className='flex items-center gap-3 mb-3'>
               <div className='p-1.5 bg-white/10 rounded-lg shadow-lg border border-white/10 backdrop-blur-md'>
@@ -118,26 +118,14 @@ const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: Tshirt
                   key={getListKey(prod, productKey || i)}
                   className='h-auto'
                 >
-                  <div className='relative h-full py-2'>
-                    <div className='h-full rounded-[2rem] md:rounded-[2.5rem] bg-[#0a0a0a] border border-white/10 overflow-hidden shadow-2xl'>
-                      {prod.sale && (
-                        <div className='absolute top-3 right-3 md:top-4 md:right-4 z-20 px-2.5 py-1 rounded-full bg-[#D4AF37] text-black shadow-lg'>
-                          <span className='text-[7px] md:text-[8px] font-black uppercase'>
-                            {prod.sale}
-                          </span>
-                        </div>
-                      )}
-
-                      <ProductCard
-                        productKey={productKey}
-                        slug={prod.slug}
-                        {...otherProps}
-                        tagline={otherProps.tagline || "Premium Cotton Blend"}
-                        category='T-shirts'
-                        isBestSeller={bestsellerKeys.has(productKey || "")}
-                      />
-                    </div>
-                  </div>
+                  <ProductCard
+                    productKey={productKey}
+                    slug={prod.slug}
+                    {...otherProps}
+                    tagline={otherProps.tagline || "Premium Cotton Blend"}
+                    category='T-shirts'
+                    isBestSeller={bestsellerKeys.has(productKey || "")}
+                  />
                 </SwiperSlide>
               );
             })}

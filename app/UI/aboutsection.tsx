@@ -23,19 +23,19 @@ const HeritageSection = () => {
   };
 
   return (
-    <section className='relative py-32 bg-[#050505] overflow-hidden' id='about'>
+    <section className='relative py-10 md:py-14 bg-[#050505] overflow-hidden' id='about'>
       {/* Ambient Gold Background Glows */}
       <div className='absolute top-1/4 left-0 w-96 h-96 bg-[#D4AF37]/5 blur-[120px] rounded-full pointer-events-none' />
       <div className='absolute bottom-1/4 right-0 w-96 h-96 bg-[#AA771C]/5 blur-[120px] rounded-full pointer-events-none' />
 
-      <div className='max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-20 relative z-10'>
+      <div className='max-w-7xl mx-auto px-4 md:px-6 flex flex-col lg:flex-row items-center gap-8 lg:gap-10 relative z-10'>
         {/* --- Video Card Side --- */}
         <div className='lg:w-1/2 relative group'>
           {/* Top-Left Gold Accent */}
-          <div className='absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-[#D4AF37] rounded-tl-[3rem] z-20 group-hover:-translate-x-2 group-hover:-translate-y-2 transition-all duration-700 shadow-[0_0_25px_rgba(212,175,55,0.4)]' />
+          <div className='hidden sm:block absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-[#D4AF37] rounded-tl-[3rem] z-20 group-hover:-translate-x-2 group-hover:-translate-y-2 transition-all duration-700 shadow-[0_0_25px_rgba(212,175,55,0.4)]' />
 
           {/* The Live Video Container */}
-          <div className='relative z-10 overflow-hidden rounded-[3rem] border-4 border-white/5 bg-zinc-900 shadow-2xl aspect-[4/5] lg:h-[650px]'>
+          <div className='relative z-10 overflow-hidden rounded-2xl sm:rounded-[3rem] border-4 border-white/5 bg-zinc-900 shadow-2xl aspect-[3/4] lg:aspect-auto lg:h-[680px]'>
             <video
               autoPlay
               loop
@@ -61,20 +61,20 @@ const HeritageSection = () => {
           </div>
 
           {/* Bottom-Right Gold Accent */}
-          <div className='absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 border-[#D4AF37]/50 rounded-br-[3rem] z-20 group-hover:translate-x-2 group-hover:translate-y-2 transition-all duration-700 shadow-[0_0_25px_rgba(212,175,55,0.2)]' />
+          <div className='hidden sm:block absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 border-[#D4AF37]/50 rounded-br-[3rem] z-20 group-hover:translate-x-2 group-hover:translate-y-2 transition-all duration-700 shadow-[0_0_25px_rgba(212,175,55,0.2)]' />
         </div>
 
         {/* --- Content Side --- */}
         <div className='lg:w-1/2'>
           <div>
-            <div className='flex items-center gap-6 mb-10'>
+            <div className='flex items-center gap-6 mb-5'>
               <span className='h-[1px] w-16 bg-gradient-to-r from-[#D4AF37] to-transparent'></span>
               <span className='text-[#D4AF37] uppercase tracking-[0.5em] text-[10px] font-black block'>
                 Established 2012
               </span>
             </div>
 
-            <h2 className='text-2xl md:text-3xl font-black mb-12 leading-[0.85] text-white tracking-tighter uppercase'>
+            <h2 className='text-2xl md:text-3xl font-black mb-6 leading-[0.85] text-white tracking-tighter uppercase'>
               <span
                 className='text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C]'
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
@@ -83,7 +83,7 @@ const HeritageSection = () => {
               </span>
             </h2>
 
-            <p className='text-zinc-200 mb-12 text-md leading-relaxed font-light border-l-2 border-[#D4AF37]/20 pl-10 max-w-xl'>
+            <p className='text-zinc-200 mb-6 text-md leading-relaxed font-light border-l-2 border-[#D4AF37]/20 pl-10 max-w-xl'>
               <span className='text-[#D4AF37] font-medium'>
                 CigarroEléctrico
               </span>{" "}
@@ -95,7 +95,7 @@ const HeritageSection = () => {
             </p>
 
             {/* Feature Grid */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mb-16'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8'>
               {/* Card 1 */}
               <div className='p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-[#D4AF37]/30 transition-all group/card'>
                 <div className='w-14 h-14 rounded-2xl bg-black border border-white/10 flex items-center justify-center mb-6 group-hover/card:bg-[#D4AF37] group-hover/card:text-black transition-all duration-500 shadow-inner'>
@@ -123,7 +123,7 @@ const HeritageSection = () => {
               </div>
             </div>
 
-            <div className='mb-16'>
+            <div className='mb-8'>
               <div className='flex items-center gap-4 mb-6'>
                 <span className='h-[1px] w-12 bg-gradient-to-r from-[#D4AF37] to-transparent' />
                 <span className='text-[#D4AF37] uppercase tracking-[0.35em] text-[10px] font-black'>

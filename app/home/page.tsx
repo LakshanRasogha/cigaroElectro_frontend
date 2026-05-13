@@ -274,10 +274,6 @@ const Home = () => {
       </div>
 
       <style jsx global>{`
-        html {
-          scroll-behavior: smooth;
-        }
-
         @keyframes gold-shimmer {
           0% {
             background-position: 0% 50%;
