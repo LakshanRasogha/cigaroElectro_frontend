@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import GlobalProviders from "./components/global_providers";
+import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,24 +17,52 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cigarroelectrico.com"),
-  title: "CigarroElectrico",
+  metadataBase: new URL(absoluteUrl()),
+  title: {
+    default:
+      "CigarroElectrico | Premium Vapes, Vape Accessories & Apparel in Sri Lanka",
+    template: "%s | CigarroElectrico",
+  },
   description:
-    "Shop premium vapes, exclusive accessories, and custom DFT graphic tees. Discover the CigarroElectrico lifestyle—your ultimate hub for culture and quality, Cigarro Electrico",
+    "Shop premium vapes, vape accessories, e-liquids, and lifestyle apparel at CigarroElectrico. Discover Cigarro Electrico online with curated hardware and culture-led essentials in Sri Lanka.",
+  keywords: [...brandKeywords],
+  alternates: {
+    canonical: absoluteUrl("/"),
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
-    title: "CigarroElectrico | Vapes & Culture",
+    title: "CigarroElectrico | Premium Vapes, Accessories & Apparel",
     description:
-      "More than just a vape shop. Explore our curated collection of top-tier vapes, accessories, and unique custom DFT apparel.",
-    url: "https://cigarroelectrico.com",
-    siteName: "CigarroElectrico",
+      "Explore CigarroElectrico for premium vapes, vape accessories, e-liquids, and curated apparel.",
+    url: absoluteUrl("/"),
+    siteName: siteConfig.name,
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: absoluteUrl(siteConfig.defaultOgImage),
+        width: 1200,
+        height: 630,
+        alt: "CigarroElectrico",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CigarroElectrico | Vapes & Culture",
+    title: "CigarroElectrico | Premium Vapes, Accessories & Apparel",
     description:
-      "Elevate your lifestyle with premium vapes and custom DFT tees.",
+      "Discover premium vapes, vape accessories, e-liquids, and curated apparel from CigarroElectrico.",
+    images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };
 
@@ -43,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang='en' suppressHydrationWarning data-scroll-behavior='smooth'>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning

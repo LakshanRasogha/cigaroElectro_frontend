@@ -16,6 +16,7 @@ const Footer = () => {
     { label: 'Instagram', href: '#', Icon: Instagram },
     { label: 'TikTok', href: '#', Icon: null },
   ];
+  const paymentMethods = ['Visa', 'Mastercard', 'PayPal', 'Amex'];
 
   return (
     <footer className="bg-[#050505] pt-12 pb-10 border-t border-white/5 relative overflow-hidden">
@@ -92,11 +93,15 @@ const Footer = () => {
         </p>
         
         {/* Payment Methods */}
-        <div className="flex gap-8 opacity-20 hover:opacity-100 transition-all duration-1000 grayscale hover:grayscale-0">
-          <img src="https://img.icons8.com/color/48/000000/visa.png" className="h-4" alt="Visa" />
-          <img src="https://img.icons8.com/color/48/Mastercard-logo.png" className="h-4" alt="Mastercard" />
-          <img src="https://img.icons8.com/color/48/000000/paypal.png" className="h-4" alt="Paypal" />
-          <img src="https://img.icons8.com/color/48/000000/amex.png" className="h-4" alt="Amex" />
+        <div className="flex flex-wrap justify-center gap-2 opacity-60 transition-all duration-500 hover:opacity-100">
+          {paymentMethods.map((method) => (
+            <span
+              key={method}
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400"
+            >
+              {method}
+            </span>
+          ))}
         </div>
       </div>
     </footer>

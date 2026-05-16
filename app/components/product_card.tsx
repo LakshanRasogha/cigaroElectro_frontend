@@ -11,12 +11,12 @@ import type { ProductVariant } from "@/app/lib/types";
 interface ProductProps {
   productKey: string;
   slug?: string | null;
-  name: string;
-  tagline?: string;
+  name: string | null;
+  tagline?: string | null;
   basePrice: number;
-  productImage?: string[];
-  variants?: ProductVariant[];
-  category?: string;
+  productImage?: string[] | null;
+  variants?: ProductVariant[] | null;
+  category?: string | null;
   /** Show the 🔥 Best Seller badge when this product is in the top cart-added list */
   isBestSeller?: boolean;
 }
@@ -36,8 +36,15 @@ const ProductCard = ({
   const router = useRouter();
   const productSlug = getProductSlug({ slug, key: productKey });
   const [imgLoaded, setImgLoaded] = useState(false);
+  const safeName = typeof name === "string" && name.trim() ? name : "Product";
+  const safeTagline = typeof tagline === "string" ? tagline : "";
+  const safeCategory = typeof category === "string" ? category : "";
+  const safeProductImages = Array.isArray(productImage) ? productImage : [];
+  const safeVariants = Array.isArray(variants) ? variants : [];
 
-  const inStockVariants = variants.filter((v) => v.stock > 0 && v.availability);
+  const inStockVariants = safeVariants.filter(
+    (v) => v.stock > 0 && v.availability,
+  );
   const isOutOfStock = inStockVariants.length === 0;
 
   const formattedPrice = new Intl.NumberFormat("en-LK", {
@@ -70,8 +77,8 @@ const ProductCard = ({
         )}
 
         <img
-          src={productImage[0] || "/placeholder.jpg"}
-          alt={name}
+          src={safeProductImages[0] || "/placeholder.jpg"}
+          alt={safeName}
           loading="lazy"
           decoding="async"
           onLoad={() => setImgLoaded(true)}
@@ -116,19 +123,21 @@ const ProductCard = ({
 
             <div className="flex items-center justify-center bg-[#D4AF37] text-black rounded-md px-2 py-1 shadow-[0_2px_8px_rgba(212,175,55,0.4)]">
               <span className="text-[7px] sm:text-[8px] font-black uppercase leading-none tracking-wide">
-                {category?.slice(0, 7) || "NEW"}
+                {safeCategory.slice(0, 7) || "NEW"}
               </span>
             </div>
           </div>
         </div>
 
         {/* Variants pill — bottom-right of image */}
-        {variants.length > 1 && (
+        {safeVariants.length > 1 && (
           <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-0.5 px-1.5 py-0.5 bg-black/80 backdrop-blur-sm rounded-full border border-[#D4AF37]/30">
             <Package size={7} className="text-[#D4AF37]" />
             <span className="text-[5px] font-black text-[#D4AF37]">
-              {variants.length}{" "}
-              {(category || "").toLowerCase().trim() === "t-shirts" ? "Designs" : "Vars"}
+              {safeVariants.length}{" "}
+              {safeCategory.toLowerCase().trim() === "t-shirts"
+                ? "Designs"
+                : "Vars"}
             </span>
           </div>
         )}
@@ -147,18 +156,18 @@ const ProductCard = ({
       <div className="flex flex-col flex-1 p-2.5 sm:p-3 bg-[#0d0d0d]">
         {/* Series / brand label */}
         <p className="text-[#D4AF37] text-[5px] sm:text-[6px] font-black uppercase tracking-[0.15em] mb-1 opacity-70">
-          {name.split(" ")[0]} onwards
+          {safeName.split(" ")[0]} onwards
         </p>
 
         {/* Product name */}
         <h3 className="text-[12px] sm:text-[13px] font-black text-white uppercase tracking-tight leading-tight line-clamp-2 group-hover:text-[#D4AF37] transition-colors duration-300 mb-1">
-          {name}
+          {safeName}
         </h3>
 
         {/* Tagline */}
-        {tagline && (
+        {safeTagline && (
           <p className="text-[6px] sm:text-[7px] text-zinc-500 line-clamp-1 font-medium tracking-wide mb-2">
-            {tagline}
+            {safeTagline}
           </p>
         )}
 
