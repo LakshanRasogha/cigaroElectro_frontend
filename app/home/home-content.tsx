@@ -17,7 +17,6 @@ import HeritageSection from "../UI/aboutsection";
 import TshirtSection from "../UI/tshirtsection";
 import TrendingSection from "../UI/trendingsection";
 import { apiUrl } from "@/app/lib/api";
-import { categoryLandingPages } from "@/app/lib/site";
 import type { Product } from "@/app/lib/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -241,44 +240,6 @@ const Home = () => {
         <header className='relative'>
           <Headers />
         </header>
-
-        <section className='px-6 py-10 md:px-10 lg:px-12'>
-          <div className='mx-auto max-w-7xl rounded-[2rem] border border-[#D4AF37]/15 bg-white/[0.02] p-6 backdrop-blur-xl'>
-            <div className='flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between'>
-              <div className='max-w-2xl'>
-                <p className='text-[10px] font-black uppercase tracking-[0.35em] text-[#D4AF37]'>
-                  Explore by Category
-                </p>
-                <h2 className='mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-3xl'>
-                  Shop Vapes, Vape Accessories, and E-Liquids
-                </h2>
-                <p className='mt-3 max-w-xl text-sm text-zinc-400'>
-                  Browse dedicated category pages for premium vapes, refill
-                  systems, e-liquids, and vape accessories from
-                  CigarroElectrico.
-                </p>
-              </div>
-              <Link
-                href='/collections'
-                className='inline-flex items-center gap-2 self-start rounded-full border border-[#D4AF37]/30 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37] transition-colors hover:bg-[#D4AF37] hover:text-black'
-              >
-                View All Collections
-              </Link>
-            </div>
-
-            <div className='mt-6 flex flex-wrap gap-3'>
-              {categoryLandingPages.map((page) => (
-                <Link
-                  key={page.slug}
-                  href={`/collections/category/${page.slug}`}
-                  className='rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-200 transition-all hover:border-[#D4AF37]/40 hover:text-[#D4AF37]'
-                >
-                  {page.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Shop Section */}
         <section className='bg-[#050505]' id='shop'>

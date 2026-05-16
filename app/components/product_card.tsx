@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Heart, ArrowUpRight, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getProductSlug } from "@/app/lib/entity_id";
@@ -19,6 +19,7 @@ interface ProductProps {
   category?: string | null;
   /** Show the 🔥 Best Seller badge when this product is in the top cart-added list */
   isBestSeller?: boolean;
+  disableImageEffects?: boolean;
 }
 
 const ProductCard = ({
@@ -31,11 +32,11 @@ const ProductCard = ({
   variants = [],
   category = "",
   isBestSeller = false,
+  disableImageEffects = false,
 }: ProductProps) => {
   const { toggle, isWishlisted } = useWishlist();
   const router = useRouter();
   const productSlug = getProductSlug({ slug, key: productKey });
-  const [imgLoaded, setImgLoaded] = useState(false);
   const safeName = typeof name === "string" && name.trim() ? name : "Product";
   const safeTagline = typeof tagline === "string" ? tagline : "";
   const safeCategory = typeof category === "string" ? category : "";
@@ -70,7 +71,7 @@ const ProductCard = ({
       {/* ── IMAGE BLOCK ── */}
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-[#0a0a0a] flex-shrink-0">
         {/* Skeleton */}
-        {!imgLoaded && (
+        {!disableImageEffects && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]">
             <div className="w-5 h-5 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin" />
           </div>
@@ -81,9 +82,10 @@ const ProductCard = ({
           alt={safeName}
           loading="lazy"
           decoding="async"
-          onLoad={() => setImgLoaded(true)}
-          className={`w-full h-full object-cover transition-all duration-700 ${
-            imgLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0"
+          className={`w-full h-full object-cover ${
+            disableImageEffects
+              ? ""
+              : "transition-all duration-700 group-hover:scale-105"
           }`}
         />
 

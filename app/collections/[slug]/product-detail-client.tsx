@@ -30,9 +30,32 @@ const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
   const [descExpanded, setDescExpanded] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
 
-  const handleAddToCart = (variant: ProductVariant) => {
-    if (!product) return;
+  const baseGalleryImages = Array.isArray(product.productImage)
+    ? product.productImage
+    : [];
+  const currentVariant = product.variants?.[activeVariantIdx];
+  const variantGalleryImages = Array.isArray(currentVariant?.variantImage)
+    ? currentVariant.variantImage
+    : [];
+  const gallery = [...baseGalleryImages, ...variantGalleryImages];
+  const currentImage =
+    gallery[selectedImage] || variantGalleryImages[0] || baseGalleryImages[0];
+  const isTshirt = (product.category || "").toLowerCase().trim() === "t-shirts";
+  const variantLabel = isTshirt ? "Design" : "Flavor";
 
+  const getVariantPreviewIndex = (variant: ProductVariant) => {
+    const variantImages = Array.isArray(variant.variantImage)
+      ? variant.variantImage
+      : [];
+    return variantImages.length > 0 ? baseGalleryImages.length : 0;
+  };
+
+  const handleVariantSelect = (variant: ProductVariant, idx: number) => {
+    setActiveVariantIdx(idx);
+    setSelectedImage(getVariantPreviewIndex(variant));
+  };
+
+  const handleAddToCart = (variant: ProductVariant) => {
     const cartItem: CartItem = {
       cartId: `${product.key}-${variant.vKey}`,
       key: product.key,
@@ -72,15 +95,6 @@ const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
     }, 2500);
   };
 
-  // ── Loading ──────────────────────────────────────────────────────────────
-  const currentVariant = product.variants?.[activeVariantIdx];
-  const isTshirt = (product.category || "").toLowerCase().trim() === "t-shirts";
-  const variantLabel = isTshirt ? "Design" : "Flavor";
-  const gallery = [
-    ...(product.productImage || []),
-    ...(currentVariant?.variantImage || []),
-  ];
-
   return (
     <main className='bg-[#030303] min-h-screen selection:bg-[#D4AF37]/30 overflow-x-hidden'>
       <div className='fixed inset-0 z-0'>
@@ -89,7 +103,6 @@ const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
 
       <Navbar />
 
-      {/* ── Added-to-cart toast ───────────────────────────────────────────── */}
       <AnimatePresence>
         {showToast && (
           <motion.div
@@ -121,249 +134,237 @@ const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
         )}
       </AnimatePresence>
 
-      {/* ── Main content ─────────────────────────────────────────────────── */}
       <div className='relative z-10 pt-20 pb-32'>
-
-        {/* ── 1. Full-width image gallery ─────────────────────────────────── */}
-        <div className='relative bg-black'>
-          {/* Main image */}
-          <AnimatePresence mode='wait'>
-            <motion.div
-              key={selectedImage + "-" + activeVariantIdx}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className='relative w-full aspect-square max-h-[480px] overflow-hidden'
-            >
-              <img
-                src={gallery[selectedImage] || product.productImage?.[0]}
-                className='w-full h-full object-cover'
-                alt={product.name}
-              />
-              {/* Gradient fade at bottom */}
-              <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030303] to-transparent' />
-
-              {/* Image counter */}
-              {gallery.length > 1 && (
-                <div className='absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full'>
-                  {selectedImage + 1}/{gallery.length}
-                </div>
-              )}
-
-              {/* Wishlist */}
-              <button
-                onClick={() => product && toggleWishlist(product.key)}
-                className='absolute top-4 right-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 transition-transform active:scale-90'
-              >
-                <Heart
-                  size={18}
-                  className={
-                    product && isWishlisted(product.key)
-                      ? "fill-[#D4AF37] text-[#D4AF37]"
-                      : "text-white/70"
-                  }
-                />
-              </button>
-
-              {/* Back button */}
-              <button
-                onClick={() => router.back()}
-                className='absolute top-4 left-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10'
-              >
-                <ChevronLeft size={20} className='text-white' />
-              </button>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Thumbnail strip */}
-          {gallery.length > 1 && (
-            <div
-              ref={galleryRef}
-              className='flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar'
-            >
-              {gallery.map((img: string, idx: number) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImage(idx)}
-                  className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                    selectedImage === idx
-                      ? "border-[#D4AF37]"
-                      : "border-transparent opacity-40"
-                  }`}
+        <div className='mx-auto max-w-7xl px-4 lg:px-6'>
+          <div className='lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12'>
+            <div className='relative overflow-hidden rounded-[2rem] border border-white/10 bg-black lg:self-start'>
+              <AnimatePresence mode='wait'>
+                <motion.div
+                  key={selectedImage + "-" + activeVariantIdx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className='relative aspect-square overflow-hidden'
                 >
                   <img
-                    src={img}
+                    src={currentImage}
                     className='w-full h-full object-cover'
-                    alt='thumb'
+                    alt={product.name}
                   />
-                </button>
+                  <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030303] to-transparent' />
+
+                  {gallery.length > 1 && (
+                    <div className='absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full'>
+                      {selectedImage + 1}/{gallery.length}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => toggleWishlist(product.key)}
+                    className='absolute top-4 right-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 transition-transform active:scale-90'
+                  >
+                    <Heart
+                      size={18}
+                      className={
+                        isWishlisted(product.key)
+                          ? "fill-[#D4AF37] text-[#D4AF37]"
+                          : "text-white/70"
+                      }
+                    />
+                  </button>
+
+                  <button
+                    onClick={() => router.back()}
+                    className='absolute top-4 left-4 w-10 h-10 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10'
+                  >
+                    <ChevronLeft size={20} className='text-white' />
+                  </button>
+                </motion.div>
+              </AnimatePresence>
+
+              {gallery.length > 1 && (
+                <div
+                  ref={galleryRef}
+                  className='flex gap-2 px-4 py-4 overflow-x-auto no-scrollbar border-t border-white/5'
+                >
+                  {gallery.map((img: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(idx)}
+                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                        selectedImage === idx
+                          ? "border-[#D4AF37]"
+                          : "border-transparent opacity-40"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        className='w-full h-full object-cover'
+                        alt='thumb'
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className='mt-6 lg:mt-0 rounded-[2rem] border border-white/10 bg-[#0a0a0a]/80 overflow-hidden'>
+              <div className='px-4 pt-5 pb-3 sm:px-6'>
+                <div className='flex items-baseline gap-3'>
+                  <span className='text-3xl font-black text-[#D4AF37]'>
+                    Rs. {Number(product.basePrice).toLocaleString()}
+                  </span>
+                  <span className='text-sm text-zinc-500 font-medium'>
+                    + shipping
+                  </span>
+                </div>
+                {product.deliveryFee !== undefined && (
+                  <p className='text-[11px] text-zinc-500 mt-1 flex items-center gap-1.5'>
+                    <Truck size={11} className='text-zinc-600' />
+                    Delivery fee: Rs. {Number(product.deliveryFee).toLocaleString()}
+                  </p>
+                )}
+              </div>
+
+              <div className='px-4 pb-4 border-b border-white/5 sm:px-6'>
+                <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2'>
+                  <Zap size={10} className='fill-current' />
+                  {product.category}
+                </span>
+                <h1 className='text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight'>
+                  {product.name}
+                </h1>
+                {product.tagline && (
+                  <p className='text-sm text-zinc-500 italic mt-1'>
+                    &quot;{product.tagline}&quot;
+                  </p>
+                )}
+              </div>
+
+              <div className='px-4 py-5 border-b border-white/5 sm:px-6'>
+                <div className='flex items-center justify-between mb-3'>
+                  <p className='text-[10px] font-black uppercase tracking-widest text-zinc-400'>
+                    {variantLabel}
+                  </p>
+                  <span className='text-[10px] text-[#D4AF37] font-black'>
+                    {currentVariant?.flavor} {currentVariant?.emoji}
+                  </span>
+                </div>
+                <div className='flex gap-2.5 overflow-x-auto no-scrollbar pb-1'>
+                  {product.variants?.map((variant: ProductVariant, idx: number) => (
+                    <button
+                      key={variant.vKey || idx}
+                      onClick={() => handleVariantSelect(variant, idx)}
+                      className={`relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all ${
+                        activeVariantIdx === idx
+                          ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
+                          : "border-white/10 opacity-60"
+                      }`}
+                    >
+                      <img
+                        src={variant.variantImage?.[0] || product.productImage?.[0]}
+                        className='w-full h-full object-cover'
+                        alt={variant.flavor}
+                      />
+                      {activeVariantIdx === idx && (
+                        <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-2xl' />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className='px-4 py-4 border-b border-white/5 space-y-3 sm:px-6'>
+                <div className='flex items-center gap-3 text-sm'>
+                  <Truck size={16} className='text-[#D4AF37] shrink-0' />
+                  <div>
+                    <p className='text-white font-bold text-[12px]'>
+                      Island-wide delivery
+                    </p>
+                    <p className='text-zinc-500 text-[10px]'>
+                      Rs. {Number(product.deliveryFee).toLocaleString()} · 2-5 business days
+                    </p>
+                  </div>
+                </div>
+                <div className='flex items-center gap-3 text-sm'>
+                  <ShieldCheck size={16} className='text-[#D4AF37] shrink-0' />
+                  <div>
+                    <p className='text-white font-bold text-[12px]'>
+                      Authentic product
+                    </p>
+                    <p className='text-zinc-500 text-[10px]'>
+                      100% genuine · secure ordering
+                    </p>
+                  </div>
+                </div>
+                {currentVariant && (
+                  <div className='flex items-center gap-3 text-sm'>
+                    <Package size={16} className='text-[#D4AF37] shrink-0' />
+                    <div>
+                      <p className='text-white font-bold text-[12px]'>
+                        {currentVariant.stock > 0
+                          ? `${currentVariant.stock} units in stock`
+                          : "Out of stock"}
+                      </p>
+                      <p className='text-zinc-500 text-[10px]'>
+                        {currentVariant.nicotine || "Premium formulation"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {product.description && (
+                <div className='px-4 py-4 sm:px-6'>
+                  <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-2'>
+                    Product Details
+                  </h2>
+                  <p
+                    className={`text-zinc-400 text-sm leading-relaxed ${
+                      descExpanded ? "" : "truncate"
+                    }`}
+                  >
+                    {product.description}
+                  </p>
+                  <button
+                    onClick={() => setDescExpanded((prev) => !prev)}
+                    className='mt-1 text-[#D4AF37] text-[11px] font-black uppercase tracking-widest hover:underline'
+                  >
+                    {descExpanded ? "less" : "more.."}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className='py-6 mt-6 border-b border-white/5'>
+            <div className='flex items-center justify-between mb-4'>
+              <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400'>
+                {isTshirt ? "All Designs" : "All Editions"}
+              </h2>
+              <span className='text-[10px] text-zinc-600 font-bold'>
+                {product.variants?.length} {isTshirt ? "designs" : "variants"}
+              </span>
+            </div>
+            <div className='grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4'>
+              {product.variants?.map((variant: ProductVariant, idx: number) => (
+                <FlavorCard
+                  key={variant.vKey || idx}
+                  variant={variant}
+                  isActive={activeVariantIdx === idx}
+                  onSelect={() => {
+                    handleVariantSelect(variant, idx);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onAddToCart={handleAddToCart}
+                />
               ))}
             </div>
-          )}
-        </div>
-
-        {/* ── 2. Price block ──────────────────────────────────────────────── */}
-        <div className='px-4 pt-4 pb-2'>
-          <div className='flex items-baseline gap-3'>
-            <span className='text-3xl font-black text-[#D4AF37]'>
-              Rs. {Number(product.basePrice).toLocaleString()}
-            </span>
-            <span className='text-sm text-zinc-500 font-medium'>+ shipping</span>
-          </div>
-          {product.deliveryFee !== undefined && (
-            <p className='text-[11px] text-zinc-500 mt-1 flex items-center gap-1.5'>
-              <Truck size={11} className='text-zinc-600' />
-              Delivery fee: Rs. {Number(product.deliveryFee).toLocaleString()}
-            </p>
-          )}
-        </div>
-
-        {/* ── 3. Product name + tagline ───────────────────────────────────── */}
-        <div className='px-4 pb-4 border-b border-white/5'>
-          <span className='inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2'>
-            <Zap size={10} className='fill-current' />
-            {product.category}
-          </span>
-          <h1 className='text-2xl font-black text-white tracking-tight leading-tight'>
-            {product.name}
-          </h1>
-          {product.tagline && (
-            <p className='text-sm text-zinc-500 italic mt-1'>
-              &quot;{product.tagline}&quot;
-            </p>
-          )}
-        </div>
-
-        {/* ── 4. Variant (flavor/design) selector ─────────────────────────── */}
-        <div className='px-4 py-5 border-b border-white/5'>
-          <div className='flex items-center justify-between mb-3'>
-            <p className='text-[10px] font-black uppercase tracking-widest text-zinc-400'>
-              {variantLabel}
-            </p>
-            <span className='text-[10px] text-[#D4AF37] font-black'>
-              {currentVariant?.flavor} {currentVariant?.emoji}
-            </span>
-          </div>
-          <div className='flex gap-2.5 overflow-x-auto no-scrollbar pb-1'>
-            {product.variants?.map((variant: ProductVariant, idx: number) => (
-              <button
-                key={variant.vKey || idx}
-                onClick={() => {
-                  setActiveVariantIdx(idx);
-                  setSelectedImage(0);
-                }}
-                className={`relative shrink-0 w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all ${
-                  activeVariantIdx === idx
-                    ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
-                    : "border-white/10 opacity-60"
-                }`}
-              >
-                <img
-                  src={variant.variantImage?.[0] || product.productImage?.[0]}
-                  className='w-full h-full object-cover'
-                  alt={variant.flavor}
-                />
-                {activeVariantIdx === idx && (
-                  <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-2xl' />
-                )}
-              </button>
-            ))}
           </div>
         </div>
-
-        {/* ── 5. Delivery & stock info ─────────────────────────────────────── */}
-        <div className='px-4 py-4 border-b border-white/5 space-y-3'>
-          <div className='flex items-center gap-3 text-sm'>
-            <Truck size={16} className='text-[#D4AF37] shrink-0' />
-            <div>
-              <p className='text-white font-bold text-[12px]'>
-                Island-wide delivery
-              </p>
-              <p className='text-zinc-500 text-[10px]'>
-                Rs. {Number(product.deliveryFee).toLocaleString()} · 2–5 business days
-              </p>
-            </div>
-          </div>
-          <div className='flex items-center gap-3 text-sm'>
-            <ShieldCheck size={16} className='text-[#D4AF37] shrink-0' />
-            <div>
-              <p className='text-white font-bold text-[12px]'>
-                Authentic product
-              </p>
-              <p className='text-zinc-500 text-[10px]'>
-                100% genuine · secure ordering
-              </p>
-            </div>
-          </div>
-          {currentVariant && (
-            <div className='flex items-center gap-3 text-sm'>
-              <Package size={16} className='text-[#D4AF37] shrink-0' />
-              <div>
-                <p className='text-white font-bold text-[12px]'>
-                  {currentVariant.stock > 0
-                    ? `${currentVariant.stock} units in stock`
-                    : "Out of stock"}
-                </p>
-                <p className='text-zinc-500 text-[10px]'>
-                  {currentVariant.nicotine || "Premium formulation"}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── 5b. Description (below delivery fee) ────────────────────────── */}
-        {product.description && (
-          <div className='px-4 py-4 border-b border-white/5'>
-            <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-2'>
-              Product Details
-            </h2>
-            <p className={`text-zinc-400 text-sm leading-relaxed ${
-              descExpanded ? '' : 'truncate'
-            }`}>
-              {product.description}
-            </p>
-            <button
-              onClick={() => setDescExpanded((prev) => !prev)}
-              className='mt-1 text-[#D4AF37] text-[11px] font-black uppercase tracking-widest hover:underline'
-            >
-              {descExpanded ? 'less' : 'more..'}
-            </button>
-          </div>
-        )}
-
-        {/* ── 6. All flavors/designs grid ──────────────────────────────────── */}
-        <div className='px-4 py-6 border-b border-white/5'>
-          <div className='flex items-center justify-between mb-4'>
-            <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400'>
-              {isTshirt ? "All Designs" : "All Editions"}
-            </h2>
-            <span className='text-[10px] text-zinc-600 font-bold'>
-              {product.variants?.length} {isTshirt ? "designs" : "variants"}
-            </span>
-          </div>
-          <div className='grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4'>
-            {product.variants?.map((variant: ProductVariant, idx: number) => (
-              <FlavorCard
-                key={variant.vKey || idx}
-                variant={variant}
-                isActive={activeVariantIdx === idx}
-                onSelect={() => {
-                  setActiveVariantIdx(idx);
-                  setSelectedImage(0);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-          </div>
-        </div>
-
-
       </div>
 
-      {/* ── Sticky bottom "Add to Cart" bar ─────────────────────────────── */}
       <div className='fixed bottom-0 left-0 right-0 z-[100] px-4 py-4 bg-[#030303]/95 backdrop-blur-xl border-t border-white/5'>
         <motion.button
           whileTap={{ scale: 0.97 }}
@@ -373,8 +374,8 @@ const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
             isAdded
               ? "bg-emerald-500 text-white"
               : currentVariant && currentVariant.stock > 0
-              ? "bg-[#D4AF37] text-black hover:bg-[#c9a432]"
-              : "bg-white/10 text-zinc-600 cursor-not-allowed"
+                ? "bg-[#D4AF37] text-black hover:bg-[#c9a432]"
+                : "bg-white/10 text-zinc-600 cursor-not-allowed"
           }`}
         >
           {isAdded ? (
@@ -396,7 +397,6 @@ const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
   );
 };
 
-// ── Compact flavor card for the grid ─────────────────────────────────────────
 const FlavorCard = ({
   variant,
   isActive,
@@ -419,7 +419,6 @@ const FlavorCard = ({
           : "border-white/5"
       }`}
     >
-      {/* Image */}
       <div className='aspect-square relative'>
         <img
           src={variant.variantImage?.[0] || "/placeholder.jpg"}
@@ -428,12 +427,10 @@ const FlavorCard = ({
         />
         <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent' />
 
-        {/* Emoji badge */}
         <div className='absolute top-2 left-2 w-7 h-7 bg-black/50 backdrop-blur-md rounded-lg flex items-center justify-center text-base'>
           {variant.emoji}
         </div>
 
-        {/* Stock badge */}
         {variant.stock <= 0 && (
           <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
             <span className='text-[9px] font-black uppercase tracking-widest text-white/60'>
@@ -443,7 +440,6 @@ const FlavorCard = ({
         )}
       </div>
 
-      {/* Info + button */}
       <div className='p-3 space-y-2 bg-zinc-900/80'>
         <p className='text-[10px] font-black text-white uppercase tracking-wide truncate'>
           {variant.flavor}
@@ -461,8 +457,8 @@ const FlavorCard = ({
             added
               ? "bg-emerald-500 text-white"
               : variant.stock > 0
-              ? "bg-[#D4AF37] text-black"
-              : "bg-white/5 text-zinc-600 cursor-not-allowed"
+                ? "bg-[#D4AF37] text-black"
+                : "bg-white/5 text-zinc-600 cursor-not-allowed"
           }`}
         >
           {added ? "Added ✓" : variant.stock > 0 ? "Add" : "N/A"}
