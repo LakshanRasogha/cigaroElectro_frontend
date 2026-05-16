@@ -11,18 +11,15 @@ import {
   Search,
   Bell,
   ChevronRight,
-  MoreVertical,
   ArrowUpRight,
   ArrowDownRight,
   X,
   MapPin,
   History,
   Mail,
-  ShoppingCart,
-  Calendar,
-  Globe,
   LucideIcon,
   ShieldAlert,
+  ShieldCheck,
   ClipboardList,
   Menu, // Imported Menu icon
   Loader2,
@@ -33,11 +30,6 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
 } from "recharts";
@@ -189,12 +181,16 @@ const CustomerRow = ({
   customer,
   onDetailClick,
   onToggleBlock,
-  isUpdating,
+  onPromoteToAdmin,
+  isBlocking,
+  isPromoting,
 }: {
   customer: Customer;
   onDetailClick: (c: Customer) => void;
   onToggleBlock: (customer: Customer) => void;
-  isUpdating: boolean;
+  onPromoteToAdmin: (customer: Customer) => void;
+  isBlocking: boolean;
+  isPromoting: boolean;
 }) => (
   <tr className='group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors'>
     <td className='py-4 px-6'>
@@ -242,15 +238,27 @@ const CustomerRow = ({
           <History size={18} />
         </button>
         <button
+          onClick={() => onPromoteToAdmin(customer)}
+          disabled={isBlocking || isPromoting || customer.role === "admin"}
+          className='p-2 rounded-lg text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 transition-all disabled:opacity-50'
+          title='Make admin'
+        >
+          {isPromoting ? (
+            <Loader2 size={18} className='animate-spin' />
+          ) : (
+            <ShieldCheck size={18} />
+          )}
+        </button>
+        <button
           onClick={() => onToggleBlock(customer)}
-          disabled={isUpdating}
+          disabled={isBlocking || isPromoting}
           className={`p-2 rounded-lg transition-all ${
             customer.isBlocked
               ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
               : "text-rose-600 hover:text-rose-700 hover:bg-rose-50"
           } disabled:opacity-50`}
         >
-          {isUpdating ? (
+          {isBlocking ? (
             <Loader2 size={18} className='animate-spin' />
           ) : (
             <ShieldAlert size={18} />
@@ -266,13 +274,17 @@ const CustomerDetailModal = ({
   isOpen,
   onClose,
   onToggleBlock,
-  isUpdating,
+  onPromoteToAdmin,
+  isBlocking,
+  isPromoting,
 }: {
   customer: Customer | null;
   isOpen: boolean;
   onClose: () => void;
   onToggleBlock: (customer: Customer) => void;
-  isUpdating: boolean;
+  onPromoteToAdmin: (customer: Customer) => void;
+  isBlocking: boolean;
+  isPromoting: boolean;
 }) => {
   if (!isOpen || !customer) return null;
   return (
@@ -312,6 +324,9 @@ const CustomerDetailModal = ({
                   }`}
                 >
                   {customer.status}
+                </span>
+                <span className='px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-indigo-50 text-indigo-600'>
+                  {customer.role}
                 </span>
               </div>
             </div>
@@ -390,15 +405,22 @@ const CustomerDetailModal = ({
             Send Communication
           </button>
           <button
+            onClick={() => onPromoteToAdmin(customer)}
+            disabled={isBlocking || isPromoting || customer.role === "admin"}
+            className='flex-1 py-4 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg hover:bg-indigo-700 shadow-indigo-600/10 disabled:opacity-50'
+          >
+            {isPromoting ? "Updating Role..." : "Make Admin"}
+          </button>
+          <button
             onClick={() => onToggleBlock(customer)}
-            disabled={isUpdating}
+            disabled={isBlocking || isPromoting}
             className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg ${
               customer.isBlocked
                 ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/10"
                 : "bg-rose-600 text-white hover:bg-rose-700 shadow-rose-600/10"
             } disabled:opacity-50`}
           >
-            {isUpdating
+            {isBlocking
               ? "Updating..."
               : customer.isBlocked
                 ? "Unblock User"
@@ -418,7 +440,11 @@ export default function App() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customersLoading, setCustomersLoading] = useState(false);
   const [customersError, setCustomersError] = useState("");
-  const [updatingCustomerId, setUpdatingCustomerId] = useState<string | null>(
+  const [customersSuccess, setCustomersSuccess] = useState("");
+  const [blockingCustomerId, setBlockingCustomerId] = useState<string | null>(
+    null,
+  );
+  const [promotingCustomerId, setPromotingCustomerId] = useState<string | null>(
     null,
   );
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -487,44 +513,49 @@ export default function App() {
         };
       });
 
-  const fetchCustomers = async () => {
-    try {
-      setCustomersLoading(true);
-      setCustomersError("");
-
-      const [usersResponse, ordersResponse] = await Promise.all([
-        axios.get(apiUrl("/users/all"), {
-          headers: getAuthHeaders(),
-        }),
-        axios.get(apiUrl("/orders/getOrders"), {
-          headers: getAuthHeaders(),
-        }),
-      ]);
-
-      setCustomers(
-        buildCustomerRows(
-          Array.isArray(usersResponse.data) ? usersResponse.data : [],
-          Array.isArray(ordersResponse.data) ? ordersResponse.data : [],
-        ),
-      );
-    } catch (error: unknown) {
-      setCustomersError(
-        getErrorMessage(error, "Failed to load customer records."),
-      );
-    } finally {
-      setCustomersLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (activeTab === "customers") {
-      fetchCustomers();
+    if (activeTab !== "customers") {
+      return;
     }
+
+    const loadCustomers = async () => {
+      try {
+        setCustomersLoading(true);
+        setCustomersError("");
+        setCustomersSuccess("");
+
+        const [usersResponse, ordersResponse] = await Promise.all([
+          axios.get(apiUrl("/users/all"), {
+            headers: getAuthHeaders(),
+          }),
+          axios.get(apiUrl("/orders/getOrders"), {
+            headers: getAuthHeaders(),
+          }),
+        ]);
+
+        setCustomers(
+          buildCustomerRows(
+            Array.isArray(usersResponse.data) ? usersResponse.data : [],
+            Array.isArray(ordersResponse.data) ? ordersResponse.data : [],
+          ),
+        );
+      } catch (error: unknown) {
+        setCustomersError(
+          getErrorMessage(error, "Failed to load customer records."),
+        );
+      } finally {
+        setCustomersLoading(false);
+      }
+    };
+
+    void loadCustomers();
   }, [activeTab]);
 
   const handleToggleBlock = async (customer: Customer) => {
     try {
-      setUpdatingCustomerId(customer.id);
+      setBlockingCustomerId(customer.id);
+      setCustomersError("");
+      setCustomersSuccess("");
       await axios.put(
         apiUrl(`/users/block/${encodeURIComponent(customer.email)}`),
         { isBlocked: !customer.isBlocked },
@@ -551,16 +582,50 @@ export default function App() {
             }
           : prev,
       );
+      setCustomersSuccess(
+        customer.isBlocked
+          ? `${customer.email} has been unblocked.`
+          : `${customer.email} has been blocked.`,
+      );
     } catch (error: unknown) {
       setCustomersError(
         getErrorMessage(error, "Failed to update customer access."),
       );
     } finally {
-      setUpdatingCustomerId(null);
+      setBlockingCustomerId(null);
+    }
+  };
+
+  const handlePromoteToAdmin = async (customer: Customer) => {
+    try {
+      setPromotingCustomerId(customer.id);
+      setCustomersError("");
+      setCustomersSuccess("");
+      await axios.put(
+        apiUrl(`/users/role/${encodeURIComponent(customer.email)}`),
+        { role: "admin" },
+        { headers: getAuthHeaders() },
+      );
+
+      setCustomers((prev) => prev.filter((entry) => entry.id !== customer.id));
+      setSelectedCustomer((prev) =>
+        prev && prev.id === customer.id ? null : prev,
+      );
+      setIsCustomerModalOpen((prev) =>
+        selectedCustomer?.id === customer.id ? false : prev,
+      );
+      setCustomersSuccess(`${customer.email} is now an admin.`);
+    } catch (error: unknown) {
+      setCustomersError(
+        getErrorMessage(error, "Failed to update the user role."),
+      );
+    } finally {
+      setPromotingCustomerId(null);
     }
   };
 
   const filteredCustomers = customers.filter((customer) =>
+    customer.role !== "admin" &&
     [customer.name, customer.email, customer.status]
       .join(" ")
       .toLowerCase()
@@ -574,7 +639,9 @@ export default function App() {
         isOpen={isCustomerModalOpen}
         onClose={() => setIsCustomerModalOpen(false)}
         onToggleBlock={handleToggleBlock}
-        isUpdating={updatingCustomerId === selectedCustomer?.id}
+        onPromoteToAdmin={handlePromoteToAdmin}
+        isBlocking={blockingCustomerId === selectedCustomer?.id}
+        isPromoting={promotingCustomerId === selectedCustomer?.id}
       />
 
       {/* --- MOBILE NAVIGATION DRAWER (NEW) --- */}
@@ -886,6 +953,11 @@ export default function App() {
                 {customersError}
               </div>
             )}
+            {customersSuccess && (
+              <div className='mx-6 mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700'>
+                {customersSuccess}
+              </div>
+            )}
             <div className='overflow-x-auto'>
               {customersLoading ? (
                 <div className='py-24 flex flex-col items-center justify-center text-slate-400'>
@@ -923,7 +995,9 @@ export default function App() {
                         customer={customer}
                         onDetailClick={handleCustomerDetail}
                         onToggleBlock={handleToggleBlock}
-                        isUpdating={updatingCustomerId === customer.id}
+                        onPromoteToAdmin={handlePromoteToAdmin}
+                        isBlocking={blockingCustomerId === customer.id}
+                        isPromoting={promotingCustomerId === customer.id}
                       />
                     ))}
                   </tbody>
