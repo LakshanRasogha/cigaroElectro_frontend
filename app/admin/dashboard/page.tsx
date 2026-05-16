@@ -1,45 +1,54 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
-  Package,
-  Users,
-  Settings,
-  TrendingUp,
-  Zap,
-  Search,
+  ArrowDownRight,
+  ArrowUpRight,
   Bell,
   ChevronRight,
-  ArrowUpRight,
-  ArrowDownRight,
-  X,
-  MapPin,
+  ClipboardList,
   History,
-  Mail,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
   LucideIcon,
+  Mail,
+  MapPin,
+  Menu,
+  Package,
+  Search,
+  Settings,
   ShieldAlert,
   ShieldCheck,
-  ClipboardList,
-  Menu, // Imported Menu icon
-  Loader2,
+  ShieldOff,
+  TrendingUp,
+  Users,
+  X,
+  Zap,
 } from "lucide-react";
 import {
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 import InventoryPage from "../inventory/page";
-// IMPORTANT: Ensure you have created this file at src/app/orders/page.tsx or equivalent
 import OrdersPage from "../orders/page";
+import { clearAuthSession, isUnauthorizedError } from "@/app/lib/auth";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 import { getErrorMessage } from "@/app/lib/errors";
 
-// --- TYPES & INTERFACES ---
+type ActiveTab =
+  | "dashboard"
+  | "inventory"
+  | "orders"
+  | "customers"
+  | "admins";
 
 interface CustomerOrder {
   id: string;
@@ -48,7 +57,7 @@ interface CustomerOrder {
   status: string;
 }
 
-interface Customer {
+interface ManagedUser {
   id: string;
   name: string;
   email: string;
@@ -110,18 +119,15 @@ interface SidebarItemProps {
   onClick?: () => void;
 }
 
-// --- MOCK DATA ---
 const revenueData = [
-  { name: "Mon", sales: 4000, puffs: 2400, orders: 120 },
-  { name: "Tue", sales: 3000, puffs: 1398, orders: 98 },
-  { name: "Wed", sales: 6000, puffs: 9800, orders: 210 },
-  { name: "Thu", sales: 2780, puffs: 3908, orders: 115 },
-  { name: "Fri", sales: 1890, puffs: 4800, orders: 84 },
-  { name: "Sat", sales: 8390, puffs: 3800, orders: 340 },
-  { name: "Sun", sales: 9490, puffs: 4300, orders: 412 },
+  { name: "Mon", sales: 4000 },
+  { name: "Tue", sales: 3000 },
+  { name: "Wed", sales: 6000 },
+  { name: "Thu", sales: 2780 },
+  { name: "Fri", sales: 1890 },
+  { name: "Sat", sales: 8390 },
+  { name: "Sun", sales: 9490 },
 ];
-
-// --- SUB-COMPONENTS ---
 
 const StatCard = ({
   title,
@@ -177,116 +183,170 @@ const SidebarItem = ({
   </button>
 );
 
-const CustomerRow = ({
-  customer,
+const UserRow = ({
+  user,
+  isCurrentAdmin,
   onDetailClick,
   onToggleBlock,
-  onPromoteToAdmin,
+  onRoleToggle,
   isBlocking,
-  isPromoting,
+  isRoleUpdating,
 }: {
-  customer: Customer;
-  onDetailClick: (c: Customer) => void;
-  onToggleBlock: (customer: Customer) => void;
-  onPromoteToAdmin: (customer: Customer) => void;
+  user: ManagedUser;
+  isCurrentAdmin: boolean;
+  onDetailClick: (user: ManagedUser) => void;
+  onToggleBlock: (user: ManagedUser) => void;
+  onRoleToggle: (user: ManagedUser) => void;
   isBlocking: boolean;
-  isPromoting: boolean;
-}) => (
-  <tr className='group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors'>
-    <td className='py-4 px-6'>
-      <div className='flex items-center gap-3'>
-        <div className='w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] font-bold'>
-          {customer.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .slice(0, 2)}
-        </div>
-        <div>
-          <p className='font-bold text-slate-900 text-sm'>{customer.name}</p>
-          <p className='text-xs text-slate-400'>{customer.email}</p>
-        </div>
-      </div>
-    </td>
-    <td className='py-4 px-2 text-sm text-slate-600 font-medium'>
-      <div className='flex items-center gap-1.5'>
-        <MapPin size={14} className='text-slate-400' />
-        {customer.address?.city || "No city"}{" "}
-        {customer.address?.postalCode ? `• ${customer.address.postalCode}` : ""}
-      </div>
-    </td>
-    <td className='py-4 px-2 text-sm text-slate-600 font-bold'>
-      {customer.totalOrders} Orders
-    </td>
-    <td className='py-4 px-2'>
-      <span
-        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-          customer.status === "Active"
-            ? "bg-emerald-50 text-emerald-600"
-            : "bg-rose-50 text-rose-600"
-        }`}
-      >
-        {customer.status}
-      </span>
-    </td>
-    <td className='py-4 px-6 text-right'>
-      <div className='flex items-center justify-end gap-2'>
-        <button
-          onClick={() => onDetailClick(customer)}
-          className='p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all'
-        >
-          <History size={18} />
-        </button>
-        <button
-          onClick={() => onPromoteToAdmin(customer)}
-          disabled={isBlocking || isPromoting || customer.role === "admin"}
-          className='p-2 rounded-lg text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 transition-all disabled:opacity-50'
-          title='Make admin'
-        >
-          {isPromoting ? (
-            <Loader2 size={18} className='animate-spin' />
-          ) : (
-            <ShieldCheck size={18} />
-          )}
-        </button>
-        <button
-          onClick={() => onToggleBlock(customer)}
-          disabled={isBlocking || isPromoting}
-          className={`p-2 rounded-lg transition-all ${
-            customer.isBlocked
-              ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-              : "text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-          } disabled:opacity-50`}
-        >
-          {isBlocking ? (
-            <Loader2 size={18} className='animate-spin' />
-          ) : (
-            <ShieldAlert size={18} />
-          )}
-        </button>
-      </div>
-    </td>
-  </tr>
-);
+  isRoleUpdating: boolean;
+}) => {
+  const canEditOwnAccess = !isCurrentAdmin;
+  const roleActionLabel =
+    user.role === "admin" ? "Remove admin access" : "Make admin";
 
-const CustomerDetailModal = ({
-  customer,
+  return (
+    <tr className='group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors'>
+      <td className='py-4 px-6'>
+        <div className='flex items-center gap-3'>
+          <div className='w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] font-bold overflow-hidden'>
+            {user.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={user.name}
+                className='w-full h-full object-cover'
+              />
+            ) : (
+              user.name
+                .split(" ")
+                .map((part) => part[0])
+                .join("")
+                .slice(0, 2)
+            )}
+          </div>
+          <div>
+            <div className='flex items-center gap-2'>
+              <p className='font-bold text-slate-900 text-sm'>{user.name}</p>
+              {isCurrentAdmin && (
+                <span className='rounded-full bg-slate-900 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white'>
+                  You
+                </span>
+              )}
+            </div>
+            <p className='text-xs text-slate-400'>{user.email}</p>
+          </div>
+        </div>
+      </td>
+      <td className='py-4 px-2 text-sm text-slate-600 font-medium'>
+        <div className='flex items-center gap-1.5'>
+          <MapPin size={14} className='text-slate-400' />
+          {user.address?.city || "No city"}
+          {user.address?.postalCode ? ` • ${user.address.postalCode}` : ""}
+        </div>
+      </td>
+      <td className='py-4 px-2 text-sm text-slate-600 font-bold'>
+        {user.totalOrders} Orders
+      </td>
+      <td className='py-4 px-2'>
+        <div className='flex items-center gap-2 flex-wrap'>
+          <span
+            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+              user.status === "Active"
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-rose-50 text-rose-600"
+            }`}
+          >
+            {user.status}
+          </span>
+          <span
+            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+              user.role === "admin"
+                ? "bg-indigo-50 text-indigo-600"
+                : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {user.role}
+          </span>
+        </div>
+      </td>
+      <td className='py-4 px-6 text-right'>
+        <div className='flex items-center justify-end gap-2'>
+          <button
+            onClick={() => onDetailClick(user)}
+            className='p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all'
+            title='View details'
+          >
+            <History size={18} />
+          </button>
+          <button
+            onClick={() => onRoleToggle(user)}
+            disabled={isBlocking || isRoleUpdating || !canEditOwnAccess}
+            className={`p-2 rounded-lg transition-all disabled:opacity-50 ${
+              user.role === "admin"
+                ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                : "text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+            }`}
+            title={isCurrentAdmin ? "You cannot change your own access" : roleActionLabel}
+          >
+            {isRoleUpdating ? (
+              <Loader2 size={18} className='animate-spin' />
+            ) : user.role === "admin" ? (
+              <ShieldOff size={18} />
+            ) : (
+              <ShieldCheck size={18} />
+            )}
+          </button>
+          <button
+            onClick={() => onToggleBlock(user)}
+            disabled={isBlocking || isRoleUpdating || isCurrentAdmin}
+            className={`p-2 rounded-lg transition-all disabled:opacity-50 ${
+              user.isBlocked
+                ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                : "text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+            }`}
+            title={
+              isCurrentAdmin
+                ? "You cannot block your own account"
+                : user.isBlocked
+                  ? "Unblock user"
+                  : "Block user"
+            }
+          >
+            {isBlocking ? (
+              <Loader2 size={18} className='animate-spin' />
+            ) : (
+              <ShieldAlert size={18} />
+            )}
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+};
+
+const UserDetailModal = ({
+  user,
   isOpen,
+  isCurrentAdmin,
   onClose,
   onToggleBlock,
-  onPromoteToAdmin,
+  onRoleToggle,
   isBlocking,
-  isPromoting,
+  isRoleUpdating,
 }: {
-  customer: Customer | null;
+  user: ManagedUser | null;
   isOpen: boolean;
+  isCurrentAdmin: boolean;
   onClose: () => void;
-  onToggleBlock: (customer: Customer) => void;
-  onPromoteToAdmin: (customer: Customer) => void;
+  onToggleBlock: (user: ManagedUser) => void;
+  onRoleToggle: (user: ManagedUser) => void;
   isBlocking: boolean;
-  isPromoting: boolean;
+  isRoleUpdating: boolean;
 }) => {
-  if (!isOpen || !customer) return null;
+  if (!isOpen || !user) return null;
+
+  const roleButtonLabel =
+    user.role === "admin" ? "Remove Admin Access" : "Make Admin";
+
   return (
     <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
       <div
@@ -296,38 +356,49 @@ const CustomerDetailModal = ({
       <div className='bg-white w-full max-w-2xl rounded-3xl shadow-2xl relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200'>
         <div className='p-8 border-b border-slate-100 flex justify-between items-start'>
           <div className='flex gap-4'>
-            <div className='w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-2xl font-black'>
-              {customer.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .slice(0, 2)}
+            <div className='w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-2xl font-black overflow-hidden'>
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                user.name
+                  .split(" ")
+                  .map((part) => part[0])
+                  .join("")
+                  .slice(0, 2)
+              )}
             </div>
             <div>
               <h2 className='text-2xl font-black text-slate-900 tracking-tight'>
-                {customer.name}
+                {user.name}
               </h2>
-              <div className='flex items-center gap-3 mt-1'>
+              <div className='flex items-center gap-3 mt-1 flex-wrap'>
                 <span className='text-sm text-slate-500 flex items-center gap-1'>
-                  <Mail size={14} /> {customer.email}
+                  <Mail size={14} /> {user.email}
                 </span>
-                {customer.phone && (
-                  <span className='text-sm text-slate-500 flex items-center gap-1'>
-                    {customer.phone}
-                  </span>
+                {user.phone && (
+                  <span className='text-sm text-slate-500'>{user.phone}</span>
                 )}
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                    customer.status === "Active"
+                    user.status === "Active"
                       ? "bg-emerald-50 text-emerald-600"
                       : "bg-rose-50 text-rose-600"
                   }`}
                 >
-                  {customer.status}
+                  {user.status}
                 </span>
                 <span className='px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-indigo-50 text-indigo-600'>
-                  {customer.role}
+                  {user.role}
                 </span>
+                {isCurrentAdmin && (
+                  <span className='px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900 text-white'>
+                    Current Admin
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -339,22 +410,38 @@ const CustomerDetailModal = ({
           </button>
         </div>
 
-        <div className='p-8 grid grid-cols-2 gap-8'>
+        <div className='p-8 grid grid-cols-1 md:grid-cols-2 gap-8'>
           <div>
             <h3 className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 px-1'>
-              Shipping Profile
+              Account Profile
             </h3>
-            <div className='bg-slate-50 p-5 rounded-2xl space-y-3'>
+            <div className='bg-slate-50 p-5 rounded-2xl space-y-4'>
+              <div>
+                <p className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1'>
+                  Joined
+                </p>
+                <p className='text-sm font-bold text-slate-900'>
+                  {user.joinedDate}
+                </p>
+              </div>
+              <div>
+                <p className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1'>
+                  Lifetime Spend
+                </p>
+                <p className='text-sm font-bold text-slate-900'>
+                  {user.totalSpent}
+                </p>
+              </div>
               <div className='flex items-start gap-3'>
                 <MapPin size={18} className='text-indigo-500 mt-0.5' />
                 <div>
                   <p className='text-sm font-bold text-slate-900'>
-                    {customer.address?.address || "No saved address"}
+                    {user.address?.address || "No saved address"}
                   </p>
                   <p className='text-sm text-slate-600'>
-                    {customer.address?.city || "No city"}
-                    {customer.address?.postalCode
-                      ? ` • ${customer.address.postalCode}`
+                    {user.address?.city || "No city"}
+                    {user.address?.postalCode
+                      ? ` • ${user.address.postalCode}`
                       : ""}
                   </p>
                 </div>
@@ -364,11 +451,11 @@ const CustomerDetailModal = ({
 
           <div>
             <h3 className='text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 px-1'>
-              Recent Transmissions
+              Recent Orders
             </h3>
             <div className='space-y-4'>
-              {customer.orders.length > 0 ? (
-                customer.orders.map((order) => (
+              {user.orders.length > 0 ? (
+                user.orders.map((order) => (
                   <div
                     key={order.id}
                     className='flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors'
@@ -393,38 +480,48 @@ const CustomerDetailModal = ({
                 ))
               ) : (
                 <div className='p-4 border border-dashed border-slate-200 rounded-2xl text-xs font-medium text-slate-400'>
-                  No orders found for this customer yet.
+                  No orders found for this account yet.
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className='p-8 bg-slate-50 flex gap-3'>
+        <div className='p-8 bg-slate-50 flex flex-col md:flex-row gap-3'>
           <button className='flex-1 py-4 bg-white border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-900 transition-colors shadow-sm'>
             Send Communication
           </button>
           <button
-            onClick={() => onPromoteToAdmin(customer)}
-            disabled={isBlocking || isPromoting || customer.role === "admin"}
-            className='flex-1 py-4 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg hover:bg-indigo-700 shadow-indigo-600/10 disabled:opacity-50'
+            onClick={() => onRoleToggle(user)}
+            disabled={isBlocking || isRoleUpdating || isCurrentAdmin}
+            className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-50 ${
+              user.role === "admin"
+                ? "bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/10"
+                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/10"
+            }`}
           >
-            {isPromoting ? "Updating Role..." : "Make Admin"}
+            {isRoleUpdating
+              ? "Updating Role..."
+              : isCurrentAdmin
+                ? "Current Admin"
+                : roleButtonLabel}
           </button>
           <button
-            onClick={() => onToggleBlock(customer)}
-            disabled={isBlocking || isPromoting}
-            className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg ${
-              customer.isBlocked
+            onClick={() => onToggleBlock(user)}
+            disabled={isBlocking || isRoleUpdating || isCurrentAdmin}
+            className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-50 ${
+              user.isBlocked
                 ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/10"
                 : "bg-rose-600 text-white hover:bg-rose-700 shadow-rose-600/10"
-            } disabled:opacity-50`}
+            }`}
           >
             {isBlocking
               ? "Updating..."
-              : customer.isBlocked
-                ? "Unblock User"
-                : "Block User"}
+              : isCurrentAdmin
+                ? "Current Admin"
+                : user.isBlocked
+                  ? "Unblock User"
+                  : "Block User"}
           </button>
         </div>
       </div>
@@ -432,230 +529,449 @@ const CustomerDetailModal = ({
   );
 };
 
-// --- MAIN APP COMPONENT ---
+const EmptyDirectoryState = ({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) => (
+  <div className='py-24 flex flex-col items-center justify-center text-center text-slate-400'>
+    <Users size={40} className='mb-4 text-slate-300' />
+    <p className='text-sm font-black uppercase tracking-widest text-slate-500'>
+      {title}
+    </p>
+    <p className='mt-2 text-sm text-slate-400'>{description}</p>
+  </div>
+);
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+export default function AdminDashboardPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [customersLoading, setCustomersLoading] = useState(false);
-  const [customersError, setCustomersError] = useState("");
-  const [customersSuccess, setCustomersSuccess] = useState("");
-  const [blockingCustomerId, setBlockingCustomerId] = useState<string | null>(
+  const [directoryUsers, setDirectoryUsers] = useState<BackendUser[]>([]);
+  const [ordersData, setOrdersData] = useState<BackendOrder[]>([]);
+  const [directoryLoading, setDirectoryLoading] = useState(false);
+  const [directoryError, setDirectoryError] = useState("");
+  const [directorySuccess, setDirectorySuccess] = useState("");
+  const [blockingUserId, setBlockingUserId] = useState<string | null>(null);
+  const [roleUpdatingUserId, setRoleUpdatingUserId] = useState<string | null>(
     null,
   );
-  const [promotingCustomerId, setPromotingCustomerId] = useState<string | null>(
-    null,
-  );
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null,
-  );
-  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // NEW: Mobile State
+  const [selectedUser, setSelectedUser] = useState<ManagedUser | null>(null);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentAdminEmail, setCurrentAdminEmail] = useState("");
 
-  const handleCustomerDetail = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setIsCustomerModalOpen(true);
+  const handleProtectedError = (error: unknown) => {
+    if (isUnauthorizedError(error)) {
+      clearAuthSession();
+      router.push("/auth/login");
+      router.refresh();
+      return true;
+    }
+
+    return false;
   };
 
-  // Helper to handle navigation click on mobile (closes menu)
-  const handleNavClick = (tab: string) => {
-    setActiveTab(tab);
-    setIsMobileMenuOpen(false);
-  };
-
-  const buildCustomerRows = (
+  const buildManagedUsers = (
     users: BackendUser[],
     orders: BackendOrder[],
-  ): Customer[] =>
-    users
-      .filter((user) => user.role !== "admin")
-      .map((user) => {
-        const relatedOrders = orders
-          .filter((order) => order.email === user.email)
-          .sort((a, b) => {
-            const aTime = new Date(a.orderDate || a.createdAt || 0).getTime();
-            const bTime = new Date(b.orderDate || b.createdAt || 0).getTime();
-            return bTime - aTime;
-          });
+  ): ManagedUser[] =>
+    users.map((user) => {
+      const relatedOrders = orders
+        .filter((order) => order.email === user.email)
+        .sort((a, b) => {
+          const aTime = new Date(a.orderDate || a.createdAt || 0).getTime();
+          const bTime = new Date(b.orderDate || b.createdAt || 0).getTime();
+          return bTime - aTime;
+        });
 
-        const totalSpent = relatedOrders.reduce(
-          (sum, order) => sum + Number(order.totalAmount || 0),
-          0,
-        );
+      const totalSpent = relatedOrders.reduce(
+        (sum, order) => sum + Number(order.totalAmount || 0),
+        0,
+      );
 
-        return {
-          id: user.id,
-          name: [user.firstName, user.lastName].filter(Boolean).join(" "),
-          email: user.email,
-          phone: user.phone,
-          profilePicture: user.profilePicture,
-          role: user.role,
-          isBlocked: user.isBlocked,
-          status: user.isBlocked ? "Blocked" : "Active",
-          totalOrders: relatedOrders.length,
-          totalSpent: `Rs. ${totalSpent.toLocaleString()}`,
-          joinedDate: new Date(user.createdAt).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-          }),
-          address: user.address,
-          orders: relatedOrders.slice(0, 5).map((order) => ({
-            id: order.orderId,
-            date: new Date(order.orderDate || order.createdAt || 0).toLocaleDateString("en-US", {
+      const joinedDate = new Date(user.createdAt);
+      const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+
+      return {
+        id: user.id,
+        name: fullName || user.email.split("@")[0],
+        email: user.email,
+        phone: user.phone,
+        profilePicture: user.profilePicture,
+        role: user.role,
+        isBlocked: user.isBlocked,
+        status: user.isBlocked ? "Blocked" : "Active",
+        totalOrders: relatedOrders.length,
+        totalSpent: `Rs. ${totalSpent.toLocaleString()}`,
+        joinedDate: Number.isNaN(joinedDate.getTime())
+          ? "Unknown"
+          : joinedDate.toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
             }),
-            amount: `Rs. ${Number(order.totalAmount || 0).toLocaleString()}`,
-            status: order.status,
-          })),
-        };
-      });
+        address: user.address,
+        orders: relatedOrders.slice(0, 5).map((order) => ({
+          id: order.orderId || order.id || "Order",
+          date: new Date(order.orderDate || order.createdAt || 0).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            },
+          ),
+          amount: `Rs. ${Number(order.totalAmount || 0).toLocaleString()}`,
+          status: order.status,
+        })),
+      };
+    });
+
+  const managedUsers = buildManagedUsers(directoryUsers, ordersData);
+  const customerUsers = managedUsers.filter((user) => user.role !== "admin");
+  const adminUsers = managedUsers.filter((user) => user.role === "admin");
+  const activeCustomers = customerUsers.filter((user) => !user.isBlocked).length;
+
+  const filterUsers = (users: ManagedUser[]) =>
+    users.filter((user) =>
+      [
+        user.name,
+        user.email,
+        user.status,
+        user.role,
+        user.address?.city || "",
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
+    );
+
+  const filteredCustomers = filterUsers(customerUsers);
+  const filteredAdmins = filterUsers(adminUsers);
+
+  const handleUserDetail = (user: ManagedUser) => {
+    setSelectedUser(user);
+    setIsUserModalOpen(true);
+  };
+
+  const handleNavClick = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    clearAuthSession();
+    router.push("/auth/login");
+    router.refresh();
+  };
 
   useEffect(() => {
-    if (activeTab !== "customers") {
+    if (activeTab !== "customers" && activeTab !== "admins") {
       return;
     }
 
-    const loadCustomers = async () => {
+    const loadDirectoryData = async () => {
       try {
-        setCustomersLoading(true);
-        setCustomersError("");
-        setCustomersSuccess("");
+        setDirectoryLoading(true);
+        setDirectoryError("");
+        setDirectorySuccess("");
 
-        const [usersResponse, ordersResponse] = await Promise.all([
-          axios.get(apiUrl("/users/all"), {
-            headers: getAuthHeaders(),
-          }),
-          axios.get(apiUrl("/orders/getOrders"), {
-            headers: getAuthHeaders(),
-          }),
-        ]);
+        const token =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem("token")
+            : null;
 
-        setCustomers(
-          buildCustomerRows(
-            Array.isArray(usersResponse.data) ? usersResponse.data : [],
-            Array.isArray(ordersResponse.data) ? ordersResponse.data : [],
-          ),
+        if (!token) {
+          clearAuthSession();
+          router.push("/auth/login");
+          return;
+        }
+
+        const [usersResponse, ordersResponse, profileResponse] =
+          await Promise.all([
+            axios.get(apiUrl("/users/all"), {
+              headers: getAuthHeaders(),
+            }),
+            axios.get(apiUrl("/orders/getOrders"), {
+              headers: getAuthHeaders(),
+            }),
+            axios.get(apiUrl("/users"), {
+              headers: getAuthHeaders(),
+            }),
+          ]);
+
+        const profile = profileResponse.data as { email?: string; role?: string };
+
+        if (profile.role !== "admin") {
+          setDirectoryError("Admin access required.");
+          router.push("/profile");
+          return;
+        }
+
+        setCurrentAdminEmail(profile.email || "");
+        setDirectoryUsers(
+          Array.isArray(usersResponse.data) ? usersResponse.data : [],
+        );
+        setOrdersData(
+          Array.isArray(ordersResponse.data) ? ordersResponse.data : [],
         );
       } catch (error: unknown) {
-        setCustomersError(
-          getErrorMessage(error, "Failed to load customer records."),
+        if (isUnauthorizedError(error)) {
+          clearAuthSession();
+          router.push("/auth/login");
+          router.refresh();
+          return;
+        }
+
+        setDirectoryError(
+          getErrorMessage(error, "Failed to load admin records."),
         );
       } finally {
-        setCustomersLoading(false);
+        setDirectoryLoading(false);
       }
     };
 
-    void loadCustomers();
-  }, [activeTab]);
+    void loadDirectoryData();
+  }, [activeTab, router]);
 
-  const handleToggleBlock = async (customer: Customer) => {
+  const updateSelectedUser = (updater: (user: ManagedUser) => ManagedUser) => {
+    setSelectedUser((previous) => (previous ? updater(previous) : previous));
+  };
+
+  const handleToggleBlock = async (user: ManagedUser) => {
     try {
-      setBlockingCustomerId(customer.id);
-      setCustomersError("");
-      setCustomersSuccess("");
+      setBlockingUserId(user.id);
+      setDirectoryError("");
+      setDirectorySuccess("");
+
       await axios.put(
-        apiUrl(`/users/block/${encodeURIComponent(customer.email)}`),
-        { isBlocked: !customer.isBlocked },
+        apiUrl(`/users/block/${encodeURIComponent(user.email)}`),
+        { isBlocked: !user.isBlocked },
         { headers: getAuthHeaders() },
       );
 
-      setCustomers((prev) =>
-        prev.map((entry) =>
-          entry.id === customer.id
+      setDirectoryUsers((previous) =>
+        previous.map((entry) =>
+          entry.id === user.id
             ? {
                 ...entry,
                 isBlocked: !entry.isBlocked,
-                status: !entry.isBlocked ? "Blocked" : "Active",
               }
             : entry,
         ),
       );
-      setSelectedCustomer((prev) =>
-        prev && prev.id === customer.id
+
+      updateSelectedUser((previous) =>
+        previous.id === user.id
           ? {
-              ...prev,
-              isBlocked: !prev.isBlocked,
-              status: !prev.isBlocked ? "Blocked" : "Active",
+              ...previous,
+              isBlocked: !previous.isBlocked,
+              status: previous.isBlocked ? "Active" : "Blocked",
             }
-          : prev,
+          : previous,
       );
-      setCustomersSuccess(
-        customer.isBlocked
-          ? `${customer.email} has been unblocked.`
-          : `${customer.email} has been blocked.`,
+
+      setDirectorySuccess(
+        user.isBlocked
+          ? `${user.email} has been unblocked.`
+          : `${user.email} has been blocked.`,
       );
     } catch (error: unknown) {
-      setCustomersError(
-        getErrorMessage(error, "Failed to update customer access."),
+      if (handleProtectedError(error)) {
+        return;
+      }
+
+      setDirectoryError(
+        getErrorMessage(error, "Failed to update account access."),
       );
     } finally {
-      setBlockingCustomerId(null);
+      setBlockingUserId(null);
     }
   };
 
-  const handlePromoteToAdmin = async (customer: Customer) => {
+  const handleRoleToggle = async (user: ManagedUser) => {
+    const nextRole = user.role === "admin" ? "customer" : "admin";
+    const actionLabel =
+      nextRole === "admin" ? "make this user an admin" : "remove admin access";
+
+    if (
+      !window.confirm(`Are you sure you want to ${actionLabel} for ${user.email}?`)
+    ) {
+      return;
+    }
+
     try {
-      setPromotingCustomerId(customer.id);
-      setCustomersError("");
-      setCustomersSuccess("");
+      setRoleUpdatingUserId(user.id);
+      setDirectoryError("");
+      setDirectorySuccess("");
+
       await axios.put(
-        apiUrl(`/users/role/${encodeURIComponent(customer.email)}`),
-        { role: "admin" },
+        apiUrl(`/users/role/${encodeURIComponent(user.email)}`),
+        { role: nextRole },
         { headers: getAuthHeaders() },
       );
 
-      setCustomers((prev) => prev.filter((entry) => entry.id !== customer.id));
-      setSelectedCustomer((prev) =>
-        prev && prev.id === customer.id ? null : prev,
+      setDirectoryUsers((previous) =>
+        previous.map((entry) =>
+          entry.id === user.id
+            ? {
+                ...entry,
+                role: nextRole,
+              }
+            : entry,
+        ),
       );
-      setIsCustomerModalOpen((prev) =>
-        selectedCustomer?.id === customer.id ? false : prev,
+
+      updateSelectedUser((previous) =>
+        previous.id === user.id
+          ? {
+              ...previous,
+              role: nextRole,
+            }
+          : previous,
       );
-      setCustomersSuccess(`${customer.email} is now an admin.`);
+
+      setDirectorySuccess(
+        nextRole === "admin"
+          ? `${user.email} is now an admin.`
+          : `${user.email} no longer has admin access.`,
+      );
     } catch (error: unknown) {
-      setCustomersError(
+      if (handleProtectedError(error)) {
+        return;
+      }
+
+      setDirectoryError(
         getErrorMessage(error, "Failed to update the user role."),
       );
     } finally {
-      setPromotingCustomerId(null);
+      setRoleUpdatingUserId(null);
     }
   };
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.role !== "admin" &&
-    [customer.name, customer.email, customer.status]
-      .join(" ")
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase()),
+  const renderDirectoryTable = (
+    users: ManagedUser[],
+    emptyTitle: string,
+    emptyDescription: string,
+  ) => (
+    <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
+      {directoryError && (
+        <div className='mx-6 mt-6 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600'>
+          {directoryError}
+        </div>
+      )}
+      {directorySuccess && (
+        <div className='mx-6 mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700'>
+          {directorySuccess}
+        </div>
+      )}
+      <div className='overflow-x-auto'>
+        {directoryLoading ? (
+          <div className='py-24 flex flex-col items-center justify-center text-slate-400'>
+            <Loader2
+              size={40}
+              className='animate-spin text-indigo-500 mb-4'
+            />
+            <p className='text-[10px] font-black tracking-widest uppercase'>
+              Syncing Directory...
+            </p>
+          </div>
+        ) : users.length === 0 ? (
+          <EmptyDirectoryState
+            title={emptyTitle}
+            description={emptyDescription}
+          />
+        ) : (
+          <table className='w-full text-left border-collapse'>
+            <thead>
+              <tr className='bg-slate-50/50'>
+                <th className='py-4 px-6 text-[10px] font-black uppercase tracking-widest text-slate-400'>
+                  Identity
+                </th>
+                <th className='py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400'>
+                  Location
+                </th>
+                <th className='py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400'>
+                  Activity
+                </th>
+                <th className='py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400'>
+                  Status
+                </th>
+                <th className='py-4 px-6'></th>
+              </tr>
+            </thead>
+            <tbody className='divide-y divide-slate-50'>
+              {users.map((user) => {
+                const isCurrentAdmin =
+                  currentAdminEmail.length > 0 &&
+                  currentAdminEmail.toLowerCase() === user.email.toLowerCase();
+
+                return (
+                  <UserRow
+                    key={user.id}
+                    user={user}
+                    isCurrentAdmin={isCurrentAdmin}
+                    onDetailClick={handleUserDetail}
+                    onToggleBlock={handleToggleBlock}
+                    onRoleToggle={handleRoleToggle}
+                    isBlocking={blockingUserId === user.id}
+                    isRoleUpdating={roleUpdatingUserId === user.id}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
   );
+
+  const searchEnabled = activeTab === "customers" || activeTab === "admins";
+  const pageTitle =
+    activeTab === "dashboard"
+      ? "The Dashboard."
+      : activeTab === "inventory"
+        ? "Inventory Master."
+        : activeTab === "orders"
+          ? "Order Management."
+          : activeTab === "customers"
+            ? "Customer Directory."
+            : "Admin Directory.";
+  const searchPlaceholder =
+    activeTab === "admins"
+      ? "Search admins..."
+      : activeTab === "customers"
+        ? "Search customers..."
+        : "Search directory...";
+  const selectedUserIsCurrentAdmin =
+    !!selectedUser &&
+    currentAdminEmail.length > 0 &&
+    selectedUser.email.toLowerCase() === currentAdminEmail.toLowerCase();
 
   return (
     <div className='min-h-screen bg-[#F8FAFC] flex font-sans text-slate-900'>
-      <CustomerDetailModal
-        customer={selectedCustomer}
-        isOpen={isCustomerModalOpen}
-        onClose={() => setIsCustomerModalOpen(false)}
+      <UserDetailModal
+        user={selectedUser}
+        isOpen={isUserModalOpen}
+        isCurrentAdmin={selectedUserIsCurrentAdmin}
+        onClose={() => setIsUserModalOpen(false)}
         onToggleBlock={handleToggleBlock}
-        onPromoteToAdmin={handlePromoteToAdmin}
-        isBlocking={blockingCustomerId === selectedCustomer?.id}
-        isPromoting={promotingCustomerId === selectedCustomer?.id}
+        onRoleToggle={handleRoleToggle}
+        isBlocking={blockingUserId === selectedUser?.id}
+        isRoleUpdating={roleUpdatingUserId === selectedUser?.id}
       />
 
-      {/* --- MOBILE NAVIGATION DRAWER (NEW) --- */}
       {isMobileMenuOpen && (
         <div className='fixed inset-0 z-50 lg:hidden'>
-          {/* Backdrop */}
           <div
             className='absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity'
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
-          {/* Drawer */}
           <div className='absolute left-0 top-0 bottom-0 w-64 bg-white p-6 shadow-2xl animate-in slide-in-from-left duration-300 flex flex-col h-full'>
-            {/* Header with Close Btn */}
             <div className='flex items-center justify-between mb-8'>
               <div className='flex items-center gap-2'>
                 <div className='w-8 h-8 bg-black rounded-lg flex items-center justify-center'>
@@ -668,13 +984,11 @@ export default function App() {
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className='p-2 hover:bg-slate-100 rounded-full'
-                suppressHydrationWarning
               >
                 <X size={20} />
               </button>
             </div>
 
-            {/* Mobile Nav Links */}
             <nav className='space-y-2 flex-1'>
               <SidebarItem
                 icon={LayoutDashboard}
@@ -700,16 +1014,28 @@ export default function App() {
                 active={activeTab === "customers"}
                 onClick={() => handleNavClick("customers")}
               />
+              <SidebarItem
+                icon={ShieldCheck}
+                label='Admins'
+                active={activeTab === "admins"}
+                onClick={() => handleNavClick("admins")}
+              />
             </nav>
 
-            <div className='pt-6 mt-6 border-t border-slate-100'>
+            <div className='pt-6 mt-6 border-t border-slate-100 space-y-2'>
               <SidebarItem icon={Settings} label='Settings' />
+              <button
+                onClick={handleLogout}
+                className='w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 transition-all'
+              >
+                <LogOut size={20} />
+                <span className='font-semibold text-sm'>Logout</span>
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* --- DESKTOP SIDEBAR (UNCHANGED) --- */}
       <aside className='w-64 border-r border-slate-200 bg-white p-6 hidden lg:flex flex-col sticky top-0 h-screen'>
         <div
           className='mb-10 flex items-center gap-2 cursor-pointer'
@@ -748,10 +1074,23 @@ export default function App() {
             active={activeTab === "customers"}
             onClick={() => setActiveTab("customers")}
           />
+          <SidebarItem
+            icon={ShieldCheck}
+            label='Admins'
+            active={activeTab === "admins"}
+            onClick={() => setActiveTab("admins")}
+          />
         </nav>
 
         <div className='pt-6 mt-6 border-t border-slate-100'>
           <SidebarItem icon={Settings} label='Settings' />
+          <button
+            onClick={handleLogout}
+            className='mt-2 w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 hover:bg-rose-50 transition-all'
+          >
+            <LogOut size={20} />
+            <span className='font-semibold text-sm'>Logout</span>
+          </button>
           <div className='mt-8 p-4 bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl relative overflow-hidden group'>
             <p className='text-white text-xs font-bold uppercase tracking-widest relative z-10 opacity-70'>
               Support
@@ -766,28 +1105,18 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className='flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full'>
-        {/* Header */}
         <header className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8'>
           <div className='flex items-center gap-4'>
-            {/* NEW: Mobile Menu Trigger Button */}
             <button
               className='lg:hidden p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors'
               onClick={() => setIsMobileMenuOpen(true)}
-              suppressHydrationWarning
             >
               <Menu size={24} />
             </button>
 
             <h1 className='text-2xl md:text-3xl font-black text-slate-900 tracking-tight'>
-              {activeTab === "dashboard"
-                ? "The Dashboard."
-                : activeTab === "inventory"
-                  ? "Inventory Master."
-                  : activeTab === "orders"
-                    ? "Order Management."
-                    : "Userbase."}
+              {pageTitle}
             </h1>
           </div>
 
@@ -799,17 +1128,14 @@ export default function App() {
               />
               <input
                 type='text'
-                placeholder='Search...'
-                className='pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium'
+                placeholder={searchPlaceholder}
+                disabled={!searchEnabled}
+                className='pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm font-medium disabled:bg-slate-100 disabled:text-slate-400'
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                suppressHydrationWarning
+                onChange={(event) => setSearchQuery(event.target.value)}
               />
             </div>
-            <button
-              className='p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-500 transition-colors relative'
-              suppressHydrationWarning
-            >
+            <button className='p-2.5 bg-white border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-500 transition-colors relative'>
               <Bell size={20} />
               <span className='absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white' />
             </button>
@@ -820,37 +1146,48 @@ export default function App() {
           <div className='animate-in fade-in slide-in-from-bottom-2 duration-500'>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
               <StatCard
-                title='Revenue'
-                value='$84,232'
-                change='+12.5%'
-                isPositive={true}
-                icon={TrendingUp}
+                title='Customers'
+                value={customerUsers.length}
+                change={`${activeCustomers} active`}
+                isPositive={activeCustomers >= Math.max(customerUsers.length - activeCustomers, 0)}
+                icon={Users}
               />
               <StatCard
-                title='Utilization'
-                value='1.2M+'
-                change='+34k'
+                title='Admins'
+                value={adminUsers.length}
+                change='Access team'
                 isPositive={true}
-                icon={Zap}
+                icon={ShieldCheck}
               />
               <StatCard
                 title='Orders'
-                value='1,429'
-                change='-2.1%'
-                isPositive={false}
+                value={ordersData.length}
+                change='Live sync'
+                isPositive={true}
                 icon={Package}
               />
               <StatCard
-                title='Retention'
-                value='68%'
-                change='+5.4%'
-                isPositive={true}
-                icon={Users}
+                title='Blocked Accounts'
+                value={managedUsers.filter((user) => user.isBlocked).length}
+                change='Review list'
+                isPositive={false}
+                icon={ShieldAlert}
               />
             </div>
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
               <div className='lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm'>
+                <div className='flex items-center justify-between mb-6'>
+                  <div>
+                    <h3 className='text-lg font-bold text-slate-900'>
+                      Revenue Pulse
+                    </h3>
+                    <p className='text-sm text-slate-500'>
+                      Weekly sales signal for the admin overview.
+                    </p>
+                  </div>
+                  <TrendingUp size={18} className='text-indigo-500' />
+                </div>
                 <div className='h-[300px] w-full'>
                   <ResponsiveContainer width='100%' height={300} minWidth={0}>
                     <AreaChart data={revenueData}>
@@ -907,30 +1244,35 @@ export default function App() {
 
               <div className='bg-white p-6 rounded-3xl border border-slate-100 shadow-sm'>
                 <h3 className='text-lg font-bold text-slate-900 mb-6'>
-                  Top Drop Performance
+                  Access Snapshot
                 </h3>
-                <div className='space-y-6'>
+                <div className='space-y-4'>
                   {[
-                    { name: "Carbon X-2 Black", sales: "842", icon: "⚡" },
-                    { name: "Neon Archive Pro", sales: "612", icon: "💜" },
-                    { name: "Elite Pods 2.0", sales: "439", icon: "⚪" },
-                  ].map((product, i) => (
+                    {
+                      label: "Customer accounts",
+                      value: customerUsers.length,
+                      badge: "Directory",
+                    },
+                    {
+                      label: "Admin accounts",
+                      value: adminUsers.length,
+                      badge: "Privileged",
+                    },
+                    {
+                      label: "Blocked accounts",
+                      value: managedUsers.filter((user) => user.isBlocked).length,
+                      badge: "Needs review",
+                    },
+                  ].map((item) => (
                     <div
-                      key={i}
-                      className='flex items-center justify-between group cursor-pointer'
+                      key={item.label}
+                      className='flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-colors'
                     >
-                      <div className='flex items-center gap-4'>
-                        <div className='w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl group-hover:bg-indigo-50 transition-colors'>
-                          {product.icon}
-                        </div>
-                        <div>
-                          <p className='text-sm font-bold text-slate-900'>
-                            {product.name}
-                          </p>
-                          <p className='text-xs text-slate-400'>
-                            {product.sales} sales
-                          </p>
-                        </div>
+                      <div>
+                        <p className='text-sm font-bold text-slate-900'>
+                          {item.label}
+                        </p>
+                        <p className='text-xs text-slate-400'>{item.badge}</p>
                       </div>
                       <ChevronRight size={18} className='text-slate-300' />
                     </div>
@@ -941,71 +1283,27 @@ export default function App() {
           </div>
         )}
 
-        {/* UPDATED: Navigates to OrdersPage when "orders" is active */}
         {activeTab === "orders" && <OrdersPage />}
 
         {activeTab === "inventory" && <InventoryPage />}
 
-        {activeTab === "customers" && (
-          <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
-            {customersError && (
-              <div className='mx-6 mt-6 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600'>
-                {customersError}
-              </div>
-            )}
-            {customersSuccess && (
-              <div className='mx-6 mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700'>
-                {customersSuccess}
-              </div>
-            )}
-            <div className='overflow-x-auto'>
-              {customersLoading ? (
-                <div className='py-24 flex flex-col items-center justify-center text-slate-400'>
-                  <Loader2
-                    size={40}
-                    className='animate-spin text-indigo-500 mb-4'
-                  />
-                  <p className='text-[10px] font-black tracking-widest uppercase'>
-                    Syncing Customers...
-                  </p>
-                </div>
-              ) : (
-                <table className='w-full text-left border-collapse'>
-                  <thead>
-                    <tr className='bg-slate-50/50'>
-                      <th className='py-4 px-6 text-[10px] font-black uppercase tracking-widest text-slate-400'>
-                        Identity
-                      </th>
-                      <th className='py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400'>
-                        Location
-                      </th>
-                      <th className='py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400'>
-                        Activity
-                      </th>
-                      <th className='py-4 px-2 text-[10px] font-black uppercase tracking-widest text-slate-400'>
-                        Status
-                      </th>
-                      <th className='py-4 px-6'></th>
-                    </tr>
-                  </thead>
-                  <tbody className='divide-y divide-slate-50'>
-                    {filteredCustomers.map((customer) => (
-                      <CustomerRow
-                        key={customer.id}
-                        customer={customer}
-                        onDetailClick={handleCustomerDetail}
-                        onToggleBlock={handleToggleBlock}
-                        onPromoteToAdmin={handlePromoteToAdmin}
-                        isBlocking={blockingCustomerId === customer.id}
-                        isPromoting={promotingCustomerId === customer.id}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        )}
+        {activeTab === "customers" &&
+          renderDirectoryTable(
+            filteredCustomers,
+            "No Customers Found",
+            searchQuery
+              ? "No customers matched your search."
+              : "Customer accounts will appear here once they register.",
+          )}
+
+        {activeTab === "admins" &&
+          renderDirectoryTable(
+            filteredAdmins,
+            "No Admins Found",
+            searchQuery
+              ? "No admins matched your search."
+              : "Promoted admin accounts will appear here.",
+          )}
       </main>
     </div>
   );
