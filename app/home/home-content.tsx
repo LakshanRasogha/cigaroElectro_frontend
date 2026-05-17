@@ -1,28 +1,30 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
 import { UserCircle2, X } from "lucide-react";
 import Link from "next/link";
 
-// Standardizing component imports
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
 import Headers from "../components/header";
-
-// UI Sections
-import ShopSection from "../UI/shopsection";
 import HeritageSection from "../UI/aboutsection";
-import TshirtSection from "../UI/tshirtsection";
-import TrendingSection from "../UI/trendingsection";
 import { apiUrl } from "@/app/lib/api";
-import type { Product } from "@/app/lib/types";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Profile completion calculator (mirrors the profile page logic)
-// 7 fields, each worth 1/7 of 100%
-// ─────────────────────────────────────────────────────────────────────────────
+const TrendingSection = dynamic(() => import("../UI/trendingsection"), {
+  ssr: false,
+});
+
+type IdleCapableWindow = Window &
+  typeof globalThis & {
+    cancelIdleCallback?: (handle: number) => void;
+    requestIdleCallback?: (
+      callback: IdleRequestCallback,
+      options?: IdleRequestOptions,
+    ) => number;
+  };
+
 function getProfileCompletion(user: Record<string, unknown>): number {
   const addr =
     user.address && typeof user.address === "object"
@@ -38,13 +40,10 @@ function getProfileCompletion(user: Record<string, unknown>): number {
     Boolean(addr.city && String(addr.city).trim()),
     Boolean(addr.postalCode && String(addr.postalCode).trim()),
   ];
-  const filled = checks.filter(Boolean).length;
-  return Math.round((filled / checks.length) * 100);
+
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Profile Nudge Banner — shown once per session for 3 s when pct < 100
-// ─────────────────────────────────────────────────────────────────────────────
 const NUDGE_KEY = "profile_nudge_shown";
 
 function getInitialNudgeState() {
@@ -75,6 +74,110 @@ function getInitialNudgeState() {
   }
 }
 
+const SectionFallback = ({
+  eyebrow,
+  title,
+}: {
+  eyebrow: string;
+  title: string;
+}) => (
+  <section className="relative bg-[#050505] overflow-hidden py-8 md:py-12">
+    <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="mb-10 md:mb-14">
+        <p className="text-[#D4AF37] font-black text-[9px] md:text-[11px] tracking-[0.4em] uppercase mb-3">
+          {eyebrow}
+        </p>
+        <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase">
+          {title}
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 animate-pulse">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.03]"
+          >
+            <div className="aspect-[4/5] bg-white/5" />
+            <div className="space-y-3 p-4">
+              <div className="h-2 w-20 rounded-full bg-white/10" />
+              <div className="h-4 w-3/4 rounded-full bg-white/10" />
+              <div className="h-4 w-1/2 rounded-full bg-white/10" />
+              <div className="h-8 w-full rounded-xl bg-white/10" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const DeferredSection = ({
+  children,
+  fallback,
+  loadOnIdle = false,
+  rootMargin = "220px 0px",
+}: {
+  children: React.ReactNode;
+  fallback: React.ReactNode;
+  loadOnIdle?: boolean;
+  rootMargin?: string;
+}) => {
+  const [shouldRender, setShouldRender] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!loadOnIdle || shouldRender || typeof window === "undefined") {
+      return;
+    }
+
+    const browserWindow = window as IdleCapableWindow;
+
+    if (typeof browserWindow.requestIdleCallback === "function") {
+      const handle = browserWindow.requestIdleCallback(
+        () => setShouldRender(true),
+        { timeout: 1200 },
+      );
+
+      return () => {
+        browserWindow.cancelIdleCallback?.(handle);
+      };
+    }
+
+    const timeout = window.setTimeout(() => setShouldRender(true), 450);
+    return () => window.clearTimeout(timeout);
+  }, [loadOnIdle, shouldRender]);
+
+  useEffect(() => {
+    if (shouldRender) return;
+
+    const node = containerRef.current;
+    if (!node) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      const timeout = window.setTimeout(() => setShouldRender(true), 0);
+      return () => window.clearTimeout(timeout);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [rootMargin, shouldRender]);
+
+  return <div ref={containerRef}>{shouldRender ? children : fallback}</div>;
+};
+
 const ProfileNudgeBanner = () => {
   const [nudgeState, setNudgeState] = useState(getInitialNudgeState);
   const { visible, pct, shouldMark } = nudgeState;
@@ -86,104 +189,68 @@ const ProfileNudgeBanner = () => {
 
     if (!visible) return;
 
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setNudgeState((prev) => ({ ...prev, visible: false }));
     }, 3000);
-    return () => clearTimeout(timer);
+
+    return () => window.clearTimeout(timer);
   }, [shouldMark, visible]);
 
+  if (!visible) return null;
+
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, y: -60 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -60 }}
-          transition={{ type: "spring", stiffness: 260, damping: 22 }}
-          className="fixed top-20 left-0 right-0 z-[200] flex justify-center px-4 pointer-events-none"
-        >
-          <div className="pointer-events-auto flex items-center gap-4 px-5 py-3.5 rounded-2xl bg-[#0d0d0d]/95 border border-[#D4AF37]/30 backdrop-blur-xl shadow-2xl max-w-sm w-full">
-            {/* Icon */}
-            <div className="shrink-0 w-9 h-9 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center">
-              <UserCircle2 size={18} className="text-[#D4AF37]" />
-            </div>
+    <div className="fixed top-20 left-0 right-0 z-[200] flex justify-center px-4 pointer-events-none animate-fade-in-down">
+      <div className="pointer-events-auto flex items-center gap-4 px-5 py-3.5 rounded-2xl bg-[#0d0d0d]/95 border border-[#D4AF37]/30 backdrop-blur-xl shadow-2xl max-w-sm w-full">
+        <div className="shrink-0 w-9 h-9 rounded-xl bg-[#D4AF37]/10 flex items-center justify-center">
+          <UserCircle2 size={18} className="text-[#D4AF37]" />
+        </div>
 
-            {/* Text + bar */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white leading-tight">
-                Complete your profile
-              </p>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-widest text-white leading-tight">
+            Complete your profile
+          </p>
 
-              {/* Progress bar */}
-              <div className="mt-1.5 h-1 rounded-full bg-white/10 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-[#D4AF37] to-[#ffe066]"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                />
-              </div>
+          <div className="mt-1.5 h-1 rounded-full bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#D4AF37] to-[#ffe066]"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
 
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-[8px] text-zinc-500 tracking-wide">
-                  {pct}% done · add your missing details
-                </p>
-                <Link
-                  href="/profile"
-                  onClick={() =>
-                    setNudgeState((prev) => ({ ...prev, visible: false }))
-                  }
-                  className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] hover:underline"
-                >
-                  Go →
-                </Link>
-              </div>
-            </div>
-
-            {/* Dismiss */}
-            <button
+          <div className="flex items-center justify-between mt-1">
+            <p className="text-[8px] text-zinc-500 tracking-wide">
+              {pct}% done - add your missing details
+            </p>
+            <Link
+              href="/profile"
               onClick={() =>
                 setNudgeState((prev) => ({ ...prev, visible: false }))
               }
-              className="shrink-0 text-zinc-600 hover:text-white transition-colors"
-              aria-label="Dismiss nudge"
+              className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] hover:underline"
             >
-              <X size={14} />
-            </button>
+              Go to profile
+            </Link>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+
+        <button
+          onClick={() => setNudgeState((prev) => ({ ...prev, visible: false }))}
+          className="shrink-0 text-zinc-600 hover:text-white transition-colors"
+          aria-label="Dismiss nudge"
+        >
+          <X size={14} />
+        </button>
+      </div>
+    </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Home Page
-// ─────────────────────────────────────────────────────────────────────────────
 const Home = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [bestsellerKeys, setBestsellerKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let active = true;
 
-    // Fetch all products
-    axios
-      .get(apiUrl("/products/get"))
-      .then((response) => {
-        if (!active) return;
-        const data = Array.isArray(response.data)
-          ? response.data
-          : response.data.products || [];
-        setProducts(data);
-      })
-      .catch((error) => console.error("Failed to fetch products", error))
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    // Fetch bestseller keys in parallel (non-critical — silently ignore errors)
     axios
       .get(apiUrl("/analytics/bestseller-keys?limit=20"))
       .then((res) => {
@@ -191,116 +258,94 @@ const Home = () => {
         const keys: string[] = Array.isArray(res.data) ? res.data : [];
         setBestsellerKeys(new Set(keys));
       })
-      .catch(() => {/* no bestsellers yet — that's fine */});
+      .catch(() => {});
 
     return () => {
       active = false;
     };
   }, []);
 
-  const hardwareProducts = useMemo(
-    () =>
-      products.filter((product) => {
-        const name = product.name.toLowerCase();
-        const category = product.category.toLowerCase();
-        return !name.includes("t-shirt") && !category.includes("t-shirt");
-      }),
-    [products],
-  );
-
-  const tshirtProducts = useMemo(
-    () =>
-      products.filter((product) => {
-        const name = product.name.toLowerCase();
-        const category = product.category.toLowerCase();
-        return name.includes("t-shirts") || category.includes("t-shirts");
-      }),
-    [products],
-  );
-
   return (
-    <div className='bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans'>
-      {/* Profile completion nudge — auto-dismisses after 3 s, once per session */}
+    <div className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans">
       <ProfileNudgeBanner />
 
-      {/* --- FIXED NAVBAR --- */}
-      <div className='fixed top-0 left-0 right-0 z-[100]'>
+      <div className="fixed top-0 left-0 right-0 z-[100]">
         <Navbar />
       </div>
 
-      {/* --- Ambient Luxury Gold Background Elements --- */}
-      <div className='absolute inset-0 pointer-events-none z-0 overflow-hidden'>
-        <div className='absolute top-0 left-[-10%] w-[28rem] h-[28rem] bg-[#D4AF37]/5 blur-[110px] rounded-full' />
-        <div className='absolute top-[28%] right-[-8%] w-[24rem] h-[24rem] bg-[#AA771C]/5 blur-[100px] rounded-full' />
-        <div className='absolute bottom-[10%] left-[-6%] w-[22rem] h-[22rem] bg-[#D4AF37]/4 blur-[90px] rounded-full' />
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-0 left-[-10%] w-[28rem] h-[28rem] bg-[#D4AF37]/5 blur-[110px] rounded-full" />
+        <div className="absolute top-[28%] right-[-8%] w-[24rem] h-[24rem] bg-[#AA771C]/5 blur-[100px] rounded-full" />
+        <div className="absolute bottom-[10%] left-[-6%] w-[22rem] h-[22rem] bg-[#D4AF37]/4 blur-[90px] rounded-full" />
       </div>
 
-      {/* --- Main Content Wrap --- */}
-      <div className='relative z-10'>
-        <header className='relative'>
+      <div className="relative z-10">
+        <header className="relative">
           <Headers />
         </header>
 
-        {/* Shop Section */}
-        <section className='bg-[#050505]' id='shop'>
-          <ShopSection
-            products={hardwareProducts}
-            loading={loading}
-            bestsellerKeys={bestsellerKeys}
-          />
-        </section>
+        <DeferredSection
+          loadOnIdle
+          rootMargin="260px 0px"
+          fallback={
+            <SectionFallback
+              eyebrow="Trending Now"
+              title="Loading Most Viewed"
+            />
+          }
+        >
+          <TrendingSection bestsellerKeys={bestsellerKeys} />
+        </DeferredSection>
 
-        {/* Trending / Most Viewed Section */}
-        <TrendingSection bestsellerKeys={bestsellerKeys} />
+        <div className="bg-[#050505] px-4 pb-8 md:px-6">
+          <div className="mx-auto max-w-7xl rounded-[2rem] border border-[#D4AF37]/15 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-xl">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#D4AF37]">
+                  Explore More
+                </p>
+                <h2 className="mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
+                  Browse the full collection
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
+                  We now keep the homepage focused on the most viewed products.
+                  Open the full catalog to load more items in smaller batches.
+                </p>
+              </div>
 
-        {/* T-Shirt Section */}
-        <section className='bg-[#050505]'>
-          <TshirtSection
-            products={tshirtProducts}
-            loading={loading}
-            bestsellerKeys={bestsellerKeys}
-          />
-        </section>
+              <Link
+                href="/collections"
+                className="inline-flex items-center justify-center rounded-full bg-[#D4AF37] px-6 py-4 text-[11px] font-black uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#c9a432]"
+              >
+                Open Catalog
+              </Link>
+            </div>
+          </div>
+        </div>
 
-        {/* Heritage Section */}
-        <section className='bg-[#050505]' id='about'>
+        <section className="bg-[#050505]" id="about">
           <HeritageSection />
         </section>
 
-        {/* Footer */}
-        <footer className='bg-black border-t border-white/5'>
+        <footer className="bg-black border-t border-white/5">
           <Footer />
         </footer>
       </div>
 
       <style jsx global>{`
-        @keyframes gold-shimmer {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-
-        .animate-gold {
-          background-size: 200% 200%;
-          animation: gold-shimmer 12s ease infinite;
-        }
-
         ::-webkit-scrollbar {
           width: 8px;
         }
+
         ::-webkit-scrollbar-track {
           background: #050505;
         }
+
         ::-webkit-scrollbar-thumb {
           background: #222;
           border-radius: 10px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
           background: #d4af37;
         }

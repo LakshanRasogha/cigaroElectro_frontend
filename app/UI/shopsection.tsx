@@ -126,6 +126,8 @@ const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSect
                     slug={prod.slug}
                     {...otherProps}
                     tagline={otherProps.tagline || ""}
+                    variantCount={prod.variantCount}
+                    hasStock={prod.hasStock}
                     isBestSeller={bestsellerKeys.has(productKey || "")}
                   />
                 </SwiperSlide>

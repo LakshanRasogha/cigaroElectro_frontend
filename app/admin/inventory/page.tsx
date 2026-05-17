@@ -13,7 +13,6 @@ import {
   Trash2,
   AlertCircle,
   Edit3,
-  Save,
   ChevronDown,
   Upload,
   ImageIcon,
@@ -23,6 +22,11 @@ import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 import { uploadImageToCloudinary } from "@/app/lib/cloudinary";
 import { getErrorMessage } from "@/app/lib/errors";
 import { getListKey } from "@/app/lib/entity_id";
+import {
+  buildProductListPath,
+  collectAllProductPages,
+  type ProductListResponse,
+} from "@/app/lib/products";
 import type { Product, ProductVariant } from "@/app/lib/types";
 
 const InventoryRow = ({
@@ -170,10 +174,20 @@ export default function InventoryPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(apiUrl("/products/get"));
-      const data = Array.isArray(res.data) ? res.data : res.data.products || [];
-      setProducts(data);
-    } catch (err) {
+      const result = await collectAllProductPages(
+        async (options) => {
+          const response = await axios.get<ProductListResponse>(
+            apiUrl(buildProductListPath(options)),
+          );
+          return response.data;
+        },
+        {
+          includeVariants: true,
+          pageSize: 50,
+        },
+      );
+      setProducts(result.products);
+    } catch {
       setErrorMsg("Failed to connect to server.");
     } finally {
       setLoading(false);

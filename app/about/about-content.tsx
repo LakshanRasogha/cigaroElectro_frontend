@@ -143,12 +143,12 @@ const AboutContent = () => {
           <h1 className='hero-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-white tracking-[0.25em] leading-tight mb-8'>
             ENGINEERED FOR
             <br />
-            <span className='text-[#D4AF37] italic opacity-90'>EXCELLENCE</span>
+            <span className='text-[#D4AF37] opacity-90'>EXCELLENCE</span>
           </h1>
 
           <p className='hero-subtitle max-w-xl mx-auto text-[10px] sm:text-xs text-zinc-500 font-light tracking-[0.15em] leading-loose mb-10 uppercase'>
-            Sri Lanka&apos;s premier destination for high-quality vaping hardware,
-            accessories, and apparel. Seven years of trusted curation.
+            Sri Lanka&apos;s premier destination for high-quality vaping
+            hardware, accessories, and apparel. Seven years of trusted curation.
           </p>
 
           <div className='flex flex-col sm:flex-row items-center justify-center gap-6'>

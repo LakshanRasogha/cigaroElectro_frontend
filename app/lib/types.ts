@@ -47,6 +47,8 @@ export interface Product {
   category: string;
   productImage?: string[];
   variants?: ProductVariant[];
+  variantCount?: number;
+  hasStock?: boolean;
   sale?: string;
   [key: string]: unknown;
 }

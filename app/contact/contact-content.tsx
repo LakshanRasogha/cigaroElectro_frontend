@@ -26,10 +26,10 @@ const ContactContent = () => {
     e.preventDefault();
     const text = encodeURIComponent(
       `Hello CigaroElectro! 👋\n\n` +
-      `*Name:* ${name}\n` +
-      `*Email:* ${email}\n` +
-      `*Inquiry:* ${inquiry}\n\n` +
-      `*Message:*\n${message}`
+        `*Name:* ${name}\n` +
+        `*Email:* ${email}\n` +
+        `*Inquiry:* ${inquiry}\n\n` +
+        `*Message:*\n${message}`,
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
   };
@@ -71,7 +71,7 @@ const ContactContent = () => {
             </div>
             <h1 className='text-5xl md:text-8xl font-serif text-white tracking-[0.15em] leading-[0.9] uppercase'>
               REACH THE <br />
-              <span className='text-[#D4AF37] italic'>SUMMIT.</span>
+              <span className='text-[#D4AF37]'>SUMMIT</span>
             </h1>
           </motion.div>
 
@@ -129,7 +129,10 @@ const ContactContent = () => {
               {/* Form Glass Decoration */}
               <div className='absolute -top-20 -right-20 w-40 h-40 bg-[#D4AF37]/5 blur-[80px] rounded-full' />
 
-              <form className='space-y-12 relative z-10' onSubmit={handleSubmit}>
+              <form
+                className='space-y-12 relative z-10'
+                onSubmit={handleSubmit}
+              >
                 <div className='grid md:grid-cols-2 gap-10'>
                   <InputField
                     label='IDENTITY'
@@ -160,8 +163,12 @@ const ContactContent = () => {
                     >
                       <option className='bg-[#030303]'>Hardware Support</option>
                       <option className='bg-[#030303]'>Order Logistics</option>
-                      <option className='bg-[#030303]'>Artisanal Curation</option>
-                      <option className='bg-[#030303]'>Partnership Terminal</option>
+                      <option className='bg-[#030303]'>
+                        Artisanal Curation
+                      </option>
+                      <option className='bg-[#030303]'>
+                        Partnership Terminal
+                      </option>
                     </select>
                     <div className='absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-40 text-[#D4AF37] text-[8px]'>
                       ▼

@@ -2,6 +2,13 @@ import "server-only";
 
 import type { Product } from "@/app/lib/types";
 import {
+  buildProductListPath,
+  collectAllProductPages,
+  resolveProductListResponse,
+  type ProductListOptions,
+  type ProductListResponse,
+} from "@/app/lib/products";
+import {
   apiBaseUrl,
   getCategoryLandingPage,
   normalizeCategory,
@@ -20,12 +27,24 @@ async function fetchCatalog<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function fetchAllProducts(): Promise<Product[]> {
-  const data = await fetchCatalog<Product[] | { products?: Product[] }>(
-    "/products/get",
+export async function fetchProductSummaries(
+  options: ProductListOptions = {},
+) {
+  const data = await fetchCatalog<ProductListResponse>(
+    buildProductListPath({
+      ...options,
+      includeVariants: false,
+    }),
   );
 
-  return Array.isArray(data) ? data : data.products || [];
+  return resolveProductListResponse(data, options);
+}
+
+export async function fetchAllProducts(): Promise<Product[]> {
+  const { products } = await collectAllProductPages((options) =>
+    fetchCatalog<ProductListResponse>(buildProductListPath(options)),
+  );
+  return products;
 }
 
 export async function fetchAllProductsSafe(): Promise<Product[]> {
@@ -39,7 +58,7 @@ export async function fetchAllProductsSafe(): Promise<Product[]> {
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   try {
     return await fetchCatalog<Product>(
-      `/products/getOne/${encodeURIComponent(slug)}`,
+      `/products/getOne/${encodeURIComponent(slug)}?includeVariants=true`,
     );
   } catch {
     return null;

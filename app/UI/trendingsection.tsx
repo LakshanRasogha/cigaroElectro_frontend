@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TrendingUp, Loader2, ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
 import { getListKey, getProductSlug } from "@/app/lib/entity_id";
 import { trackProductClick } from "@/app/lib/analytics";
+import { getProductVariantCount } from "@/app/lib/products";
 import type { Product } from "@/app/lib/types";
 
 interface TrendingSectionProps {
@@ -23,7 +24,7 @@ const TrendingSection = ({ bestsellerKeys }: TrendingSectionProps) => {
 
   useEffect(() => {
     axios
-      .get(apiUrl("/analytics/trending?limit=8"))
+      .get(apiUrl("/analytics/trending?limit=8&includeVariants=false"))
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
         setProducts(data);
@@ -54,7 +55,7 @@ const TrendingSection = ({ bestsellerKeys }: TrendingSectionProps) => {
             <h2 className='text-2xl md:text-3xl font-black text-white tracking-tighter leading-none uppercase'>
               Most{" "}
               <span
-                className='text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] normal-case'
+                className='text-[#D4AF37] normal-case'
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 Viewed
@@ -132,6 +133,7 @@ const TrendingCard = ({
     maximumFractionDigits: 0,
     minimumFractionDigits: 0,
   }).format(product.basePrice || 0);
+  const variantCount = getProductVariantCount(product);
 
   const handleClick = () => {
     trackProductClick(product.key);
@@ -199,9 +201,9 @@ const TrendingCard = ({
         </h3>
 
         {/* Variants count */}
-        {(product.variants?.length ?? 0) > 0 && (
+        {variantCount > 0 && (
           <p className='text-[6px] sm:text-[7px] text-zinc-500 line-clamp-1 font-medium tracking-wide mb-2'>
-            {product.variants?.length} variant{product.variants?.length !== 1 ? "s" : ""} available
+            {variantCount} variant{variantCount !== 1 ? "s" : ""} available
           </p>
         )}
 
@@ -233,4 +235,3 @@ const TrendingCard = ({
 };
 
 export default TrendingSection;
-

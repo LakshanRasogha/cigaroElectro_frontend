@@ -40,7 +40,7 @@ const Hero = () => {
           {/* Main Heading */}
           <h1 className='mb-6 leading-[1.1] tracking-tight'>
             <span
-              className='block py-1 text-5xl md:text-7xl font-light tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#e8cd75] via-[#f3dfa7] to-[#AA771C] drop-shadow-[0_4px_15px_rgba(212,175,55,0.25)]'
+              className='block py-1 text-5xl md:text-7xl font-light tracking-tighter text-[#D4AF37]'
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               THE APEX OF VAPOR
@@ -48,7 +48,7 @@ const Hero = () => {
           </h1>
 
           {/* Subtext */}
-          <p className='text-zinc-300 text-base md:text-xl mb-12 leading-relaxed max-w-xl font-light italic'>
+          <p className='text-zinc-300 text-base md:text-xl mb-12 leading-relaxed max-w-xl font-light'>
             It&apos;s your entry into the gold standard of modern indulgence.
           </p>
 

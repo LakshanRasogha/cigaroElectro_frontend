@@ -123,6 +123,8 @@ const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: Tshirt
                     slug={prod.slug}
                     {...otherProps}
                     tagline={otherProps.tagline || "Premium Cotton Blend"}
+                    variantCount={prod.variantCount}
+                    hasStock={prod.hasStock}
                     category='T-shirts'
                     isBestSeller={bestsellerKeys.has(productKey || "")}
                   />

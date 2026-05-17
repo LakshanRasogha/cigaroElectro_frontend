@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -13,13 +13,11 @@ import {
   LayoutDashboard,
   Heart,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { staticAssets } from "@/app/lib/assets";
 import { clearAuthSession } from "@/app/lib/auth";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { AppUser, CartItem } from "@/app/lib/types";
 
-// --- Types ---
 interface NavbarSnapshot {
   user: AppUser | null;
   cartStats: {
@@ -35,11 +33,13 @@ const BrandLogo = ({
   mobile?: boolean;
   onClick?: () => void;
 }) => (
-  <Link href='/' onClick={onClick} className='flex items-center shrink-0'>
+  <Link href="/" onClick={onClick} className="flex items-center shrink-0">
     <img
       src={staticAssets.brandWordmark}
-      alt='CigaroElectro logo'
-      className={`w-auto object-contain ${mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"}`}
+      alt="CigaroElectro logo"
+      className={`w-auto object-contain ${
+        mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"
+      }`}
     />
   </Link>
 );
@@ -169,13 +169,11 @@ const Navbar = () => {
           : "bg-transparent py-6"
       }`}
     >
-      <div className='max-w-7xl mx-auto px-6 lg:px-10'>
-        <div className='flex justify-between items-center h-16'>
-          {/* Logo Section */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <div className="flex justify-between items-center h-16">
           <BrandLogo />
 
-          {/* Desktop Navigation */}
-          <div className='hidden md:flex space-x-10 items-center font-bold uppercase text-[10px] tracking-[0.25em]'>
+          <div className="hidden md:flex space-x-10 items-center font-bold uppercase text-[10px] tracking-[0.25em]">
             {navLinks.map((link) => {
               const isActive = pathname === link.path;
               return (
@@ -189,124 +187,120 @@ const Navbar = () => {
                   }`}
                 >
                   {link.name}
-                  {isActive && (
-                    <motion.span
-                      layoutId='navUnderline'
-                      className='absolute -bottom-2 left-0 w-full h-[1px] bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.8)]'
-                    />
-                  )}
+                  <span
+                    className={`absolute -bottom-2 left-0 h-[1px] w-full origin-left bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.8)] transition-transform duration-300 ${
+                      isActive ? "scale-x-100" : "scale-x-0"
+                    }`}
+                  />
                 </Link>
               );
             })}
           </div>
 
-          {/* Right Actions */}
-          <div className='flex items-center gap-1 ml-4 md:gap-8'>
-            {/* User Profile */}
-            <div className='relative group'>
+          <div className="flex items-center gap-1 ml-4 md:gap-8">
+            <div className="relative group">
               {user ? (
                 <>
                   <Link
-                    href='/profile'
-                    className='md:hidden flex items-center justify-center p-1 rounded-full transition-all duration-300 hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
+                    href="/profile"
+                    className="md:hidden flex items-center justify-center p-1 rounded-full transition-all duration-300 hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20"
                   >
-                    <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
+                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900">
                       <img
                         src={profileImageSrc}
-                        alt='Profile'
-                        className='w-full h-full object-cover'
+                        alt="Profile"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   </Link>
 
                   <Link
-                    href='/profile'
-                    className='hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20'
+                    href="/profile"
+                    className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer hover:bg-[#D4AF37]/5 border border-transparent hover:border-[#D4AF37]/20"
                   >
-                    <div className='text-right hidden lg:block'>
-                      <p className='text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white'>
+                    <div className="text-right hidden lg:block">
+                      <p className="text-[10px] font-black uppercase tracking-tighter leading-none mb-1 text-white">
                         {user.firstName || user.name?.split(" ")[0] || "Member"}
                       </p>
-                      <div className='flex items-center justify-end gap-1'>
-                        <div className='w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse' />
-                        <p className='text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none'>
+                      <div className="flex items-center justify-end gap-1">
+                        <div className="w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse" />
+                        <p className="text-[7px] font-bold text-[#D4AF37] uppercase tracking-widest leading-none">
                           Elite
                         </p>
                       </div>
                     </div>
-                    <div className='w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900'>
+                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[#D4AF37]/30 shadow-xl bg-zinc-900">
                       <img
                         src={profileImageSrc}
-                        alt='Profile'
-                        className='w-full h-full object-cover'
+                        alt="Profile"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   </Link>
                 </>
               ) : (
                 <Link
-                  href='/auth/login'
-                  className='p-2.5 rounded-full text-zinc-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all'
+                  href="/auth/login"
+                  className="p-2.5 rounded-full text-zinc-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all"
                 >
-                  <User className='h-5 w-5' />
+                  <User className="h-5 w-5" />
                 </Link>
               )}
 
-              {/* Dropdown Menu */}
-              <div className='absolute top-full right-0 mt-3 w-56 py-3 bg-black/95 backdrop-blur-3xl rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#D4AF37]/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 -translate-y-2 group-hover:translate-y-0 hidden md:block overflow-hidden'>
+              <div className="absolute top-full right-0 mt-3 w-56 py-3 bg-black/95 backdrop-blur-3xl rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#D4AF37]/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 -translate-y-2 group-hover:translate-y-0 hidden md:block overflow-hidden">
                 {user ? (
                   <>
-                    <div className='px-5 py-3 border-b border-white/5 mb-2'>
-                      <p className='text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1'>
+                    <div className="px-5 py-3 border-b border-white/5 mb-2">
+                      <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">
                         Authenticated
                       </p>
-                      <p className='text-xs font-medium text-white truncate'>
+                      <p className="text-xs font-medium text-white truncate">
                         {user.email}
                       </p>
                     </div>
                     {user.role === "admin" && (
                       <Link
-                        href='/admin'
-                        className='flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors'
+                        href="/admin"
+                        className="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors"
                       >
                         <LayoutDashboard size={14} /> Control Panel
                       </Link>
                     )}
                     <Link
-                      href='/profile'
-                      className='flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-colors'
+                      href="/profile"
+                      className="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <Settings size={14} /> Account
                     </Link>
                     <Link
-                      href='/wishlist'
-                      className='flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-colors'
+                      href="/wishlist"
+                      className="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
                     >
                       <Heart size={14} /> Wishlist
                       {wishlist.length > 0 && (
-                        <span className='ml-auto bg-[#D4AF37] text-black text-[7px] font-black rounded-full w-4 h-4 flex items-center justify-center'>
+                        <span className="ml-auto bg-[#D4AF37] text-black text-[7px] font-black rounded-full w-4 h-4 flex items-center justify-center">
                           {wishlist.length}
                         </span>
                       )}
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className='w-full flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-colors'
+                      className="w-full flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 transition-colors"
                     >
                       <LogOut size={14} /> Logout
                     </button>
                   </>
                 ) : (
-                  <div className='p-2 flex flex-col gap-1'>
+                  <div className="p-2 flex flex-col gap-1">
                     <Link
-                      href='/auth/login'
-                      className='px-4 py-2 text-[10px] font-bold uppercase text-white hover:bg-[#D4AF37]/10 rounded-lg'
+                      href="/auth/login"
+                      className="px-4 py-2 text-[10px] font-bold uppercase text-white hover:bg-[#D4AF37]/10 rounded-lg"
                     >
                       Log In
                     </Link>
                     <Link
-                      href='/auth/Signin'
-                      className='px-4 py-2 text-[10px] font-bold uppercase text-[#D4AF37] hover:bg-[#D4AF37]/20 rounded-lg'
+                      href="/auth/Signin"
+                      className="px-4 py-2 text-[10px] font-bold uppercase text-[#D4AF37] hover:bg-[#D4AF37]/20 rounded-lg"
                     >
                       Create Account
                     </Link>
@@ -315,36 +309,30 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Cart Section */}
-            <Link href='/cart' className='flex items-center gap-4 group'>
-              <div className='relative p-2.5 rounded-full text-zinc-400 group-hover:text-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all'>
-                <ShoppingCart className='h-5 w-5' />
-                <AnimatePresence>
-                  {cartStats.count > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className='absolute -top-1 -right-1 bg-[#D4AF37] text-black text-[8px] font-black rounded-full w-4 h-4 flex items-center justify-center border border-black'
-                    >
-                      {cartStats.count}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+            <Link href="/cart" className="flex items-center gap-4 group">
+              <div className="relative p-2.5 rounded-full text-zinc-400 group-hover:text-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all">
+                <ShoppingCart className="h-5 w-5" />
+                {cartStats.count > 0 && (
+                  <span
+                    key={cartStats.count}
+                    className="absolute -top-1 -right-1 bg-[#D4AF37] text-black text-[8px] font-black rounded-full w-4 h-4 flex items-center justify-center border border-black animate-pop-in"
+                  >
+                    {cartStats.count}
+                  </span>
+                )}
               </div>
-              <div className='hidden lg:flex flex-col border-l border-[#D4AF37]/20 pl-4'>
-                <span className='text-[7px] font-black uppercase tracking-widest text-zinc-500 leading-none mb-1'>
+              <div className="hidden lg:flex flex-col border-l border-[#D4AF37]/20 pl-4">
+                <span className="text-[7px] font-black uppercase tracking-widest text-zinc-500 leading-none mb-1">
                   Portfolio Value
                 </span>
-                <span className='text-[11px] font-bold text-white leading-none tracking-tight'>
+                <span className="text-[11px] font-bold text-white leading-none tracking-tight">
                   Rs. {cartStats.total.toLocaleString()}
                 </span>
               </div>
             </Link>
 
-            {/* Mobile Toggle */}
             <button
-              className='md:hidden text-[#D4AF37] p-2 hover:bg-[#D4AF37]/10 rounded-full transition-colors'
+              className="md:hidden text-[#D4AF37] p-2 hover:bg-[#D4AF37]/10 rounded-full transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -353,131 +341,121 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className='fixed inset-0 bg-[#050505] z-[150] md:hidden flex flex-col h-screen w-screen overflow-hidden pointer-events-auto'
-          >
-            {/* Header Section */}
-            <div className='flex justify-between items-center p-8 shrink-0'>
-              <BrandLogo mobile onClick={() => setIsMobileMenuOpen(false)} />
-              <span
-                className='hidden text-2xl font-normal tracking-tight text-[#D4AF37] leading-none'
-                style={{ fontFamily: "'Dancing Script', cursive" }}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-[#050505] z-[150] md:hidden flex flex-col h-screen w-screen overflow-hidden pointer-events-auto animate-slide-in-right">
+          <div className="flex justify-between items-center p-8 shrink-0">
+            <BrandLogo mobile onClick={() => setIsMobileMenuOpen(false)} />
+            <span
+              className="hidden text-2xl font-normal tracking-tight text-[#D4AF37] leading-none"
+              style={{ fontFamily: "'Dancing Script', cursive" }}
+            >
+              CigarroElectrico
+            </span>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 text-white hover:text-[#D4AF37] transition-colors"
+            >
+              <X size={32} />
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-center px-10 items-end space-y-5">
+            {navLinks.map((link, index) => (
+              <div
+                key={link.name}
+                className="animate-fade-in-right"
+                style={{ animationDelay: `${index * 80}ms` }}
               >
-                CigarroEléctrico
-              </span>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className='p-2 text-white hover:text-[#D4AF37] transition-colors'
-              >
-                <X size={32} />
-              </button>
-            </div>
-
-            {/* Nav Links Section */}
-            <div className='flex-1 flex flex-col justify-center px-10 items-end space-y-5'>
-              {navLinks.map((link, i) => (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  key={link.name}
-                >
-                  <Link
-                    href={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className='text-2xl font-bold text-white hover:text-[#D4AF37] transition-colors tracking-tighter block uppercase text-right'
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-
-              {user && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navLinks.length * 0.1 }}
-                >
-                  <Link
-                    href='/wishlist'
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className='flex items-center justify-end gap-3 text-lg font-bold text-zinc-300 hover:text-[#D4AF37] transition-colors tracking-tight uppercase'
-                  >
-                    {wishlist.length > 0 && (
-                      <span className='bg-[#D4AF37] text-black text-[8px] font-black rounded-full w-5 h-5 flex items-center justify-center'>
-                        {wishlist.length}
-                      </span>
-                    )}
-                    Wishlist
-                    <Heart size={18} className={wishlist.length > 0 ? 'fill-[#D4AF37] text-[#D4AF37]' : ''} />
-                  </Link>
-                </motion.div>
-              )}
-
-              {user && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navLinks.length * 0.1 }}
-                >
-                  <button
-                    type='button'
-                    onClick={handleLogout}
-                    className='text-[9px] font-black text-rose-500 hover:text-rose-400 transition-colors tracking-[0.2em] block uppercase text-right'
-                  >
-                    Logout
-                  </button>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Footer / User Section */}
-            <div className='p-10 border-t border-[#D4AF37]/10 shrink-0 bg-[#050505]'>
-              {user ? (
-                <div
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    router.push("/profile");
-                  }}
-                  className='flex items-center gap-4 p-5 bg-[#D4AF37]/5 rounded-3xl border border-[#D4AF37]/20 cursor-pointer active:scale-95 transition-transform'
-                >
-                  <img
-                    className='w-14 h-14 rounded-xl object-cover border-2 border-[#D4AF37]'
-                    src={profileImageSrc}
-                    alt='user'
-                  />
-                  <div className='overflow-hidden'>
-                    <p className='text-xl font-bold text-white truncate'>
-                      {user.firstName || user.name}
-                    </p>
-                    <p className='text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mt-1'>
-                      View Profile
-                    </p>
-                  </div>
-                </div>
-              ) : (
                 <Link
-                  href='/auth/login'
+                  href={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className='w-full py-5 bg-[#D4AF37] text-black text-center font-bold uppercase tracking-widest rounded-xl block text-sm active:scale-95 transition-transform'
+                  className="text-2xl font-bold text-white hover:text-[#D4AF37] transition-colors tracking-tighter block uppercase text-right"
                 >
-                  Client Login
+                  {link.name}
                 </Link>
-              )}
-              <p className='text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-8 text-center'>
-                Cigaro Electrico MMXXVI
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            ))}
+
+            {user && (
+              <div
+                className="animate-fade-in-right"
+                style={{ animationDelay: `${navLinks.length * 80}ms` }}
+              >
+                <Link
+                  href="/wishlist"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-end gap-3 text-lg font-bold text-zinc-300 hover:text-[#D4AF37] transition-colors tracking-tight uppercase"
+                >
+                  {wishlist.length > 0 && (
+                    <span className="bg-[#D4AF37] text-black text-[8px] font-black rounded-full w-5 h-5 flex items-center justify-center">
+                      {wishlist.length}
+                    </span>
+                  )}
+                  Wishlist
+                  <Heart
+                    size={18}
+                    className={
+                      wishlist.length > 0 ? "fill-[#D4AF37] text-[#D4AF37]" : ""
+                    }
+                  />
+                </Link>
+              </div>
+            )}
+
+            {user && (
+              <div
+                className="animate-fade-in-right"
+                style={{ animationDelay: `${(navLinks.length + 1) * 80}ms` }}
+              >
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-[9px] font-black text-rose-500 hover:text-rose-400 transition-colors tracking-[0.2em] block uppercase text-right"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="p-10 border-t border-[#D4AF37]/10 shrink-0 bg-[#050505]">
+            {user ? (
+              <div
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  router.push("/profile");
+                }}
+                className="flex items-center gap-4 p-5 bg-[#D4AF37]/5 rounded-3xl border border-[#D4AF37]/20 cursor-pointer active:scale-95 transition-transform"
+              >
+                <img
+                  className="w-14 h-14 rounded-xl object-cover border-2 border-[#D4AF37]"
+                  src={profileImageSrc}
+                  alt="user"
+                />
+                <div className="overflow-hidden">
+                  <p className="text-xl font-bold text-white truncate">
+                    {user.firstName || user.name}
+                  </p>
+                  <p className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mt-1">
+                    View Profile
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-5 bg-[#D4AF37] text-black text-center font-bold uppercase tracking-widest rounded-xl block text-sm active:scale-95 transition-transform"
+              >
+                Client Login
+              </Link>
+            )}
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-8 text-center">
+              Cigaro Electrico MMXXVI
+            </p>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

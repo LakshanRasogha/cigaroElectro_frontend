@@ -9,6 +9,11 @@ import Navbar from "@/app/components/navbar";
 import { apiUrl } from "@/app/lib/api";
 import { useWishlist } from "@/app/lib/wishlist";
 import { getProductSlug } from "@/app/lib/entity_id";
+import {
+  buildProductListPath,
+  collectAllProductPages,
+  type ProductListResponse,
+} from "@/app/lib/products";
 import type { Product } from "@/app/lib/types";
 
 const WishlistPage = () => {
@@ -31,14 +36,21 @@ const WishlistPage = () => {
     let active = true;
     const requestKey = [...wishlist].sort().join("|");
 
-    axios
-      .get(apiUrl("/products/get"))
-      .then((res) => {
+    collectAllProductPages(
+      async (options) => {
+        const response = await axios.get<ProductListResponse>(
+          apiUrl(buildProductListPath(options)),
+        );
+        return response.data;
+      },
+      {
+        includeVariants: false,
+        pageSize: 50,
+      },
+    )
+      .then((result) => {
         if (!active) return;
-        const all: Product[] = Array.isArray(res.data)
-          ? res.data
-          : res.data.products || [];
-        setProducts(all.filter((p) => wishlist.includes(p.key)));
+        setProducts(result.products.filter((product) => wishlist.includes(product.key)));
         setLoadedWishlistKey(requestKey);
       })
       .catch(() => {

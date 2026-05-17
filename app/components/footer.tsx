@@ -20,14 +20,10 @@ const Footer = () => {
 
   return (
     <footer className="bg-[#050505] pt-12 pb-10 border-t border-white/5 relative overflow-hidden">
-      
-      {/* Background Ambient Glows - Synced with The Vault's aesthetic */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full -z-10" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#AA771C]/5 blur-[120px] rounded-full -z-10" />
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-        
-        {/* Brand Section */}
         <div className="space-y-8">
           <div className="flex items-center">
             <img
@@ -35,14 +31,10 @@ const Footer = () => {
               alt="CigaroElectro logo"
               className="h-14 md:h-16 w-auto object-contain"
             />
-            <div className="hidden" />
-            <span className="hidden text-2xl font-black tracking-tighter text-white">
-              Cigarro<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] italic" style={{ fontFamily: "'Dancing Script', cursive" }}>Eléctrico</span>
-            </span>
           </div>
           <p className="text-zinc-500 text-sm leading-relaxed font-light max-w-md">
-            Curating the finest hardware within <span className="text-white/80 italic">The Vault</span>. 
-            The Gold Standard of vapor technology, engineered for excellence and designed in Sri Lanka.
+            Curating the finest hardware within <span className="text-white/80 italic">The Vault</span>.
+            {" "}The Gold Standard of vapor technology, engineered for excellence and designed in Sri Lanka.
           </p>
           <div className="flex gap-4">
             {socialLinks.map(({ label, href, Icon }) => (
@@ -60,7 +52,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Contact Info (Terminal) */}
         <div className="space-y-8 flex flex-col md:items-end">
           <div className="w-full md:max-w-xs space-y-8">
             <h4 className="font-black uppercase tracking-[0.4em] text-[10px] mb-10 text-[#D4AF37] md:text-right">
@@ -86,13 +77,11 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <p className="text-[9px] text-zinc-700 uppercase tracking-[0.4em] font-black">
-          © {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
+          &copy; {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
         </p>
-        
-        {/* Payment Methods */}
+
         <div className="flex flex-wrap justify-center gap-2 opacity-60 transition-all duration-500 hover:opacity-100">
           {paymentMethods.map((method) => (
             <span

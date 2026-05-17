@@ -192,18 +192,20 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {products.length > 0 ? (
             <div className='mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
               {products.map((product) => (
-                <ProductCard
-                  key={getListKey(product, product.key)}
-                  productKey={product.key}
-                  slug={product.slug}
-                  name={product.name}
-                  tagline={product.tagline}
-                  basePrice={product.basePrice}
-                  productImage={product.productImage}
-                  variants={product.variants}
-                  category={product.category}
-                  disableImageEffects
-                />
+                  <ProductCard
+                    key={getListKey(product, product.key)}
+                    productKey={product.key}
+                    slug={product.slug}
+                    name={product.name}
+                    tagline={product.tagline}
+                    basePrice={product.basePrice}
+                    productImage={product.productImage}
+                    variants={product.variants}
+                    variantCount={product.variantCount}
+                    hasStock={product.hasStock}
+                    category={product.category}
+                    disableImageEffects
+                  />
               ))}
             </div>
           ) : (

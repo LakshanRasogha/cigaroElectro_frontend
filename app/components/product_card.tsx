@@ -5,8 +5,9 @@ import { Heart, ArrowUpRight, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getProductSlug } from "@/app/lib/entity_id";
 import { trackProductClick } from "@/app/lib/analytics";
+import { getProductHasStock, getProductVariantCount } from "@/app/lib/products";
 import { useWishlist } from "@/app/lib/wishlist";
-import type { ProductVariant } from "@/app/lib/types";
+import type { Product, ProductVariant } from "@/app/lib/types";
 
 interface ProductProps {
   productKey: string;
@@ -16,7 +17,9 @@ interface ProductProps {
   basePrice: number;
   productImage?: string[] | null;
   variants?: ProductVariant[] | null;
+  variantCount?: number | null;
   category?: string | null;
+  hasStock?: boolean;
   /** Show the 🔥 Best Seller badge when this product is in the top cart-added list */
   isBestSeller?: boolean;
   disableImageEffects?: boolean;
@@ -30,7 +33,9 @@ const ProductCard = ({
   basePrice,
   productImage = [],
   variants = [],
+  variantCount,
   category = "",
+  hasStock,
   isBestSeller = false,
   disableImageEffects = false,
 }: ProductProps) => {
@@ -42,11 +47,18 @@ const ProductCard = ({
   const safeCategory = typeof category === "string" ? category : "";
   const safeProductImages = Array.isArray(productImage) ? productImage : [];
   const safeVariants = Array.isArray(variants) ? variants : [];
-
-  const inStockVariants = safeVariants.filter(
-    (v) => v.stock > 0 && v.availability,
-  );
-  const isOutOfStock = inStockVariants.length === 0;
+  const productSummary: Product = {
+    key: productKey,
+    name: safeName,
+    basePrice,
+    category: safeCategory,
+    productImage: safeProductImages,
+    variants: safeVariants,
+    variantCount: typeof variantCount === "number" ? variantCount : undefined,
+    hasStock,
+  };
+  const resolvedVariantCount = getProductVariantCount(productSummary);
+  const isOutOfStock = !getProductHasStock(productSummary);
 
   const formattedPrice = new Intl.NumberFormat("en-LK", {
     style: "currency",
@@ -132,11 +144,11 @@ const ProductCard = ({
         </div>
 
         {/* Variants pill — bottom-right of image */}
-        {safeVariants.length > 1 && (
+        {resolvedVariantCount > 1 && (
           <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-0.5 px-1.5 py-0.5 bg-black/80 backdrop-blur-sm rounded-full border border-[#D4AF37]/30">
             <Package size={7} className="text-[#D4AF37]" />
             <span className="text-[5px] font-black text-[#D4AF37]">
-              {safeVariants.length}{" "}
+              {resolvedVariantCount}{" "}
               {safeCategory.toLowerCase().trim() === "t-shirts"
                 ? "Designs"
                 : "Vars"}

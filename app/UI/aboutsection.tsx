@@ -76,7 +76,7 @@ const HeritageSection = () => {
 
             <h2 className='text-2xl md:text-3xl font-black mb-6 leading-[0.85] text-white tracking-tighter uppercase'>
               <span
-                className='text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C]'
+                className='text-[#D4AF37]'
                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
               >
                 Future Aesthetic.
