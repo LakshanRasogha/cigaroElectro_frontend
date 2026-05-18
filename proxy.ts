@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// FIX: Ensure the function name is 'middleware' and it is exported
 export function proxy(request: NextRequest) {
+  const host = request.headers.get("host")?.toLowerCase();
+  if (host === "www.cigarroelectrico.com") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.host = "cigarroelectrico.com";
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
   const token = request.cookies.get("session")?.value;
   const { pathname } = request.nextUrl;
 
-  // Your proxy/blocking logic here...
   if (pathname.startsWith("/admin")) {
     if (!token) {
       return NextResponse.redirect(new URL("/auth/login", request.url));
@@ -17,7 +22,7 @@ export function proxy(request: NextRequest) {
       if (user.role !== "admin") {
         return NextResponse.rewrite(new URL("/404", request.url));
       }
-    } catch (e) {
+    } catch {
       return NextResponse.redirect(new URL("/auth/login", request.url));
     }
   }
@@ -25,7 +30,6 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Ensure your config is also exported correctly
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
