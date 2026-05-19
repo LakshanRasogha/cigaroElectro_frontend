@@ -1,12 +1,17 @@
 const defaultApiBaseUrl =
-  process.env.NODE_ENV === "development" ? "http://localhost:3001" : "";
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3001"
+    : "https://api.cigarroelectrico.com";
 
 const rawApiBaseUrl =
   process.env.NEXT_PUBLIC_API?.trim() || defaultApiBaseUrl;
 
-export const apiBaseUrl = rawApiBaseUrl.endsWith("/")
-  ? rawApiBaseUrl.slice(0, -1)
-  : rawApiBaseUrl;
+const normalizedApiBaseUrl = rawApiBaseUrl.replace(/\/+$/, "");
+
+export const apiBaseUrl =
+  normalizedApiBaseUrl === "https://cigarroelectrico.com"
+    ? defaultApiBaseUrl
+    : normalizedApiBaseUrl;
 
 export function apiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;

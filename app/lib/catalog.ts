@@ -15,13 +15,25 @@ import {
   type CategoryLandingPage,
 } from "@/app/lib/site";
 
+class CatalogRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
+    super(message);
+  }
+}
+
 async function fetchCatalog<T>(path: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     next: { revalidate: 600 },
   });
 
   if (!response.ok) {
-    throw new Error(`Catalog request failed for ${path}`);
+    throw new CatalogRequestError(
+      `Catalog request failed for ${path}`,
+      response.status,
+    );
   }
 
   return (await response.json()) as T;
@@ -60,8 +72,13 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     return await fetchCatalog<Product>(
       `/products/getOne/${encodeURIComponent(slug)}?includeVariants=true`,
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof CatalogRequestError && error.status === 404) {
+      return null;
+    }
+
+    console.error(`Failed to fetch product detail for slug "${slug}".`, error);
+    throw error;
   }
 }
 

@@ -20,9 +20,17 @@ const fallbackApiBaseUrl =
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || siteConfig.domain;
 
-export const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API?.trim() || fallbackApiBaseUrl
-).replace(/\/+$/, "");
+function normalizeApiBaseUrl(value: string | undefined) {
+  const normalizedValue = value?.trim().replace(/\/+$/, "");
+
+  if (!normalizedValue || normalizedValue === siteConfig.domain) {
+    return fallbackApiBaseUrl;
+  }
+
+  return normalizedValue;
+}
+
+export const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API);
 
 export const brandKeywords = [
   "CigarroElectrico",
