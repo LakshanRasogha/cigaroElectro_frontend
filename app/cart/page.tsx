@@ -257,11 +257,9 @@ const CartPage = () => {
    * Order flow:
    * 1. Require login — redirect to /auth/login if no token.
    * 2. Validate form fields.
-   * 3. Open a blank window NOW (inside the user gesture, before any await)
-   *    so mobile browsers do not block the popup after the async API call.
-   * 4. POST to /orders/create to persist the order in the DB.
-   * 5. On success: navigate the pre-opened window to WhatsApp, clear cart.
-   *    On failure: close the window, show the real error, keep cart intact.
+   * 3. POST to /orders/create to persist the order in the DB.
+   * 4. On success: open WhatsApp with the full URL directly (most reliable on mobile).
+   *    On failure: show the real error, keep cart intact.
    */
   const handleOrder = async () => {
     // ── 1. Login guard ─────────────────────────────────────────────────────
@@ -288,12 +286,16 @@ const CartPage = () => {
 
     setIsOrderLoading(true);
 
-    // ── 3. Open a blank window SYNCHRONOUSLY inside the user gesture ────────
-    // Mobile browsers (Android Chrome, iOS Safari) block window.open() when
-    // called after an `await` because the user-gesture context is lost.
-    // Opening an empty window here keeps it within the gesture; we navigate
-    // it to WhatsApp only after the API call succeeds.
-    const whatsappWindow = window.open("", "_blank");
+    // ── 3. Build WhatsApp URL before the API call ───────────────────────────
+    // Build the message now so it's ready the instant the API responds.
+    const message = buildWhatsAppMessage(
+      form,
+      cartItems,
+      subtotal,
+      totalDelivery,
+      total,
+    );
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
     // ── 4. Save order to DB ────────────────────────────────────────────────
     try {
@@ -315,8 +317,6 @@ const CartPage = () => {
         { headers: getAuthHeaders() },
       );
     } catch (err: unknown) {
-      // Close the blank tab so the user is not left with an empty window.
-      whatsappWindow?.close();
       setIsOrderLoading(false);
 
       // Surface the real backend message (e.g. "Insufficient stock for Mango")
@@ -336,22 +336,13 @@ const CartPage = () => {
       return;
     }
 
-    // ── 5. API succeeded → navigate pre-opened window to WhatsApp ──────────
-    const message = buildWhatsAppMessage(
-      form,
-      cartItems,
-      subtotal,
-      totalDelivery,
-      total,
-    );
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-    if (whatsappWindow) {
-      // Navigate the already-open window — works on all mobile browsers
-      whatsappWindow.location.href = whatsappUrl;
-    } else {
-      // Popup was blocked entirely — fall back to navigating the current tab
-      window.location.assign(whatsappUrl);
+    // ── 5. API succeeded → open WhatsApp ───────────────────────────────────
+    // Use window.open first; if the browser blocks it (popup blocker / mobile
+    // restriction after async), fall back to navigating the current tab so
+    // the user always reaches WhatsApp regardless of browser policy.
+    const opened = window.open(whatsappUrl, "_blank");
+    if (!opened || opened.closed) {
+      window.location.href = whatsappUrl;
     }
 
     // Clear cart only after everything succeeds
