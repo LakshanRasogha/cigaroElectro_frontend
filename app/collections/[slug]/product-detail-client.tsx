@@ -254,13 +254,13 @@ const ProductDetailView = ({
                     <>
                       <button
                         onClick={goToPrev}
-                        className='absolute left-14 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 hover:border-[#D4AF37]/50 transition-all active:scale-90 z-10'
+                        className='hidden sm:flex absolute left-14 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-xl rounded-full items-center justify-center border border-white/10 hover:border-[#D4AF37]/50 transition-all active:scale-90 z-10'
                       >
                         <ChevronLeft size={18} className='text-white' />
                       </button>
                       <button
                         onClick={goToNext}
-                        className='absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 hover:border-[#D4AF37]/50 transition-all active:scale-90 z-10'
+                        className='hidden sm:flex absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-xl rounded-full items-center justify-center border border-white/10 hover:border-[#D4AF37]/50 transition-all active:scale-90 z-10'
                       >
                         <ChevronRight size={18} className='text-white' />
                       </button>
