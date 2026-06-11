@@ -8,6 +8,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
+        API_URL: "http://127.0.0.1:4023",
       },
       max_memory_restart: "500M",
       instances: 1,

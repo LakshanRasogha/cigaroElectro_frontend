@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
@@ -11,17 +12,87 @@ import {
   Package,
   Truck,
   ShieldCheck,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/components/navbar";
+import { apiUrl } from "@/app/lib/api";
 import { getEntityId } from "@/app/lib/entity_id";
 import { trackCartAdd } from "@/app/lib/analytics";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
 
-const ProductDetailView = ({ initialProduct }: { initialProduct: Product }) => {
+type ProductDetailViewProps = {
+  slug: string;
+  initialProduct?: Product | null;
+};
+
+const ProductDetailView = ({
+  slug,
+  initialProduct = null,
+}: ProductDetailViewProps) => {
   const router = useRouter();
-  const [product] = useState<Product>(initialProduct);
+  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [isLoading, setIsLoading] = useState(!initialProduct);
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  useEffect(() => {
+    if (initialProduct) {
+      return;
+    }
+
+    let cancelled = false;
+
+    axios
+      .get(
+        apiUrl(
+          `/products/getOne/${encodeURIComponent(slug)}?includeVariants=true`,
+        ),
+      )
+      .then((response) => {
+        if (!cancelled) {
+          setProduct(response.data);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLoadFailed(true);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialProduct, slug]);
+
+  if (isLoading) {
+    return (
+      <div className='min-h-screen bg-black text-white flex items-center justify-center'>
+        <Loader2 className='h-8 w-8 animate-spin text-[#D4AF37]' />
+      </div>
+    );
+  }
+
+  if (!product || loadFailed) {
+    return (
+      <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4 px-6 text-center'>
+        <p className='text-sm uppercase tracking-[0.3em] text-zinc-500'>
+          Product unavailable
+        </p>
+        <button
+          onClick={() => router.push("/collections")}
+          className='rounded-full border border-white/10 px-6 py-3 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:border-[#D4AF37]/40'
+        >
+          Back to collections
+        </button>
+      </div>
+    );
+  }
   const [activeVariantIdx, setActiveVariantIdx] = useState(0);
   const [selectedImage, setSelectedImage] = useState(0);
   const { toggle: toggleWishlist, isWishlisted } = useWishlist();

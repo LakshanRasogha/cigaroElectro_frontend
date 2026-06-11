@@ -105,10 +105,10 @@ const ProductCard = ({
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0d0d0d] to-transparent" />
 
         {/* ── TOP BADGES ── */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between z-10">
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
           {/* Featured / Best Seller — top left */}
           <div
-            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[6px] sm:text-[7px] font-black uppercase tracking-wider ${
+            className={`flex items-center gap-1 px-2 py-1 h-[22px] rounded-md text-[6px] sm:text-[7px] font-black uppercase tracking-wider ${
               isBestSeller
                 ? "bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black shadow-[0_2px_8px_rgba(212,175,55,0.5)]"
                 : "bg-black/70 backdrop-blur-sm text-[#D4AF37] border border-[#D4AF37]/40"
@@ -117,29 +117,11 @@ const ProductCard = ({
             {isBestSeller ? "🔥 Best Seller" : "+ Featured"}
           </div>
 
-          {/* Category — top right (gold pill) */}
-          <div className="flex items-center gap-1.5">
-            {/* Wishlist heart */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggle(productKey);
-              }}
-              className="p-2 bg-black/70 backdrop-blur-sm rounded-md border border-white/10 transition-transform active:scale-90 touch-manipulation min-w-[32px] min-h-[32px] flex items-center justify-center"
-            >
-              <Heart
-                size={11}
-                className={
-                  isWishlisted(productKey) ? "fill-[#D4AF37] text-[#D4AF37]" : "text-white"
-                }
-              />
-            </button>
-
-            <div className="flex items-center justify-center bg-[#D4AF37] text-black rounded-md px-2 py-1 shadow-[0_2px_8px_rgba(212,175,55,0.4)]">
-              <span className="text-[7px] sm:text-[8px] font-black uppercase leading-none tracking-wide">
-                {safeCategory.slice(0, 7) || "NEW"}
-              </span>
-            </div>
+          {/* Category pill — top right */}
+          <div className="flex items-center justify-center h-[22px] bg-[#D4AF37] text-black rounded-md px-2 shadow-[0_2px_8px_rgba(212,175,55,0.4)]">
+            <span className="text-[7px] sm:text-[8px] font-black uppercase leading-none tracking-wide">
+              {safeCategory || "NEW"}
+            </span>
           </div>
         </div>
 
@@ -188,7 +170,7 @@ const ProductCard = ({
         {/* Divider */}
         <div className="h-px bg-white/5 mb-2" />
 
-        {/* Price + Shop Now CTA */}
+        {/* Price + Wishlist + Shop Now CTA */}
         <div className="flex items-center justify-between gap-1.5">
           <div className="flex flex-col">
             <span className="text-[5px] sm:text-[6px] text-zinc-600 uppercase tracking-wider font-medium">
@@ -199,16 +181,34 @@ const ProductCard = ({
             </span>
           </div>
 
-          <button
-            className="flex items-center gap-1 px-3 py-2 min-h-[34px] bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black text-[7px] sm:text-[8px] font-black uppercase tracking-wider rounded-md shadow-[0_4px_12px_rgba(212,175,55,0.3)] active:scale-95 touch-manipulation whitespace-nowrap"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClick();
-            }}
-          >
-            Shop Now
-            <ArrowUpRight size={9} strokeWidth={3} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {/* Wishlist heart — above Shop Now */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggle(productKey);
+              }}
+              className="p-2 bg-white/[0.06] backdrop-blur-sm rounded-md border border-white/10 transition-all active:scale-90 touch-manipulation min-w-[34px] min-h-[34px] flex items-center justify-center hover:border-[#D4AF37]/40"
+            >
+              <Heart
+                size={11}
+                className={
+                  isWishlisted(productKey) ? "fill-[#D4AF37] text-[#D4AF37]" : "text-white"
+                }
+              />
+            </button>
+
+            <button
+              className="flex items-center gap-1 px-3 py-2 min-h-[34px] bg-gradient-to-r from-[#D4AF37] to-[#B49450] text-black text-[7px] sm:text-[8px] font-black uppercase tracking-wider rounded-md shadow-[0_4px_12px_rgba(212,175,55,0.3)] active:scale-95 touch-manipulation whitespace-nowrap"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClick();
+              }}
+            >
+              Shop Now
+              <ArrowUpRight size={9} strokeWidth={3} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

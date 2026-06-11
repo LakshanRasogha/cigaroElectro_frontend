@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import ProductDetailClient from "./product-detail-client";
 import { fetchProductBySlug } from "@/app/lib/catalog";
 import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
@@ -66,7 +65,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
-    notFound();
+    return <ProductDetailClient slug={slug} />;
   }
 
   const productUrl = absoluteUrl(`/collections/${product.slug || slug}`);
@@ -145,7 +144,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           __html: JSON.stringify(breadcrumbSchema),
         }}
       />
-      <ProductDetailClient initialProduct={product} />
+      <ProductDetailClient initialProduct={product} slug={slug} />
     </>
   );
 }

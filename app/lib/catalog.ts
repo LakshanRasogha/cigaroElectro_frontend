@@ -12,6 +12,7 @@ import {
   apiBaseUrl,
   fallbackApiBaseUrl,
   getCategoryLandingPage,
+  getServerApiBaseUrl,
   normalizeCategory,
   type CategoryLandingPage,
 } from "@/app/lib/site";
@@ -26,47 +27,56 @@ class CatalogRequestError extends Error {
 }
 
 async function fetchCatalog<T>(path: string): Promise<T> {
-  const response = await fetchCatalogFrom<T>(apiBaseUrl, path);
+  const serverApiBaseUrl = getServerApiBaseUrl();
+  const candidateBaseUrls = [
+    serverApiBaseUrl,
+    ...(serverApiBaseUrl !== fallbackApiBaseUrl ? [fallbackApiBaseUrl] : []),
+    ...(apiBaseUrl !== serverApiBaseUrl && apiBaseUrl !== fallbackApiBaseUrl
+      ? [apiBaseUrl]
+      : []),
+  ];
 
-  if (response.ok) {
-    return response.data;
-  }
+  let lastStatus: number | undefined;
 
-  if (apiBaseUrl !== fallbackApiBaseUrl) {
-    const fallbackResponse = await fetchCatalogFrom<T>(fallbackApiBaseUrl, path);
+  for (const baseUrl of candidateBaseUrls) {
+    const response = await fetchCatalogFrom<T>(baseUrl, path);
 
-    if (fallbackResponse.ok) {
-      return fallbackResponse.data;
+    if (response.ok) {
+      return response.data;
     }
 
-    throw new CatalogRequestError(
-      `Catalog request failed for ${path}`,
-      fallbackResponse.status,
-    );
+    lastStatus = response.status;
   }
 
   throw new CatalogRequestError(
     `Catalog request failed for ${path}`,
-    response.status,
+    lastStatus,
   );
 }
 
 async function fetchCatalogFrom<T>(baseUrl: string, path: string) {
-  const response = await fetch(`${baseUrl}${path}`, {
-    next: { revalidate: 600 },
-  });
+  try {
+    const response = await fetch(`${baseUrl}${path}`, {
+      next: { revalidate: 600 },
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return {
+        ok: false as const,
+        status: response.status,
+      };
+    }
+
+    return {
+      ok: true as const,
+      data: (await response.json()) as T,
+    };
+  } catch {
     return {
       ok: false as const,
-      status: response.status,
+      status: undefined,
     };
   }
-
-  return {
-    ok: true as const,
-    data: (await response.json()) as T,
-  };
 }
 
 export async function fetchProductSummaries(
@@ -108,7 +118,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     }
 
     console.error(`Failed to fetch product detail for slug "${slug}".`, error);
-    throw error;
+    return null;
   }
 }
 

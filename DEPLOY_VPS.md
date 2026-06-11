@@ -51,5 +51,6 @@ server {
 ## Notes
 
 - Update `NEXT_PUBLIC_API` to the production backend URL before building.
+- Set `API_URL=http://127.0.0.1:4023` in the PM2 env for server-side catalog fetches. This avoids SSR failures when the VPS cannot reach its own public API hostname.
 - If Google login is enabled, add the production domain to the allowed origins in Google Cloud.
-- Rebuild after every environment change because `NEXT_PUBLIC_*` values are embedded at build time.
+- Rebuild after every `NEXT_PUBLIC_*` change because those values are embedded at build time. `API_URL` is runtime-only and can be changed without rebuilding.

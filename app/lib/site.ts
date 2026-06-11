@@ -20,6 +20,14 @@ export const fallbackApiBaseUrl =
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || siteConfig.domain;
 
+function isLocalDevelopmentHost(hostname: string) {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1"
+  );
+}
+
 function normalizeApiBaseUrl(value: string | undefined) {
   const normalizedValue = value?.trim().replace(/\/+$/, "");
 
@@ -36,6 +44,13 @@ function normalizeApiBaseUrl(value: string | undefined) {
     ) {
       return fallbackApiBaseUrl;
     }
+
+    if (
+      process.env.NODE_ENV === "production" &&
+      isLocalDevelopmentHost(hostname)
+    ) {
+      return fallbackApiBaseUrl;
+    }
   } catch {
     return fallbackApiBaseUrl;
   }
@@ -44,6 +59,16 @@ function normalizeApiBaseUrl(value: string | undefined) {
 }
 
 export const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API);
+
+export function getServerApiBaseUrl() {
+  const runtimeApiUrl = process.env.API_URL?.trim();
+
+  if (runtimeApiUrl) {
+    return normalizeApiBaseUrl(runtimeApiUrl);
+  }
+
+  return apiBaseUrl;
+}
 
 export const brandKeywords = [
   "CigarroElectrico",
