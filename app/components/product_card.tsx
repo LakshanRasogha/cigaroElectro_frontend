@@ -23,6 +23,8 @@ interface ProductProps {
   /** Show the 🔥 Best Seller badge when this product is in the top cart-added list */
   isBestSeller?: boolean;
   disableImageEffects?: boolean;
+  /** When true, removes lazy-loading so this card's image is prioritised for LCP */
+  priority?: boolean;
 }
 
 const ProductCard = ({
@@ -38,6 +40,7 @@ const ProductCard = ({
   hasStock,
   isBestSeller = false,
   disableImageEffects = false,
+  priority = false,
 }: ProductProps) => {
   const { toggle, isWishlisted } = useWishlist();
   const router = useRouter();
@@ -92,8 +95,9 @@ const ProductCard = ({
         <img
           src={safeProductImages[0] || "/placeholder.jpg"}
           alt={safeName}
-          loading="lazy"
-          decoding="async"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding={priority ? "sync" : "async"}
           className={`w-full h-full object-cover ${
             disableImageEffects
               ? ""
@@ -184,6 +188,7 @@ const ProductCard = ({
           <div className="flex items-center gap-1.5">
             {/* Wishlist heart — above Shop Now */}
             <button
+              aria-label={isWishlisted(productKey) ? "Remove from wishlist" : "Add to wishlist"}
               onClick={(e) => {
                 e.stopPropagation();
                 toggle(productKey);

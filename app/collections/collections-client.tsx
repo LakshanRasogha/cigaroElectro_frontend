@@ -259,6 +259,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
             </p>
           )}
 
+
           <div className="mt-3 sm:mt-4 text-[8px] sm:text-[9px] md:text-[10px] text-zinc-600 font-mono">
             {resultsLabel}
           </div>
@@ -274,7 +275,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
         ) : (
           <>
             <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5">
-              {products.map((product) => (
+              {products.map((product, idx) => (
                 <ProductCard
                   key={product.key}
                   productKey={product.key}
@@ -289,6 +290,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
                   category={product.category}
                   isBestSeller={bestsellerKeys.has(product.key)}
                   disableImageEffects
+                  priority={idx < 4}
                 />
               ))}
             </div>

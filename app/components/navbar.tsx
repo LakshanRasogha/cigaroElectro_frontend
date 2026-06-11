@@ -37,6 +37,8 @@ const BrandLogo = ({
     <img
       src={staticAssets.brandWordmark}
       alt="CigaroElectro logo"
+      width={240}
+      height={40}
       className={`w-auto object-contain ${
         mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"
       }`}
@@ -332,6 +334,7 @@ const Navbar = () => {
             </Link>
 
             <button
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               className="md:hidden text-[#D4AF37] p-2 hover:bg-[#D4AF37]/10 rounded-full transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -352,6 +355,7 @@ const Navbar = () => {
               CigarroElectrico
             </span>
             <button
+              aria-label="Close menu"
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 text-white hover:text-[#D4AF37] transition-colors"
             >
