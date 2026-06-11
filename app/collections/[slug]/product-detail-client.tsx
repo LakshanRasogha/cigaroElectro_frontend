@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,6 +8,7 @@ import {
   Zap,
   Heart,
   ChevronLeft,
+  ChevronRight,
   Check,
   Package,
   Truck,
@@ -99,7 +100,7 @@ const ProductDetailView = ({
   const [showToast, setShowToast] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
-  const galleryRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const baseGalleryImages = Array.isArray(product.productImage)
     ? product.productImage
@@ -124,6 +125,27 @@ const ProductDetailView = ({
   const handleVariantSelect = (variant: ProductVariant, idx: number) => {
     setActiveVariantIdx(idx);
     setSelectedImage(getVariantPreviewIndex(variant));
+  };
+
+  const goToPrev = useCallback(() => {
+    setSelectedImage((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
+  }, [gallery.length]);
+
+  const goToNext = useCallback(() => {
+    setSelectedImage((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
+  }, [gallery.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      diff > 0 ? goToNext() : goToPrev();
+    }
+    touchStartX.current = null;
   };
 
   const handleAddToCart = (variant: ProductVariant) => {
@@ -212,11 +234,13 @@ const ProductDetailView = ({
               <AnimatePresence mode='wait'>
                 <motion.div
                   key={selectedImage + "-" + activeVariantIdx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
                   className='relative aspect-square overflow-hidden'
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
                 >
                   <img
                     src={currentImage}
@@ -225,9 +249,38 @@ const ProductDetailView = ({
                   />
                   <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030303] to-transparent' />
 
+                  {/* Slide arrows */}
                   {gallery.length > 1 && (
-                    <div className='absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full'>
-                      {selectedImage + 1}/{gallery.length}
+                    <>
+                      <button
+                        onClick={goToPrev}
+                        className='absolute left-14 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 hover:border-[#D4AF37]/50 transition-all active:scale-90 z-10'
+                      >
+                        <ChevronLeft size={18} className='text-white' />
+                      </button>
+                      <button
+                        onClick={goToNext}
+                        className='absolute right-14 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/10 hover:border-[#D4AF37]/50 transition-all active:scale-90 z-10'
+                      >
+                        <ChevronRight size={18} className='text-white' />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Dot indicators */}
+                  {gallery.length > 1 && (
+                    <div className='absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10'>
+                      {gallery.map((_: string, idx: number) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedImage(idx)}
+                          className={`rounded-full transition-all duration-300 ${
+                            selectedImage === idx
+                              ? "w-5 h-1.5 bg-[#D4AF37]"
+                              : "w-1.5 h-1.5 bg-white/30 hover:bg-white/60"
+                          }`}
+                        />
+                      ))}
                     </div>
                   )}
 
@@ -253,32 +306,6 @@ const ProductDetailView = ({
                   </button>
                 </motion.div>
               </AnimatePresence>
-
-              {/* Gallery thumbnails (base images) */}
-              {gallery.length > 1 && (
-                <div
-                  ref={galleryRef}
-                  className='flex gap-2 px-4 pt-3 overflow-x-auto no-scrollbar border-t border-white/5'
-                >
-                  {gallery.map((img: string, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedImage(idx)}
-                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImage === idx
-                          ? "border-[#D4AF37]"
-                          : "border-transparent opacity-40"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        className='w-full h-full object-cover'
-                        alt='thumb'
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
 
               {/* Variant image selector — below gallery */}
               {product.variants && product.variants.length > 0 && (

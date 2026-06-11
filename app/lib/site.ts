@@ -8,7 +8,7 @@ export const siteConfig = {
   defaultOgImage: "/opengraph-image.png",
   contactEmail: "info@cigarroelectrico.com",
   contactPhone: "+94 78 969 6180",
-  whatsappNumber: "94789696180",
+  whatsappNumber: "94750547703",
   addressLocality: "Colombo, Sri Lanka",
 } as const;
 

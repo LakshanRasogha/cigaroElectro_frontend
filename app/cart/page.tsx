@@ -31,7 +31,7 @@ import { staticAssets } from "@/app/lib/assets";
 import type { CartItem } from "@/app/lib/types";
 
 // WhatsApp business number
-const WHATSAPP_NUMBER = "94789696180"; // 0789696180 → international format
+const WHATSAPP_NUMBER = "94750547703"; // 0750547703 → international format
 
 interface AddressForm {
   name: string;

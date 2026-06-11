@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-const WHATSAPP_CONTACT = "94789696180";
+const WHATSAPP_CONTACT = "94750547703";
 const AGE_KEY = "age_verified";
 
 /* ─────────────── SVG icons ─────────────── */
