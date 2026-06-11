@@ -254,10 +254,11 @@ const ProductDetailView = ({
                 </motion.div>
               </AnimatePresence>
 
+              {/* Gallery thumbnails (base images) */}
               {gallery.length > 1 && (
                 <div
                   ref={galleryRef}
-                  className='flex gap-2 px-4 py-4 overflow-x-auto no-scrollbar border-t border-white/5'
+                  className='flex gap-2 px-4 pt-3 overflow-x-auto no-scrollbar border-t border-white/5'
                 >
                   {gallery.map((img: string, idx: number) => (
                     <button
@@ -276,6 +277,41 @@ const ProductDetailView = ({
                       />
                     </button>
                   ))}
+                </div>
+              )}
+
+              {/* Variant image selector — below gallery */}
+              {product.variants && product.variants.length > 0 && (
+                <div className='px-4 pb-4 pt-3 border-t border-white/5'>
+                  <p className='text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500 mb-2'>
+                    {variantLabel} — <span className='text-[#D4AF37]'>{currentVariant?.flavor} {currentVariant?.emoji}</span>
+                  </p>
+                  <div className='flex gap-2 overflow-x-auto no-scrollbar pb-1'>
+                    {product.variants.map((variant: ProductVariant, idx: number) => (
+                      <button
+                        key={variant.vKey || idx}
+                        onClick={() => handleVariantSelect(variant, idx)}
+                        title={variant.flavor}
+                        className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                          activeVariantIdx === idx
+                            ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
+                            : "border-white/10 opacity-50 hover:opacity-80"
+                        }`}
+                      >
+                        <img
+                          src={variant.variantImage?.[0] || product.productImage?.[0]}
+                          className='w-full h-full object-cover'
+                          alt={variant.flavor}
+                        />
+                        {activeVariantIdx === idx && (
+                          <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-xl' />
+                        )}
+                        <div className='absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-0.5'>
+                          <span className='text-[6px] font-black text-white/80 uppercase truncate px-1'>{variant.flavor}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -311,39 +347,6 @@ const ProductDetailView = ({
                     &quot;{product.tagline}&quot;
                   </p>
                 )}
-              </div>
-
-              <div className='px-4 py-5 border-b border-white/5 sm:px-6'>
-                <div className='flex items-center justify-between mb-3'>
-                  <p className='text-[10px] font-black uppercase tracking-widest text-zinc-400'>
-                    {variantLabel}
-                  </p>
-                  <span className='text-[10px] text-[#D4AF37] font-black'>
-                    {currentVariant?.flavor} {currentVariant?.emoji}
-                  </span>
-                </div>
-                <div className='flex gap-2.5 overflow-x-auto no-scrollbar pb-1'>
-                  {product.variants?.map((variant: ProductVariant, idx: number) => (
-                    <button
-                      key={variant.vKey || idx}
-                      onClick={() => handleVariantSelect(variant, idx)}
-                      className={`relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all ${
-                        activeVariantIdx === idx
-                          ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
-                          : "border-white/10 opacity-60"
-                      }`}
-                    >
-                      <img
-                        src={variant.variantImage?.[0] || product.productImage?.[0]}
-                        className='w-full h-full object-cover'
-                        alt={variant.flavor}
-                      />
-                      {activeVariantIdx === idx && (
-                        <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-2xl' />
-                      )}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               <div className='px-4 py-4 border-b border-white/5 space-y-3 sm:px-6'>
@@ -409,30 +412,7 @@ const ProductDetailView = ({
             </div>
           </div>
 
-          <div className='py-6 mt-6 border-b border-white/5'>
-            <div className='flex items-center justify-between mb-4'>
-              <h2 className='text-[11px] font-black uppercase tracking-[0.3em] text-zinc-400'>
-                {isTshirt ? "All Designs" : "All Editions"}
-              </h2>
-              <span className='text-[10px] text-zinc-600 font-bold'>
-                {product.variants?.length} {isTshirt ? "designs" : "variants"}
-              </span>
-            </div>
-            <div className='grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4'>
-              {product.variants?.map((variant: ProductVariant, idx: number) => (
-                <FlavorCard
-                  key={variant.vKey || idx}
-                  variant={variant}
-                  isActive={activeVariantIdx === idx}
-                  onSelect={() => {
-                    handleVariantSelect(variant, idx);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -465,77 +445,6 @@ const ProductDetailView = ({
         </motion.button>
       </div>
     </main>
-  );
-};
-
-const FlavorCard = ({
-  variant,
-  isActive,
-  onSelect,
-  onAddToCart,
-}: {
-  variant: ProductVariant;
-  isActive: boolean;
-  onSelect: () => void;
-  onAddToCart: (variant: ProductVariant) => void;
-}) => {
-  const [added, setAdded] = useState(false);
-
-  return (
-    <div
-      onClick={onSelect}
-      className={`relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-300 ${
-        isActive
-          ? "border-[#D4AF37] shadow-lg shadow-[#D4AF37]/10"
-          : "border-white/5"
-      }`}
-    >
-      <div className='aspect-square relative'>
-        <img
-          src={variant.variantImage?.[0] || "/placeholder.jpg"}
-          className='w-full h-full object-cover'
-          alt={variant.flavor}
-        />
-        <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent' />
-
-        <div className='absolute top-2 left-2 w-7 h-7 bg-black/50 backdrop-blur-md rounded-lg flex items-center justify-center text-base'>
-          {variant.emoji}
-        </div>
-
-        {variant.stock <= 0 && (
-          <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
-            <span className='text-[9px] font-black uppercase tracking-widest text-white/60'>
-              Out of Stock
-            </span>
-          </div>
-        )}
-      </div>
-
-      <div className='p-3 space-y-2 bg-zinc-900/80'>
-        <p className='text-[10px] font-black text-white uppercase tracking-wide truncate'>
-          {variant.flavor}
-        </p>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (variant.stock <= 0) return;
-            onAddToCart(variant);
-            setAdded(true);
-            setTimeout(() => setAdded(false), 2000);
-          }}
-          disabled={variant.stock <= 0}
-          className={`w-full py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all ${
-            added
-              ? "bg-emerald-500 text-white"
-              : variant.stock > 0
-                ? "bg-[#D4AF37] text-black"
-                : "bg-white/5 text-zinc-600 cursor-not-allowed"
-          }`}
-        >
-          {added ? "Added ✓" : variant.stock > 0 ? "Add" : "N/A"}
-        </button>
-      </div>
-    </div>
   );
 };
 
