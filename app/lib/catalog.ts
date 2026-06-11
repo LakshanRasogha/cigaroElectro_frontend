@@ -10,6 +10,7 @@ import {
 } from "@/app/lib/products";
 import {
   apiBaseUrl,
+  fallbackApiBaseUrl,
   getCategoryLandingPage,
   normalizeCategory,
   type CategoryLandingPage,
@@ -25,18 +26,47 @@ class CatalogRequestError extends Error {
 }
 
 async function fetchCatalog<T>(path: string): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const response = await fetchCatalogFrom<T>(apiBaseUrl, path);
+
+  if (response.ok) {
+    return response.data;
+  }
+
+  if (apiBaseUrl !== fallbackApiBaseUrl) {
+    const fallbackResponse = await fetchCatalogFrom<T>(fallbackApiBaseUrl, path);
+
+    if (fallbackResponse.ok) {
+      return fallbackResponse.data;
+    }
+
+    throw new CatalogRequestError(
+      `Catalog request failed for ${path}`,
+      fallbackResponse.status,
+    );
+  }
+
+  throw new CatalogRequestError(
+    `Catalog request failed for ${path}`,
+    response.status,
+  );
+}
+
+async function fetchCatalogFrom<T>(baseUrl: string, path: string) {
+  const response = await fetch(`${baseUrl}${path}`, {
     next: { revalidate: 600 },
   });
 
   if (!response.ok) {
-    throw new CatalogRequestError(
-      `Catalog request failed for ${path}`,
-      response.status,
-    );
+    return {
+      ok: false as const,
+      status: response.status,
+    };
   }
 
-  return (await response.json()) as T;
+  return {
+    ok: true as const,
+    data: (await response.json()) as T,
+  };
 }
 
 export async function fetchProductSummaries(

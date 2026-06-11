@@ -12,12 +12,31 @@ import {
   buildProductListPath,
   resolveProductListResponse,
 } from "@/app/lib/products";
-import { categoryLandingPages } from "@/app/lib/site";
+import {
+  categoryLandingPages,
+  getCategoryLandingPage,
+  type CategoryLandingPage,
+} from "@/app/lib/site";
 import type { Product } from "@/app/lib/types";
 
 const PAGE_SIZE = 8;
 
-const ProductsPage = () => {
+type ProductsPageProps = {
+  initialCategorySlug?: string;
+};
+
+const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
+  const activeCategory = useMemo(
+    () =>
+      initialCategorySlug
+        ? getCategoryLandingPage(initialCategorySlug)
+        : null,
+    [initialCategorySlug],
+  );
+  const activeCategories = useMemo(
+    () => activeCategory?.categories || [],
+    [activeCategory],
+  );
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -50,6 +69,7 @@ const ProductsPage = () => {
               limit: PAGE_SIZE,
               offset: 0,
               query: debouncedSearchQuery,
+              categories: activeCategories,
               includeVariants: false,
             }),
           ),
@@ -61,6 +81,7 @@ const ProductsPage = () => {
           limit: PAGE_SIZE,
           offset: 0,
           query: debouncedSearchQuery,
+          categories: activeCategories,
         });
 
         setProducts(result.products);
@@ -86,7 +107,7 @@ const ProductsPage = () => {
     return () => {
       active = false;
     };
-  }, [debouncedSearchQuery]);
+  }, [activeCategories, debouncedSearchQuery]);
 
   useEffect(() => {
     axios
@@ -112,6 +133,7 @@ const ProductsPage = () => {
             limit: PAGE_SIZE,
             offset: nextOffset,
             query: debouncedSearchQuery,
+            categories: activeCategories,
             includeVariants: false,
           }),
         ),
@@ -121,6 +143,7 @@ const ProductsPage = () => {
         limit: PAGE_SIZE,
         offset: nextOffset,
         query: debouncedSearchQuery,
+        categories: activeCategories,
       });
 
       setProducts((prev) => [...prev, ...result.products]);
@@ -220,16 +243,21 @@ const ProductsPage = () => {
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
+            <CategoryLink page={null} active={!activeCategory} />
             {categoryLandingPages.map((page) => (
-              <Link
+              <CategoryLink
                 key={page.slug}
-                href={`/collections/category/${page.slug}`}
-                className="rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/5 px-5 py-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#D4AF37] transition-all hover:bg-[#D4AF37] hover:text-black"
-              >
-                {page.title}
-              </Link>
+                page={page}
+                active={activeCategory?.slug === page.slug}
+              />
             ))}
           </div>
+
+          {activeCategory && (
+            <p className="mt-4 max-w-3xl text-xs sm:text-sm leading-6 text-zinc-500">
+              {activeCategory.shortDescription}
+            </p>
+          )}
 
           <div className="mt-3 sm:mt-4 text-[8px] sm:text-[9px] md:text-[10px] text-zinc-600 font-mono">
             {resultsLabel}
@@ -294,5 +322,27 @@ const ProductsPage = () => {
     </main>
   );
 };
+
+function CategoryLink({
+  page,
+  active,
+}: {
+  page: CategoryLandingPage | null;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={page ? `/collections/category/${page.slug}` : "/collections"}
+      aria-current={active ? "page" : undefined}
+      className={`rounded-full border px-5 py-3 text-[10px] font-black uppercase tracking-[0.24em] transition-all ${
+        active
+          ? "border-[#D4AF37] bg-[#D4AF37] text-black"
+          : "border-[#D4AF37]/20 bg-[#D4AF37]/5 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
+      }`}
+    >
+      {page?.title || "All"}
+    </Link>
+  );
+}
 
 export default ProductsPage;

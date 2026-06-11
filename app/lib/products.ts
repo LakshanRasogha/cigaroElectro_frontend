@@ -4,6 +4,7 @@ export interface ProductListOptions {
   limit?: number;
   offset?: number;
   query?: string;
+  categories?: string[];
   includeVariants?: boolean;
 }
 
@@ -44,6 +45,7 @@ export function buildProductListPath({
   limit,
   offset,
   query,
+  categories,
   includeVariants = false,
 }: ProductListOptions = {}) {
   const searchParams = new URLSearchParams();
@@ -59,6 +61,11 @@ export function buildProductListPath({
   if (query?.trim()) {
     searchParams.set("q", query.trim());
   }
+
+  categories
+    ?.map((category) => category.trim())
+    .filter(Boolean)
+    .forEach((category) => searchParams.append("category", category));
 
   searchParams.set("includeVariants", includeVariants ? "true" : "false");
 

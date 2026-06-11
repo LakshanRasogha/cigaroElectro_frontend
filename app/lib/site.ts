@@ -12,7 +12,7 @@ export const siteConfig = {
   addressLocality: "Colombo, Sri Lanka",
 } as const;
 
-const fallbackApiBaseUrl =
+export const fallbackApiBaseUrl =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3001"
     : "https://api.cigarroelectrico.com";
@@ -23,7 +23,20 @@ export const siteUrl =
 function normalizeApiBaseUrl(value: string | undefined) {
   const normalizedValue = value?.trim().replace(/\/+$/, "");
 
-  if (!normalizedValue || normalizedValue === siteConfig.domain) {
+  if (!normalizedValue) {
+    return fallbackApiBaseUrl;
+  }
+
+  try {
+    const hostname = new URL(normalizedValue).hostname.toLowerCase();
+
+    if (
+      hostname === "cigarroelectrico.com" ||
+      hostname === "www.cigarroelectrico.com"
+    ) {
+      return fallbackApiBaseUrl;
+    }
+  } catch {
     return fallbackApiBaseUrl;
   }
 
