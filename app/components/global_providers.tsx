@@ -168,9 +168,7 @@ export default function GlobalProviders({
     <>
       {!ageVerified && <AgeGate onVerified={handleVerified} />}
 
-      {ageVerified && (
-        {children}
-      )}
+      {ageVerified && <>{children}</>}
     </>
   );
 }
