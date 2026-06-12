@@ -2,12 +2,11 @@
 
 import React, { useState } from "react";
 import { motion, Variants } from "framer-motion";
-import { Mail, Phone, MessageCircle, Sparkles } from "lucide-react";
+import { Mail, Phone, CheckCircle2, Sparkles } from "lucide-react";
 import { staticAssets } from "@/app/lib/assets";
 import { siteConfig } from "@/app/lib/site";
 import Navbar from "../components/navbar";
 
-const WHATSAPP_NUMBER = siteConfig.whatsappNumber;
 const CONTACT_EMAIL = siteConfig.contactEmail;
 const CONTACT_PHONE = siteConfig.contactPhone;
 
@@ -22,16 +21,16 @@ const ContactContent = () => {
   const [inquiry, setInquiry] = useState("Hardware Support");
   const [message, setMessage] = useState("");
 
+  const [sent, setSent] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const text = encodeURIComponent(
-      `Hello CigaroElectro! 👋\n\n` +
-        `*Name:* ${name}\n` +
-        `*Email:* ${email}\n` +
-        `*Inquiry:* ${inquiry}\n\n` +
-        `*Message:*\n${message}`,
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
+    // Form data is captured — extend here to POST to your backend or email API
+    setSent(true);
+    setName("");
+    setEmail("");
+    setInquiry("Hardware Support");
+    setMessage("");
   };
 
   return (
@@ -89,13 +88,6 @@ const ContactContent = () => {
               </p>
 
               <div className='space-y-12'>
-                <ContactMethod
-                  icon={<MessageCircle size={20} className='text-[#D4AF37]' />}
-                  title='SECURE WHATSAPP'
-                  detail={CONTACT_PHONE}
-                  isExternal
-                  link={`https://wa.me/${WHATSAPP_NUMBER}`}
-                />
                 <ContactMethod
                   icon={<Mail size={20} className='text-[#D4AF37]' />}
                   title='DIRECT TERMINAL'
@@ -190,14 +182,34 @@ const ContactContent = () => {
                   />
                 </div>
 
-                <motion.button
-                  type='submit'
-                  whileHover={{ backgroundColor: "#D4AF37", color: "#000" }}
-                  whileTap={{ scale: 0.98 }}
-                  className='w-full border border-[#D4AF37]/40 text-[#D4AF37] py-6 rounded-xl font-bold uppercase tracking-[0.6em] text-[9px] flex items-center justify-center gap-4 transition-all duration-500'
-                >
-                  SEND VIA WHATSAPP <MessageCircle size={14} />
-                </motion.button>
+                {sent ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className='flex flex-col items-center gap-4 py-8'
+                  >
+                    <CheckCircle2 size={36} className='text-[#D4AF37]' />
+                    <p className='text-[#D4AF37] font-black text-[11px] uppercase tracking-widest'>Message Received</p>
+                    <p className='text-zinc-500 text-[9px] tracking-wide text-center'>
+                      We&apos;ll get back to you as soon as possible.
+                    </p>
+                    <button
+                      onClick={() => setSent(false)}
+                      className='mt-2 text-[8px] uppercase tracking-widest text-zinc-600 hover:text-[#D4AF37] transition-colors'
+                    >
+                      Send another message
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.button
+                    type='submit'
+                    whileHover={{ backgroundColor: "#D4AF37", color: "#000" }}
+                    whileTap={{ scale: 0.98 }}
+                    className='w-full border border-[#D4AF37]/40 text-[#D4AF37] py-6 rounded-xl font-bold uppercase tracking-[0.6em] text-[9px] flex items-center justify-center gap-4 transition-all duration-500'
+                  >
+                    SEND MESSAGE <Sparkles size={14} />
+                  </motion.button>
+                )}
               </form>
             </motion.div>
           </div>

@@ -21,7 +21,6 @@ import {
   Shield,
   Award,
   Truck,
-  MessageCircle,
 } from "lucide-react";
 import gsap from "gsap";
 import Navbar from "@/app/components/navbar";
@@ -30,8 +29,7 @@ import Link from "next/link";
 import { staticAssets } from "@/app/lib/assets";
 import type { CartItem } from "@/app/lib/types";
 
-// WhatsApp business number
-const WHATSAPP_NUMBER = "94750547703"; // 0750547703 → international format
+
 
 interface AddressForm {
   name: string;
@@ -125,63 +123,7 @@ function getInitialAddressForm(): AddressForm {
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────── */
-/*  WhatsApp message builder                                                    */
-/* ─────────────────────────────────────────────────────────────────────────── */
-function buildWhatsAppMessage(
-  form: AddressForm,
-  cartItems: CartItem[],
-  subtotal: number,
-  totalDelivery: number,
-  total: number,
-): string {
-  const lines: string[] = [];
 
-  lines.push("🛒 *NEW ORDER — CIGARRO ELECTRICO*");
-  lines.push("─────────────────────────────");
-
-  // Customer details
-  lines.push("👤 *Customer Details*");
-  lines.push(`Name: ${form.name}`);
-  lines.push(`Phone: ${form.phone}`);
-  lines.push("");
-
-  // Shipping address
-  lines.push("📍 *Shipping Address*");
-  lines.push(`Address: ${form.address}`);
-  lines.push(`City: ${form.city}`);
-  if (form.postalCode) lines.push(`Postal Code: ${form.postalCode}`);
-  lines.push("");
-
-  // Order items
-  lines.push("📦 *Order Items*");
-  cartItems.forEach((item, idx) => {
-    const itemTotal = item.price * item.quantity;
-    lines.push(
-      `${idx + 1}. ${item.name}${item.flavor ? ` — ${item.flavor}${item.emoji ? " " + item.emoji : ""}` : ""}`,
-    );
-    lines.push(
-      `   Qty: ${item.quantity} × Rs. ${Number(item.price).toLocaleString()} = Rs. ${itemTotal.toLocaleString()}`,
-    );
-    if (item.delivery) {
-      lines.push(
-        `   Shipping: Rs. ${Number(item.delivery).toLocaleString()}`,
-      );
-    }
-  });
-  lines.push("");
-
-  // Price breakdown
-  lines.push("💰 *Price Breakdown*");
-  lines.push(`Subtotal: Rs. ${subtotal.toLocaleString()}`);
-  lines.push(`Total Delivery: Rs. ${totalDelivery.toLocaleString()}`);
-  lines.push(`*GRAND TOTAL: Rs. ${total.toLocaleString()}*`);
-  lines.push("");
-  lines.push("─────────────────────────────");
-  lines.push("_Sent via CigarroElectrico.com_");
-
-  return lines.join("\n");
-}
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Main Cart Page                                                              */
@@ -258,7 +200,7 @@ const CartPage = () => {
    * 1. Require login — redirect to /auth/login if no token.
    * 2. Validate form fields.
    * 3. POST to /orders/create to persist the order in the DB.
-   * 4. On success: open WhatsApp with the full URL directly (most reliable on mobile).
+   * 4. On success: clear cart and show confirmation banner.
    *    On failure: show the real error, keep cart intact.
    */
   const handleOrder = async () => {
@@ -286,18 +228,7 @@ const CartPage = () => {
 
     setIsOrderLoading(true);
 
-    // ── 3. Build WhatsApp URL before the API call ───────────────────────────
-    // Build the message now so it's ready the instant the API responds.
-    const message = buildWhatsAppMessage(
-      form,
-      cartItems,
-      subtotal,
-      totalDelivery,
-      total,
-    );
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-    // ── 4. Save order to DB ────────────────────────────────────────────────
+    // ── 3. POST order to DB ────────────────────────────────────────────────
     try {
       await axios.post(
         apiUrl("/orders/create"),
@@ -319,8 +250,7 @@ const CartPage = () => {
     } catch (err: unknown) {
       setIsOrderLoading(false);
 
-      // Surface the real backend message (e.g. "Insufficient stock for Mango")
-      // instead of the generic axios "Request failed with status code 400".
+      // Surface the real backend message (e.g. "Insufficient stock for ...")
       let msg = "Failed to place order. Please try again.";
       const axiosErr = err as {
         response?: { data?: { message?: string } };
@@ -336,16 +266,7 @@ const CartPage = () => {
       return;
     }
 
-    // ── 5. API succeeded → open WhatsApp ───────────────────────────────────
-    // Use window.open first; if the browser blocks it (popup blocker / mobile
-    // restriction after async), fall back to navigating the current tab so
-    // the user always reaches WhatsApp regardless of browser policy.
-    const opened = window.open(whatsappUrl, "_blank");
-    if (!opened || opened.closed) {
-      window.location.href = whatsappUrl;
-    }
-
-    // Clear cart only after everything succeeds
+    // ── 4. Success — clear cart and show confirmation ──────────────────────
     setCartItems([]);
     localStorage.removeItem("bag");
     window.dispatchEvent(new Event("cartUpdated"));
@@ -420,23 +341,22 @@ const CartPage = () => {
             </h1>
           </header>
 
-          {/* Order Sent Success Banner */}
+          {/* Order Placed Success Banner */}
           <AnimatePresence>
             {orderSent && (
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className='mb-10 p-6 rounded-2xl bg-green-500/10 border border-green-500/30 flex items-center gap-4'
+                className='mb-10 p-6 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center gap-4'
               >
-                <CheckCircle2 className='text-green-400 shrink-0' size={22} />
+                <CheckCircle2 className='text-[#D4AF37] shrink-0' size={22} />
                 <div>
-                  <p className='text-green-300 font-black text-[10px] uppercase tracking-widest'>
-                    Order Dispatched to WhatsApp
+                  <p className='text-[#D4AF37] font-black text-[10px] uppercase tracking-widest'>
+                    Order Placed Successfully
                   </p>
                   <p className='text-zinc-500 text-[9px] mt-1 tracking-wide'>
-                    Your order details have been sent. Complete the chat on
-                    WhatsApp to confirm with us.
+                    We&apos;ve received your order. Our team will contact you shortly to confirm.
                   </p>
                 </div>
               </motion.div>
@@ -513,12 +433,12 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                {/* WhatsApp CTA */}
+                {/* Place Order CTA */}
                 <motion.button
                   whileHover={{
                     scale: 1.02,
-                    backgroundColor: "#25D366",
-                    color: "#fff",
+                    backgroundColor: "#D4AF37",
+                    color: "#000",
                   }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
@@ -529,10 +449,10 @@ const CartPage = () => {
                     setShowAddressModal(true);
                   }}
                   disabled={cartItems.length === 0}
-                  className='w-full py-6 border border-[#25D366]/40 text-[#25D366] rounded-2xl font-black uppercase tracking-[0.4em] text-[9px] flex items-center justify-center gap-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed'
+                  className='w-full py-6 border border-[#D4AF37]/40 text-[#D4AF37] rounded-2xl font-black uppercase tracking-[0.4em] text-[9px] flex items-center justify-center gap-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed'
                 >
-                  <MessageCircle size={14} />
-                  Order via WhatsApp
+                  <ArrowRight size={14} />
+                  Place Order
                 </motion.button>
 
                 {/* Trust signals */}
@@ -684,9 +604,9 @@ const AddressModal = ({
         <div className='flex justify-between items-center px-10 pt-10 pb-6 border-b border-white/5'>
           <div>
             <div className='flex items-center gap-2 mb-1'>
-              <MessageCircle size={14} className='text-[#25D366]' />
-              <span className='text-[#25D366] text-[8px] font-bold uppercase tracking-widest'>
-                WhatsApp Order
+              <Sparkles size={14} className='text-[#D4AF37]' />
+              <span className='text-[#D4AF37] text-[8px] font-bold uppercase tracking-widest'>
+                Secure Order
               </span>
             </div>
             <h2 className='text-xl font-serif tracking-[0.2em] text-white uppercase italic'>
@@ -818,23 +738,23 @@ const AddressModal = ({
         {/* Confirm Button */}
         <div className='px-10 pb-10 pt-4 border-t border-white/5'>
           <motion.button
-            whileHover={{ scale: 1.02, backgroundColor: "#20bc59" }}
+            whileHover={{ scale: 1.02, backgroundColor: "#D4AF37", color: "#000" }}
             whileTap={{ scale: 0.98 }}
             onClick={onConfirm}
             disabled={loading}
-            className='w-full py-6 bg-[#25D366] text-white rounded-2xl font-black uppercase tracking-[0.4em] text-[9px] flex items-center justify-center gap-3 transition-all'
+            className='w-full py-6 border border-[#D4AF37]/60 text-[#D4AF37] rounded-2xl font-black uppercase tracking-[0.4em] text-[9px] flex items-center justify-center gap-3 transition-all'
           >
             {loading ? (
               <Loader2 className='animate-spin' size={14} />
             ) : (
               <>
-                <MessageCircle size={14} />
-                Send Order via WhatsApp
+                <ArrowRight size={14} />
+                Confirm Order
               </>
             )}
           </motion.button>
           <p className='text-center text-[7px] text-zinc-600 uppercase tracking-widest mt-4'>
-            You&apos;ll be redirected to WhatsApp to complete your order
+            Our team will contact you to confirm your order
           </p>
         </div>
       </motion.div>
