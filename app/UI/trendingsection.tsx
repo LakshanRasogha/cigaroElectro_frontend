@@ -94,7 +94,7 @@ const TrendingSection = ({ bestsellerKeys }: TrendingSectionProps) => {
               768: { slidesPerView: 3, spaceBetween: 16 },
               1024: { slidesPerView: 4, spaceBetween: 20 },
             }}
-            className='pb-4 !overflow-visible'
+            className='!overflow-visible [&::-webkit-scrollbar]:hidden [scrollbar-width:none]'
           >
             {products.map((prod, i) => (
               <SwiperSlide key={getListKey(prod, i)} className='h-auto'>
@@ -110,6 +110,11 @@ const TrendingSection = ({ bestsellerKeys }: TrendingSectionProps) => {
       </div>
 
       <div className='absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent' />
+
+      <style>{`
+        .swiper { scrollbar-width: none; -ms-overflow-style: none; }
+        .swiper::-webkit-scrollbar { display: none; }
+      `}</style>
     </section>
   );
 };
