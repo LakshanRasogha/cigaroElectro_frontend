@@ -33,7 +33,7 @@ const Footer = () => {
               className="h-14 md:h-16 w-auto object-contain"
             />
           </div>
-          <p className="text-zinc-500 text-sm leading-relaxed font-light max-w-md">
+          <p className="text-zinc-400 text-sm leading-relaxed font-light max-w-md">
             Curating the finest hardware within <span className="text-white/80 italic">The Vault</span>.
             {" "}The Gold Standard of vapor technology, engineered for excellence and designed in Sri Lanka.
           </p>
@@ -62,7 +62,7 @@ const Footer = () => {
               <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-[#D4AF37]/30 transition-colors">
                 <Mail className="text-[#D4AF37] h-4 w-4" />
               </div>
-              <a href="mailto:info@cigarroelectrico.com" className="font-light group-hover:text-zinc-300 transition-colors">
+              <a href="mailto:info@cigarroelectrico.com" className="font-light text-zinc-400 group-hover:text-zinc-300 transition-colors">
                 info@cigarroelectrico.com
               </a>
             </div>
@@ -79,7 +79,7 @@ const Footer = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-[9px] text-zinc-700 uppercase tracking-[0.4em] font-black">
+        <p className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black">
           &copy; {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
         </p>
 

@@ -167,7 +167,7 @@ const ProductCard = ({
 
         {/* Tagline */}
         {safeTagline && (
-          <p className="text-[6px] sm:text-[7px] text-zinc-500 line-clamp-1 font-medium tracking-wide mb-2">
+          <p className="text-[6px] sm:text-[7px] text-zinc-400 line-clamp-1 font-medium tracking-wide mb-2">
             {safeTagline}
           </p>
         )}
@@ -178,7 +178,7 @@ const ProductCard = ({
         {/* Price + Wishlist + Shop Now CTA */}
         <div className="flex items-center justify-between gap-1.5">
           <div className="flex flex-col">
-            <span className="text-[5px] sm:text-[6px] text-zinc-600 uppercase tracking-wider font-medium">
+            <span className="text-[5px] sm:text-[6px] text-zinc-400 uppercase tracking-wider font-medium">
               Starting at
             </span>
             <span className="text-[9px] sm:text-[11px] font-black text-white">

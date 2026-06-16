@@ -247,6 +247,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   href="/auth/login"
+                  aria-label="Client Login"
                   className="p-2.5 rounded-full text-zinc-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all"
                 >
                   <User className="h-5 w-5" />
@@ -315,7 +316,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <Link href="/cart" className="flex items-center gap-4 group">
+            <Link href="/cart" aria-label="Shopping Cart" className="flex items-center gap-4 group">
               <div className="relative p-2.5 rounded-full text-zinc-400 group-hover:text-[#D4AF37] group-hover:bg-[#D4AF37]/5 transition-all">
                 <ShoppingCart className="h-5 w-5" />
                 {cartStats.count > 0 && (

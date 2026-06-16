@@ -100,9 +100,9 @@ const HeritageSection = () => {
                 <div className='w-14 h-14 rounded-2xl bg-black border border-white/10 flex items-center justify-center mb-6 group-hover/card:bg-[#D4AF37] group-hover/card:text-black transition-all duration-500 shadow-inner'>
                   <ShieldCheck className='h-7 w-7 text-[#D4AF37] group-hover/card:text-black' />
                 </div>
-                <h4 className='font-bold text-xs uppercase tracking-[0.2em] mb-3 text-white'>
+                <h3 className='font-bold text-xs uppercase tracking-[0.2em] mb-3 text-white'>
                   Pure Verity
-                </h4>
+                </h3>
                 <p className='text-[11px] text-zinc-500 leading-relaxed font-medium group-hover/card:text-zinc-300'>
                   Encrypted serial verification on every device drop.
                 </p>
@@ -113,9 +113,9 @@ const HeritageSection = () => {
                 <div className='w-14 h-14 rounded-2xl bg-black border border-white/10 flex items-center justify-center mb-6 group-hover/card:bg-[#D4AF37] group-hover/card:text-black transition-all duration-500 shadow-inner'>
                   <Zap className='h-7 w-7 text-[#D4AF37] group-hover/card:text-black' />
                 </div>
-                <h4 className='font-bold text-xs uppercase tracking-[0.2em] mb-3 text-white'>
+                <h3 className='font-bold text-xs uppercase tracking-[0.2em] mb-3 text-white'>
                   Pulse Tech
-                </h4>
+                </h3>
                 <p className='text-[11px] text-zinc-500 leading-relaxed font-medium group-hover/card:text-zinc-300'>
                   Instant-fire ignition and sub-ohm precision control.
                 </p>
