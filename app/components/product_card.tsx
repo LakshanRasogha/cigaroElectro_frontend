@@ -98,6 +98,7 @@ const ProductCard = ({
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding={priority ? "sync" : "async"}
+          crossOrigin="anonymous"
           className={`w-full h-full object-cover ${
             disableImageEffects
               ? ""

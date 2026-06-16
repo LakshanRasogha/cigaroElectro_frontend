@@ -170,12 +170,14 @@ const LoginPage = () => {
                   src={staticAssets.brandLogo}
                   alt='Logo'
                   className='w-full h-full object-cover'
+                  crossOrigin="anonymous"
                 />
               </div>
               <img
                 src={staticAssets.brandWordmark}
                 alt='CigaroElectro wordmark'
                 className='h-10 w-auto object-contain'
+                crossOrigin="anonymous"
               />
               <span
                 className='hidden text-2xl font-normal tracking-tight text-white'
@@ -249,12 +251,14 @@ const LoginPage = () => {
                 src={staticAssets.brandLogo}
                 alt='Logo'
                 className='w-full h-full object-cover'
+                crossOrigin="anonymous"
               />
             </div>
             <img
               src={staticAssets.brandWordmark}
               alt='CigaroElectro wordmark'
               className='h-8 w-auto object-contain'
+              crossOrigin="anonymous"
             />
             <span
               className='hidden text-base font-normal text-white'

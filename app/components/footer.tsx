@@ -29,6 +29,7 @@ const Footer = () => {
             <img
               src={staticAssets.brandWordmark}
               alt="CigaroElectro logo"
+              crossOrigin="anonymous"
               className="h-14 md:h-16 w-auto object-contain"
             />
           </div>

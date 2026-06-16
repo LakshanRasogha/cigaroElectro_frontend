@@ -47,6 +47,7 @@ const ContactContent = () => {
             src={staticAssets.backgroundPattern}
             alt='Background Pattern'
             className='w-full h-full object-cover opacity-99'
+            crossOrigin="anonymous"
           />
 
           {/* Branded Overlay */}

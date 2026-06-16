@@ -42,6 +42,7 @@ export default function FreeMembershipAgreementPage() {
             src={staticAssets.backgroundPattern}
             alt='Background pattern'
             className='absolute inset-0 w-full h-full object-cover opacity-10'
+            crossOrigin="anonymous"
           />
           <div className='absolute inset-0 bg-gradient-to-b from-[#030303] via-[#030303]/90 to-[#030303]' />
         </div>

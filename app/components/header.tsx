@@ -21,6 +21,7 @@ const Hero = () => {
           style={{ objectPosition: "center 15%" }}
           fetchPriority="high"
           decoding="async"
+          crossOrigin="anonymous"
         />
 
         {/* 2. Radial Gradient (LIGHTER) */}

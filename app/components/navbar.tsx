@@ -40,6 +40,7 @@ const BrandLogo = ({
       width={240}
       height={40}
       fetchPriority="high"
+      crossOrigin="anonymous"
       className={`w-auto object-contain ${
         mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"
       }`}
@@ -212,6 +213,7 @@ const Navbar = () => {
                       <img
                         src={profileImageSrc}
                         alt="Profile"
+                        crossOrigin="anonymous"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -236,6 +238,7 @@ const Navbar = () => {
                       <img
                         src={profileImageSrc}
                         alt="Profile"
+                        crossOrigin="anonymous"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -436,6 +439,7 @@ const Navbar = () => {
                   className="w-14 h-14 rounded-xl object-cover border-2 border-[#D4AF37]"
                   src={profileImageSrc}
                   alt="user"
+                  crossOrigin="anonymous"
                 />
                 <div className="overflow-hidden">
                   <p className="text-xl font-bold text-white truncate">

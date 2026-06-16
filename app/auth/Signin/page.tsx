@@ -130,6 +130,7 @@ export default function Register() {
           src={backdropUrl}
           alt='Backdrop'
           className='w-full h-full object-cover opacity-10 sm:opacity-15 md:opacity-20 scale-105'
+          crossOrigin="anonymous"
         />
         <div className='absolute inset-0 bg-gradient-to-tr from-[#030303] via-[#030303]/95 to-[#D4AF37]/10' />
 
@@ -173,12 +174,14 @@ export default function Register() {
                   src={staticAssets.brandLogo}
                   alt='CigarroElectrico Logo'
                   className='w-full h-full object-cover'
+                  crossOrigin="anonymous"
                 />
               </div>
               <img
                 src={staticAssets.brandWordmark}
                 alt='CigaroElectro wordmark'
                 className='h-8 sm:h-9 md:h-10 w-auto object-contain'
+                crossOrigin="anonymous"
               />
 
               <span

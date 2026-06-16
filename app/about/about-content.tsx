@@ -88,6 +88,7 @@ const AboutContent = () => {
             src={staticAssets.backgroundPattern}
             alt='Background Pattern'
             className='absolute top-0 left-0 w-full h-full object-cover opacity-20'
+            crossOrigin="anonymous"
           />
           {/* Radial Overlay for text readability */}
           <div className='absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_transparent_70%)]' />

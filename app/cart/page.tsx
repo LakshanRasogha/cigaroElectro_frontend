@@ -312,6 +312,7 @@ const CartPage = () => {
             loop
             muted
             playsInline
+            crossOrigin="anonymous"
             className='w-full h-full object-cover'
           >
             <source src={staticAssets.cartVideo} type='video/mp4' />

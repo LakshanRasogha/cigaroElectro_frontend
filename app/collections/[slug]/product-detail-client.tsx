@@ -246,6 +246,7 @@ const ProductDetailView = ({
                     src={currentImage}
                     className='w-full h-full object-cover'
                     alt={product.name}
+                    crossOrigin="anonymous"
                   />
                   <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030303] to-transparent' />
 
@@ -329,6 +330,7 @@ const ProductDetailView = ({
                           src={variant.variantImage?.[0] || product.productImage?.[0]}
                           className='w-full h-full object-cover'
                           alt={variant.flavor}
+                          crossOrigin="anonymous"
                         />
                         {activeVariantIdx === idx && (
                           <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-xl' />

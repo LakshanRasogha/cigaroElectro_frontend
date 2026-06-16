@@ -188,6 +188,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
           src={staticAssets.backgroundPattern}
           alt="Background Pattern"
           className="w-full h-full object-cover"
+          crossOrigin="anonymous"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]" />
       </div>

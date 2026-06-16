@@ -41,6 +41,7 @@ const HeritageSection = () => {
               playsInline
               preload='metadata'
               poster={staticAssets.poster}
+              crossOrigin="anonymous"
               className='w-full h-full object-cover opacity-80'
             >
               <source src={staticAssets.aboutVideo} type='video/mp4' />

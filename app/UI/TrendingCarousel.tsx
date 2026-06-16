@@ -105,6 +105,7 @@ const TrendingCard = ({
           src={product.productImage?.[0] || "/placeholder.jpg"}
           alt={product.name}
           onLoad={() => setImgLoaded(true)}
+          crossOrigin="anonymous"
           className={`w-full h-full object-cover transition-all duration-700 ${
             imgLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0"
           }`}
