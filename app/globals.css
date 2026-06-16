@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --font-serif: var(--font-cormorant-garamond), serif;
+}
+
 /* 1. Base Styles: Set the default theme for the entire page */
 body {
   background: var(--background);

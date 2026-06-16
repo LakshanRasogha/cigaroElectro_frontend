@@ -20,7 +20,6 @@ import {
   Gem,
 } from "lucide-react";
 import Link from "next/link";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
 import { staticAssets } from "@/app/lib/assets";
@@ -92,7 +91,11 @@ export default function Register() {
     };
 
     try {
-      const res = await axios.post(apiUrl("/users"), payload);
+      const res = await fetch(apiUrl("/users"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       if (res.status === 201 || res.status === 200) {
         setMessage({
@@ -102,6 +105,12 @@ export default function Register() {
         setTimeout(() => {
           router.push("/auth/login");
         }, 2000);
+      } else {
+        const errData = await res.json().catch(() => ({})) as { message?: string };
+        setMessage({
+          type: "error",
+          text: errData?.message || "Registration failed.",
+        });
       }
     } catch (error: unknown) {
       setMessage({

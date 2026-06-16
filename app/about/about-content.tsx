@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React from "react";
 import {
   ShieldCheck,
   ArrowRight,
@@ -13,7 +13,6 @@ import {
   Battery,
   Droplet,
 } from "lucide-react";
-import gsap from "gsap";
 import { motion } from "framer-motion";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
@@ -21,43 +20,12 @@ import Link from "next/link";
 import { staticAssets } from "@/app/lib/assets";
 import { siteConfig } from "@/app/lib/site";
 
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const COMPANY_PHONE = siteConfig.contactPhone;
 const COMPANY_EMAIL = siteConfig.contactEmail;
 const COMPANY_ADDRESS = siteConfig.addressLocality;
 
 const AboutContent = () => {
-  const containerRef = useRef(null);
-  const statsRef = useRef(null);
-
-  useIsomorphicLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(".hero-title", {
-        y: 40,
-        opacity: 0,
-        duration: 1.5,
-        ease: "power4.out",
-      });
-
-      gsap.from(".hero-subtitle", {
-        opacity: 0,
-        duration: 1.2,
-        delay: 0.5,
-      });
-
-      gsap.from(".stat-item", {
-        y: 20,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.1,
-        delay: 0.3,
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
 
   const categories = [
     {
@@ -108,10 +76,7 @@ const AboutContent = () => {
   ];
 
   return (
-    <div
-      ref={containerRef}
-      className='bg-[#030303] text-white min-h-screen selection:bg-[#D4AF37]/30 overflow-x-hidden font-sans'
-    >
+    <div className='bg-[#030303] text-white min-h-screen selection:bg-[#D4AF37]/30 overflow-x-hidden font-sans'>
       <Navbar />
 
       {/* Hero Section */}
@@ -167,7 +132,7 @@ const AboutContent = () => {
       </section>
 
       {/* Stats Section */}
-      <section ref={statsRef} className='py-20 border-y border-white/5'>
+      <section className='py-20 border-y border-white/5'>
         <div className='max-w-6xl mx-auto px-6'>
           <div className='grid grid-cols-2 md:grid-cols-4 gap-12'>
             {[

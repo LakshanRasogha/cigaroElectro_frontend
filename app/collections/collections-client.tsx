@@ -3,14 +3,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Search, LayoutGrid, Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
-import axios from "axios";
 import Navbar from "../components/navbar";
 import ProductCard from "../components/product_card";
-import { apiUrl } from "@/app/lib/api";
+import { apiUrl, apiFetch } from "@/app/lib/api";
 import { staticAssets } from "@/app/lib/assets";
 import {
   buildProductListPath,
   resolveProductListResponse,
+  type ProductListResponse,
 } from "@/app/lib/products";
 import {
   categoryLandingPages,
@@ -63,7 +63,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
       setLoading(true);
 
       try {
-        const response = await axios.get(
+        const response = await apiFetch<ProductListResponse>(
           apiUrl(
             buildProductListPath({
               limit: PAGE_SIZE,
@@ -110,8 +110,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
   }, [activeCategories, debouncedSearchQuery]);
 
   useEffect(() => {
-    axios
-      .get(apiUrl("/analytics/bestseller-keys?limit=20"))
+    apiFetch<string[]>(apiUrl("/analytics/bestseller-keys?limit=20"))
       .then((res) => {
         const keys: string[] = Array.isArray(res.data) ? res.data : [];
         setBestsellerKeys(new Set(keys));
@@ -127,7 +126,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
     setLoadingMore(true);
 
     try {
-      const response = await axios.get(
+      const response = await apiFetch<ProductListResponse>(
         apiUrl(
           buildProductListPath({
             limit: PAGE_SIZE,
@@ -208,7 +207,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3 sm:gap-4">
             <h1
               className="text-3xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tighter leading-none"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
             >
               Collection
             </h1>

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Package,
   Calendar,
@@ -23,9 +22,10 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { apiUrl, getAuthHeaders, apiFetch } from "@/app/lib/api";
 import { getEntityId, getListKey } from "@/app/lib/entity_id";
 import { getErrorMessage } from "@/app/lib/errors";
+import { isUnauthorizedError } from "@/app/lib/auth";
 
 // --- TYPES ---
 
@@ -501,20 +501,15 @@ export default function OrdersPage() {
         return;
       }
 
-      const response = await axios.get(apiUrl("/orders/getOrders"), {
+      const response = await apiFetch<Order[]>(apiUrl("/orders/getOrders"), {
         headers: getAuthHeaders(),
       });
 
       setOrders(response.data);
     } catch (error: unknown) {
       console.error("Fetch error:", error);
-      if (
-        axios.isAxiosError(error) &&
-        (error.response?.status === 403 || error.response?.status === 401)
-      ) {
-        setError(
-          "Unauthorized: You do not have permission to view these orders.",
-        );
+      if (isUnauthorizedError(error)) {
+        setError("Unauthorized: You do not have permission to view these orders.");
       } else {
         setError(getErrorMessage(error, "Failed to load orders. Check your connection."));
       }
@@ -529,10 +524,9 @@ export default function OrdersPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      await axios.put(
+      await apiFetch(
         apiUrl(`/orders/status/${encodeURIComponent(orderId)}`),
-        { status: newStatus },
-        { headers: getAuthHeaders() },
+        { method: "PUT", body: { status: newStatus }, headers: getAuthHeaders() },
       );
 
       // Optimistically update the UI
@@ -564,10 +558,9 @@ export default function OrdersPage() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      await axios.put(
+      await apiFetch(
         apiUrl(`/orders/packing/${encodeURIComponent(orderId)}`),
-        { packingNumber },
-        { headers: getAuthHeaders() },
+        { method: "PUT", body: { packingNumber }, headers: getAuthHeaders() },
       );
 
       // Optimistically update the UI

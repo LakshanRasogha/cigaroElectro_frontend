@@ -1,5 +1,5 @@
-import axios from "axios";
 import type { AppUser } from "@/app/lib/types";
+export { isUnauthorizedError } from "@/app/lib/errors";
 
 function clearSessionCookie() {
   if (typeof document === "undefined") {
@@ -34,9 +34,3 @@ export function clearAuthSession() {
   window.dispatchEvent(new Event("storage"));
 }
 
-export function isUnauthorizedError(error: unknown) {
-  return (
-    axios.isAxiosError(error) &&
-    (error.response?.status === 401 || error.response?.status === 403)
-  );
-}

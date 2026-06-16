@@ -148,13 +148,7 @@ export default function GlobalProviders({
   const [ageVerified, setAgeVerified] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setAgeVerified(sessionStorage.getItem(AGE_KEY) === "1");
-    }, 0);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
+    setAgeVerified(sessionStorage.getItem(AGE_KEY) === "1");
   }, []);
 
   const handleVerified = () => {
@@ -162,13 +156,24 @@ export default function GlobalProviders({
     setAgeVerified(true);
   };
 
-  if (ageVerified === null) return null;
-
   return (
     <>
-      {!ageVerified && <AgeGate onVerified={handleVerified} />}
+      {/*
+       * Children are ALWAYS rendered so the browser can parse & paint page
+       * content immediately. The age gate is an overlay on top — this means
+       * the JS for page content (hero, nav, etc.) runs in parallel rather
+       * than being blocked by sessionStorage hydration.
+       */}
+      <div
+        aria-hidden={ageVerified === false}
+        style={ageVerified === false ? { visibility: "hidden" } : undefined}
+      >
+        {children}
+      </div>
 
-      {ageVerified && <>{children}</>}
+      {/* Show gate only while unverified; null during SSR (ageVerified === null) */}
+      {ageVerified === false && <AgeGate onVerified={handleVerified} />}
     </>
   );
 }
+

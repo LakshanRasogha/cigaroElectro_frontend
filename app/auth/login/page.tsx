@@ -18,7 +18,6 @@ import {
   Key,
 } from "lucide-react";
 import Link from "next/link";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/app/lib/api";
 import { persistAuthSession } from "@/app/lib/auth";
@@ -57,12 +56,16 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post(apiUrl("/users/login"), {
-        email,
-        password,
+      const res = await fetch(apiUrl("/users/login"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-
-      const { user, token } = response.data;
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({})) as { message?: string };
+        throw new Error(errData?.message || "Access Denied. Terminal could not verify credentials.");
+      }
+      const { user, token } = await res.json();
       completeLogin(user, token);
     } catch (error: unknown) {
       setError(
@@ -86,11 +89,16 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post(apiUrl("/users/google"), {
-        token: credentialResponse.credential,
+      const res = await fetch(apiUrl("/users/google"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credentialResponse.credential }),
       });
-
-      const { user, token } = response.data;
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({})) as { message?: string };
+        throw new Error(errData?.message || "Google authentication failed.");
+      }
+      const { user, token } = await res.json();
       completeLogin(user, token);
     } catch (error: unknown) {
       setError(

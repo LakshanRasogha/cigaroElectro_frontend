@@ -1,27 +1,26 @@
-"use client";
-
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ChevronRight, ShieldCheck, Zap } from "lucide-react";
 import { staticAssets } from "@/app/lib/assets";
 
+/**
+ * Hero / Header section.
+ * This is a SERVER COMPONENT — no client JS needed.
+ * The CTA is a plain <Link> (prefetches on hover, no useRouter overhead).
+ */
 const Hero = () => {
-  const router = useRouter();
-
-  const handleNavigation = () => {
-    router.push("/collections");
-  };
-
   return (
     <header className='relative h-screen min-h-[800px] bg-black overflow-hidden flex items-center'>
       {/* --- Background Layer Stack --- */}
       <div className='absolute inset-0 z-0'>
-        {/* 1. The Pattern Image (BRIGHTER) */}
+        {/* 1. The Pattern Image — LCP candidate, load with high priority */}
         <img
           src={staticAssets.backgroundPattern}
           alt='Background Pattern'
           className='absolute inset-0 w-full h-full object-cover'
           style={{ objectPosition: "center 15%" }}
+          fetchPriority="high"
+          decoding="async"
         />
 
         {/* 2. Radial Gradient (LIGHTER) */}
@@ -41,7 +40,7 @@ const Hero = () => {
           <h1 className='mb-6 leading-[1.1] tracking-tight'>
             <span
               className='block py-1 text-5xl md:text-7xl font-light tracking-tighter text-[#D4AF37]'
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
             >
               THE APEX OF VAPOR
             </span>
@@ -52,18 +51,18 @@ const Hero = () => {
             It&apos;s your entry into the gold standard of modern indulgence.
           </p>
 
-          {/* CTA Section (WIDTH REDUCED) */}
+          {/* CTA Section */}
           <div className='flex flex-col sm:flex-row gap-6 items-start sm:items-center'>
-            <button
-              onClick={handleNavigation}
-              className='group relative bg-[#D4AF37] text-black px-5 py-2.5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.25em] transition-all shadow-[0_10px_25px_rgba(212,175,55,0.25)]'
+            <Link
+              href='/collections'
+              className='group relative bg-[#D4AF37] text-black px-5 py-2.5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.25em] transition-all shadow-[0_10px_25px_rgba(212,175,55,0.25)] inline-flex items-center gap-3'
             >
               <span className='relative z-10 flex items-center gap-3'>
                 Explore Collection{" "}
                 <ChevronRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5' />
               </span>
               <div className='absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out' />
-            </button>
+            </Link>
           </div>
 
           {/* Feature Bar (Bottom Left) */}
@@ -77,7 +76,7 @@ const Hero = () => {
                   Authentic Gold Tier
                 </p>
                 <p className='text-zinc-400 text-[10px] mt-1 font-medium'>
-                  Verified luxury hardware & components
+                  Verified luxury hardware &amp; components
                 </p>
               </div>
             </div>

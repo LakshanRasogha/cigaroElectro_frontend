@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 
 /** Fires whenever the wishlist changes so other components can react */
@@ -27,22 +26,20 @@ export function useWishlist() {
 
     let active = true;
 
-    axios
-      .get(apiUrl("/users/wishlist"), { headers: getAuthHeaders() })
+    fetch(apiUrl("/users/wishlist"), { headers: getAuthHeaders() })
       .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch wishlist");
+        return res.json() as Promise<string[]>;
+      })
+      .then((data) => {
         if (!active) return;
-        const data = Array.isArray(res.data) ? res.data : [];
-        setWishlist(data);
+        setWishlist(Array.isArray(data) ? data : []);
       })
       .catch(() => {
-        if (active) {
-          setWishlist([]);
-        }
+        if (active) setWishlist([]);
       })
       .finally(() => {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       });
 
     return () => {
@@ -76,15 +73,20 @@ export function useWishlist() {
       );
 
       try {
-        const res = await axios.post(
-          apiUrl("/users/wishlist/toggle"),
-          { productKey },
-          { headers: getAuthHeaders() },
-        );
-        const confirmed: string[] = Array.isArray(res.data) ? res.data : next;
-        setWishlist(confirmed);
+        const res = await fetch(apiUrl("/users/wishlist/toggle"), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+          },
+          body: JSON.stringify({ productKey }),
+        });
+        if (!res.ok) throw new Error("Toggle failed");
+        const confirmed: string[] = await res.json();
+        const finalList = Array.isArray(confirmed) ? confirmed : next;
+        setWishlist(finalList);
         window.dispatchEvent(
-          new CustomEvent<string[]>(WISHLIST_EVENT, { detail: confirmed }),
+          new CustomEvent<string[]>(WISHLIST_EVENT, { detail: finalList }),
         );
       } catch {
         // rollback on error

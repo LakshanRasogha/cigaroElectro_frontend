@@ -39,6 +39,7 @@ const BrandLogo = ({
       alt="CigaroElectro logo"
       width={240}
       height={40}
+      fetchPriority="high"
       className={`w-auto object-contain ${
         mobile ? "h-10" : "h-8 lg:h-9 xl:h-10"
       }`}

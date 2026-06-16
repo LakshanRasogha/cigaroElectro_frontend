@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
@@ -44,15 +43,16 @@ const ProductDetailView = ({
 
     let cancelled = false;
 
-    axios
-      .get(
-        apiUrl(
-          `/products/getOne/${encodeURIComponent(slug)}?includeVariants=true`,
-        ),
-      )
-      .then((response) => {
+    fetch(
+      apiUrl(
+        `/products/getOne/${encodeURIComponent(slug)}?includeVariants=true`,
+      ),
+    )
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
         if (!cancelled) {
-          setProduct(response.data);
+          if (data) setProduct(data);
+          else setLoadFailed(true);
         }
       })
       .catch(() => {

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+
 import { UserCircle2, X } from "lucide-react";
 import Link from "next/link";
 
@@ -251,11 +251,11 @@ const Home = () => {
   useEffect(() => {
     let active = true;
 
-    axios
-      .get(apiUrl("/analytics/bestseller-keys?limit=20"))
-      .then((res) => {
+    fetch(apiUrl("/analytics/bestseller-keys?limit=20"))
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: string[]) => {
         if (!active) return;
-        const keys: string[] = Array.isArray(res.data) ? res.data : [];
+        const keys: string[] = Array.isArray(data) ? data : [];
         setBestsellerKeys(new Set(keys));
       })
       .catch(() => {});

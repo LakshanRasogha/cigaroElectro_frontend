@@ -22,10 +22,9 @@ import {
   Heart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import Navbar from "../components/navbar";
 import { clearAuthSession, isUnauthorizedError } from "@/app/lib/auth";
-import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { apiUrl, getAuthHeaders, apiFetch } from "@/app/lib/api";
 import { getErrorMessage } from "@/app/lib/errors";
 import PhoneRegionSelect from "@/app/components/phone_region_select";
 import {
@@ -281,7 +280,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const response = await axios.get(apiUrl("/orders/getOrders"), {
+      const response = await apiFetch<Order[]>(apiUrl("/orders/getOrders"), {
         headers: getAuthHeaders(),
       });
       setOrders(Array.isArray(response.data) ? response.data : []);
@@ -306,7 +305,7 @@ const ProfilePage = () => {
     }
 
     try {
-      const response = await axios.get(apiUrl("/users"), {
+      const response = await apiFetch(apiUrl("/users"), {
         headers: getAuthHeaders(),
       });
       syncUserState(response.data as User);
@@ -348,14 +347,9 @@ const ProfilePage = () => {
         folder: "cigarroelectrico/profiles",
       });
 
-      const response = await axios.put(
+      const response = await apiFetch(
         apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
-        {
-          profilePicture: publicUrl,
-        },
-        {
-          headers: getAuthHeaders(),
-        },
+        { method: "PUT", body: { profilePicture: publicUrl }, headers: getAuthHeaders() },
       );
 
       if (response.status === 200) {
@@ -392,12 +386,9 @@ const ProfilePage = () => {
     };
 
     try {
-      const response = await axios.put(
+      const response = await apiFetch(
         apiUrl(`/users/edit/${encodeURIComponent(user.email)}`),
-        payload,
-        {
-          headers: getAuthHeaders(),
-        },
+        { method: "PUT", body: payload, headers: getAuthHeaders() },
       );
 
       if (response.status === 200) {

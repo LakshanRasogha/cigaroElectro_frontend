@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { apiUrl, getAuthHeaders } from "@/app/lib/api";
 import {
   Trash2,
@@ -13,7 +12,6 @@ import {
   ShoppingBag,
   Loader2,
   Sparkles,
-  MapPin,
   X,
   CheckCircle2,
   Phone,
@@ -22,7 +20,6 @@ import {
   Award,
   Truck,
 } from "lucide-react";
-import gsap from "gsap";
 import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
 import Link from "next/link";
@@ -161,20 +158,13 @@ const CartPage = () => {
     }
   }, [cartItems, isSyncing]);
 
-  // Entrance animations
-  useLayoutEffect(() => {
+  // CSS-driven entrance animation — no GSAP needed
+  useEffect(() => {
     if (isSyncing) return;
-    const ctx = gsap.context(() => {
-      gsap.from(".cart-animate", {
-        y: 40,
-        opacity: 0,
-        filter: "blur(15px)",
-        stagger: 0.1,
-        duration: 1,
-        ease: "expo.out",
-      });
-    }, containerRef);
-    return () => ctx.revert();
+    const els = document.querySelectorAll<HTMLElement>(".cart-animate");
+    els.forEach((el, i) => {
+      el.style.animation = `cartFadeUp 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms both`;
+    });
   }, [isSyncing]);
 
   const toCurrencyNumber = (value: unknown) => {
@@ -230,9 +220,13 @@ const CartPage = () => {
 
     // ── 3. POST order to DB ────────────────────────────────────────────────
     try {
-      await axios.post(
-        apiUrl("/orders/create"),
-        {
+      const res = await fetch(apiUrl("/orders/create"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
           orderedItems: cartItems.map((item) => ({
             key: item.key,
             vKey: item.vKey,
@@ -244,36 +238,33 @@ const CartPage = () => {
             postalCode: form.postalCode,
             phone: form.phone,
           },
-        },
-        { headers: getAuthHeaders() },
-      );
-    } catch (err: unknown) {
-      setIsOrderLoading(false);
+        }),
+      });
 
-      // Surface the real backend message (e.g. "Insufficient stock for ...")
-      let msg = "Failed to place order. Please try again.";
-      const axiosErr = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      if (axiosErr?.response?.data?.message) {
-        msg = axiosErr.response.data.message;
-      } else if (axiosErr?.message) {
-        msg = axiosErr.message;
+      if (!res.ok) {
+        setIsOrderLoading(false);
+        let msg = "Failed to place order. Please try again.";
+        try {
+          const errData = await res.json() as { message?: string };
+          if (errData?.message) msg = errData.message;
+        } catch { /* ignore parse error */ }
+        alert(`Order failed: ${msg}`);
+        return;
       }
 
-      alert(`Order failed: ${msg}`);
-      return;
+      // ── 4. Success — clear cart and show confirmation ──────────────────────
+      setCartItems([]);
+      localStorage.removeItem("bag");
+      window.dispatchEvent(new Event("cartUpdated"));
+
+      setShowAddressModal(false);
+      setIsOrderLoading(false);
+      setOrderSent(true);
+    } catch (err: unknown) {
+      setIsOrderLoading(false);
+      const e = err as { message?: string };
+      alert(`Order failed: ${e?.message || "Network error. Please try again."}`);
     }
-
-    // ── 4. Success — clear cart and show confirmation ──────────────────────
-    setCartItems([]);
-    localStorage.removeItem("bag");
-    window.dispatchEvent(new Event("cartUpdated"));
-
-    setShowAddressModal(false);
-    setIsOrderLoading(false);
-    setOrderSent(true);
   };
 
   const updateQuantity = (cartId: string, delta: number) => {
@@ -492,6 +483,13 @@ const CartPage = () => {
 
         <Footer />
       </div>
+
+      <style>{`
+        @keyframes cartFadeUp {
+          from { opacity: 0; transform: translateY(40px); filter: blur(12px); }
+          to   { opacity: 1; transform: translateY(0);    filter: blur(0);    }
+        }
+      `}</style>
     </>
   );
 };

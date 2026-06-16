@@ -4,9 +4,8 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import Navbar from "@/app/components/navbar";
-import { apiUrl } from "@/app/lib/api";
+import { apiUrl, apiFetch } from "@/app/lib/api";
 import { useWishlist } from "@/app/lib/wishlist";
 import { getProductSlug } from "@/app/lib/entity_id";
 import {
@@ -38,7 +37,7 @@ const WishlistPage = () => {
 
     collectAllProductPages(
       async (options) => {
-        const response = await axios.get<ProductListResponse>(
+        const response = await apiFetch<ProductListResponse>(
           apiUrl(buildProductListPath(options)),
         );
         return response.data;

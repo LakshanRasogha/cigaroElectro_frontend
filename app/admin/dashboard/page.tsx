@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import {
   ArrowDownRight,
@@ -40,7 +39,7 @@ import {
 import InventoryPage from "../inventory/page";
 import OrdersPage from "../orders/page";
 import { clearAuthSession, isUnauthorizedError } from "@/app/lib/auth";
-import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { apiUrl, getAuthHeaders, apiFetch } from "@/app/lib/api";
 import { getErrorMessage } from "@/app/lib/errors";
 
 type ActiveTab =
@@ -692,13 +691,13 @@ export default function AdminDashboardPage() {
 
         const [usersResponse, ordersResponse, profileResponse] =
           await Promise.all([
-            axios.get(apiUrl("/users/all"), {
+            apiFetch<BackendUser[]>(apiUrl("/users/all"), {
               headers: getAuthHeaders(),
             }),
-            axios.get(apiUrl("/orders/getOrders"), {
+            apiFetch<BackendOrder[]>(apiUrl("/orders/getOrders"), {
               headers: getAuthHeaders(),
             }),
-            axios.get(apiUrl("/users"), {
+            apiFetch<any>(apiUrl("/users"), {
               headers: getAuthHeaders(),
             }),
           ]);
@@ -747,10 +746,9 @@ export default function AdminDashboardPage() {
       setDirectoryError("");
       setDirectorySuccess("");
 
-      await axios.put(
+      await apiFetch(
         apiUrl(`/users/block/${encodeURIComponent(user.email)}`),
-        { isBlocked: !user.isBlocked },
-        { headers: getAuthHeaders() },
+        { method: "PUT", body: { isBlocked: !user.isBlocked }, headers: getAuthHeaders() },
       );
 
       setDirectoryUsers((previous) =>
@@ -808,10 +806,9 @@ export default function AdminDashboardPage() {
       setDirectoryError("");
       setDirectorySuccess("");
 
-      await axios.put(
+      await apiFetch(
         apiUrl(`/users/role/${encodeURIComponent(user.email)}`),
-        { role: nextRole },
-        { headers: getAuthHeaders() },
+        { method: "PUT", body: { role: nextRole }, headers: getAuthHeaders() },
       );
 
       setDirectoryUsers((previous) =>

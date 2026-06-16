@@ -59,7 +59,7 @@ const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSect
               Vape and Electric{" "}
               <span
                 className='text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C] normal-case'
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
               >
                 Collection
               </span>
@@ -79,10 +79,10 @@ const ShopSection = ({ products, loading, bestsellerKeys = new Set() }: ShopSect
             </Link>
 
             <div className='flex gap-2'>
-              <button className='swiper-prev-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95'>
+              <button aria-label="Previous hardware slide" className='swiper-prev-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95'>
                 <ChevronLeft size={18} />
               </button>
-              <button className='swiper-next-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95'>
+              <button aria-label="Next hardware slide" className='swiper-next-btn p-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95'>
                 <ChevronRight size={18} />
               </button>
             </div>

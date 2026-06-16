@@ -17,8 +17,7 @@ import {
   Upload,
   ImageIcon,
 } from "lucide-react";
-import axios from "axios";
-import { apiUrl, getAuthHeaders } from "@/app/lib/api";
+import { apiUrl, getAuthHeaders, apiFetch } from "@/app/lib/api";
 import { uploadImageToCloudinary } from "@/app/lib/cloudinary";
 import { getErrorMessage } from "@/app/lib/errors";
 import { getListKey } from "@/app/lib/entity_id";
@@ -176,7 +175,7 @@ export default function InventoryPage() {
     try {
       const result = await collectAllProductPages(
         async (options) => {
-          const response = await axios.get<ProductListResponse>(
+          const response = await apiFetch<ProductListResponse>(
             apiUrl(buildProductListPath(options)),
           );
           return response.data;
@@ -260,8 +259,7 @@ export default function InventoryPage() {
     if (!key || key === "N/A" || !window.confirm(`Delete product "${key}"?`))
       return;
     try {
-      await axios.delete(apiUrl(`/products/delete/${encodeURIComponent(key)}`), {
-        headers: getAuthHeaders(),
+      await apiFetch(apiUrl(`/products/delete/${encodeURIComponent(key)}`), { method: "DELETE", headers: getAuthHeaders(),
       });
       fetchData();
     } catch {
@@ -291,15 +289,12 @@ export default function InventoryPage() {
       };
 
       if (editingKey) {
-        await axios.put(
+        await apiFetch(
           apiUrl(`/products/update/${encodeURIComponent(editingKey)}`),
-          payload,
-          { headers: getAuthHeaders() },
+          { method: "PUT", body: payload, headers: getAuthHeaders() },
         );
       } else {
-        await axios.post(apiUrl("/products/add"), payload, {
-          headers: getAuthHeaders(),
-        });
+        await apiFetch(apiUrl("/products/add"), { method: "POST", body: payload, headers: getAuthHeaders() });
       }
 
       setIsModalOpen(false);

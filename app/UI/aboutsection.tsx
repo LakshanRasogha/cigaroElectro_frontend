@@ -1,12 +1,14 @@
-"use client";
-
 import React from "react";
+import Link from "next/link";
 import { ShieldCheck, Zap, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { staticAssets } from "@/app/lib/assets";
 
+/**
+ * Heritage / About section.
+ * This is a SERVER COMPONENT — no client JS needed.
+ * The CTA is a plain <Link> (prefetches on hover, no useRouter overhead).
+ */
 const HeritageSection = () => {
-  const router = useRouter();
   const partners = [
     "Elfbar",
     "Vozol",
@@ -17,10 +19,6 @@ const HeritageSection = () => {
     "GeekVape",
     "Caliburn",
   ];
-
-  const handleNavigation = () => {
-    router.push("/about");
-  };
 
   return (
     <section className='relative py-10 md:py-14 bg-[#050505] overflow-hidden' id='about'>
@@ -77,7 +75,7 @@ const HeritageSection = () => {
             <h2 className='text-2xl md:text-3xl font-black mb-6 leading-[0.85] text-white tracking-tighter uppercase'>
               <span
                 className='text-[#D4AF37]'
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
               >
                 Future Aesthetic.
               </span>
@@ -145,19 +143,16 @@ const HeritageSection = () => {
 
             {/* Primary Action Button */}
             <div className='flex flex-col sm:flex-row gap-6 items-start sm:items-center'>
-              <button
-                onClick={handleNavigation}
-                className='group relative bg-[#D4AF37] text-black px-5 py-2.5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.25em] transition-all shadow-[0_10px_25px_rgba(212,175,55,0.25)]'
+              <Link
+                href='/about'
+                className='group relative bg-[#D4AF37] text-black px-5 py-2.5 rounded-full overflow-hidden font-bold uppercase text-[10px] tracking-[0.25em] transition-all shadow-[0_10px_25px_rgba(212,175,55,0.25)] inline-flex items-center gap-3'
               >
-                <span
-                  className='relative z-10 flex items-center gap-3'
-                  onClick={handleNavigation}
-                >
+                <span className='relative z-10 flex items-center gap-3'>
                   About Cigarro{" "}
                   <ChevronRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-1.5' />
                 </span>
                 <div className='absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out' />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
