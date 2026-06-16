@@ -21,6 +21,7 @@ import { getEntityId } from "@/app/lib/entity_id";
 import { trackCartAdd } from "@/app/lib/analytics";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
+import { optimizeCloudinaryUrl } from "@/app/lib/assets";
 
 type ProductDetailViewProps = {
   slug: string;
@@ -243,7 +244,7 @@ const ProductDetailView = ({
                   onTouchEnd={handleTouchEnd}
                 >
                   <img
-                    src={currentImage}
+                    src={currentImage ? optimizeCloudinaryUrl(currentImage, "f_auto,q_auto:good,w_800") : "/placeholder.jpg"}
                     className='w-full h-full object-cover'
                     alt={product.name}
                     crossOrigin="anonymous"
@@ -315,31 +316,38 @@ const ProductDetailView = ({
                     {variantLabel} — <span className='text-[#D4AF37]'>{currentVariant?.flavor} {currentVariant?.emoji}</span>
                   </p>
                   <div className='flex gap-2 overflow-x-auto no-scrollbar pb-1'>
-                    {product.variants.map((variant: ProductVariant, idx: number) => (
-                      <button
-                        key={variant.vKey || idx}
-                        onClick={() => handleVariantSelect(variant, idx)}
-                        title={variant.flavor}
-                        className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                          activeVariantIdx === idx
-                            ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
-                            : "border-white/10 opacity-50 hover:opacity-80"
-                        }`}
-                      >
-                        <img
-                          src={variant.variantImage?.[0] || product.productImage?.[0]}
-                          className='w-full h-full object-cover'
-                          alt={variant.flavor}
-                          crossOrigin="anonymous"
-                        />
+                    {product.variants.map((variant: ProductVariant, idx: number) => {
+                      const thumbImage = variant.variantImage?.[0] || product.productImage?.[0];
+                      return (
+                        <button
+                          key={variant.vKey || idx}
+                          onClick={() => handleVariantSelect(variant, idx)}
+                          title={variant.flavor}
+                          className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                            activeVariantIdx === idx
+                              ? "border-[#D4AF37] scale-105 shadow-lg shadow-[#D4AF37]/20"
+                              : "border-white/10 opacity-50 hover:opacity-80"
+                          }`}
+                        >
+                          <img
+                            src={
+                              thumbImage
+                                ? optimizeCloudinaryUrl(thumbImage, "f_auto,q_auto:good,w_120,h_120,c_fill")
+                                : "/placeholder.jpg"
+                            }
+                            className='w-full h-full object-cover'
+                            alt={variant.flavor}
+                            crossOrigin="anonymous"
+                          />
                         {activeVariantIdx === idx && (
                           <div className='absolute inset-0 ring-1 ring-inset ring-[#D4AF37]/40 rounded-xl' />
                         )}
                         <div className='absolute bottom-0 left-0 right-0 h-5 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-0.5'>
                           <span className='text-[6px] font-black text-white/80 uppercase truncate px-1'>{variant.flavor}</span>
                         </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

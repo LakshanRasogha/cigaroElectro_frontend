@@ -8,6 +8,7 @@ import { trackProductClick } from "@/app/lib/analytics";
 import { getProductHasStock, getProductVariantCount } from "@/app/lib/products";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { Product, ProductVariant } from "@/app/lib/types";
+import { optimizeCloudinaryUrl } from "@/app/lib/assets";
 
 interface ProductProps {
   productKey: string;
@@ -93,7 +94,7 @@ const ProductCard = ({
         )}
 
         <img
-          src={safeProductImages[0] || "/placeholder.jpg"}
+          src={safeProductImages[0] ? optimizeCloudinaryUrl(safeProductImages[0], "f_auto,q_auto:good,w_500") : "/placeholder.jpg"}
           alt={safeName}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}

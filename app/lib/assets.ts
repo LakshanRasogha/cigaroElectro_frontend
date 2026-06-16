@@ -9,15 +9,29 @@ const resolveAssetUrl = (value: string | undefined, fallback: string) => {
  * Into:      .../image/upload/f_auto,q_auto:good,w_auto/public_id
  * Falls back to the original URL if it doesn't look like a Cloudinary upload URL.
  */
-const optimizeCloudinaryUrl = (url: string, extraTransforms = ""): string => {
+export const optimizeCloudinaryUrl = (url: string, extraTransforms = ""): string => {
+  if (!url) return url;
   const uploadMarker = "/image/upload/";
   const idx = url.indexOf(uploadMarker);
   if (idx === -1) return url;
   const base = url.slice(0, idx + uploadMarker.length);
   const rest = url.slice(idx + uploadMarker.length);
-  // Skip if transforms are already present (starts with a Cloudinary transform letter)
-  const alreadyTransformed = /^[a-z_]+_/.test(rest);
-  if (alreadyTransformed) return url;
+  
+  // Robust check: Split the rest of the path by '/' to see if the first segment has transforms
+  const segments = rest.split("/");
+  if (segments.length > 1) {
+    const firstSegment = segments[0];
+    const parts = firstSegment.split(",");
+    
+    // Check if all comma-separated parts in the first segment are known Cloudinary transforms
+    const isTransform = parts.length > 0 && parts.every(part =>
+      /^(f|q|w|h|c|r|e|bg|co|pg|fl|dpr|ar|x|y|a|l|u|o|dl|md)_/.test(part)
+    );
+    if (isTransform) {
+      return url; // Already transformed
+    }
+  }
+  
   const transforms = extraTransforms || "f_auto,q_auto:good";
   return `${base}${transforms}/${rest}`;
 };
@@ -43,7 +57,10 @@ export const staticAssets = {
     ),
     "f_auto,q_auto:eco,w_800",
   ),
-  poster: resolveAssetUrl(process.env.NEXT_PUBLIC_ASSET_POSTER, "/Poster.jpeg"),
+  poster: optimizeCloudinaryUrl(
+    resolveAssetUrl(process.env.NEXT_PUBLIC_ASSET_POSTER, "/Poster.jpeg"),
+    "f_auto,q_auto:good,w_1000",
+  ),
   aboutVideo: resolveAssetUrl(
     process.env.NEXT_PUBLIC_ASSET_ABOUT_VIDEO,
     "/vape4.mp4",

@@ -20,6 +20,7 @@ import { getListKey, getProductSlug } from "@/app/lib/entity_id";
 import { trackProductClick } from "@/app/lib/analytics";
 import { getProductVariantCount } from "@/app/lib/products";
 import type { Product } from "@/app/lib/types";
+import { optimizeCloudinaryUrl } from "@/app/lib/assets";
 
 interface Props {
   products: Product[];
@@ -102,7 +103,7 @@ const TrendingCard = ({
         )}
 
         <img
-          src={product.productImage?.[0] || "/placeholder.jpg"}
+          src={product.productImage?.[0] ? optimizeCloudinaryUrl(product.productImage[0], "f_auto,q_auto:good,w_500") : "/placeholder.jpg"}
           alt={product.name}
           onLoad={() => setImgLoaded(true)}
           crossOrigin="anonymous"
