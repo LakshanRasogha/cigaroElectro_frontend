@@ -36,6 +36,76 @@ export const optimizeCloudinaryUrl = (url: string, extraTransforms = ""): string
   return `${base}${transforms}/${rest}`;
 };
 
+const CLOUDINARY_UPLOAD_MARKER = "/image/upload/";
+
+function injectWidthTransform(url: string, width: number) {
+  const idx = url.indexOf(CLOUDINARY_UPLOAD_MARKER);
+  if (idx === -1) {
+    return url;
+  }
+
+  const base = url.slice(0, idx + CLOUDINARY_UPLOAD_MARKER.length);
+  const rest = url.slice(idx + CLOUDINARY_UPLOAD_MARKER.length);
+  const segments = rest.split("/");
+
+  if (segments.length > 1) {
+    const firstSegment = segments[0];
+    const parts = firstSegment.split(",");
+    const isTransform =
+      parts.length > 0 &&
+      parts.every((part) =>
+        /^(f|q|w|h|c|r|e|bg|co|pg|fl|dpr|ar|x|y|a|l|u|o|dl|md)_/.test(part),
+      );
+
+    if (isTransform) {
+      const withoutWidth = parts.filter((part) => !part.startsWith("w_"));
+      withoutWidth.push(`w_${width}`);
+      segments[0] = withoutWidth.join(",");
+      return `${base}${segments.join("/")}`;
+    }
+  }
+
+  return `${base}f_auto,q_auto:good,w_${width}/${rest}`;
+}
+
+export function buildResponsiveSrcSet(
+  url: string,
+  widths: number[],
+  extraTransforms = "f_auto,q_auto:good",
+) {
+  if (!url) {
+    return "";
+  }
+
+  const optimizedBase = optimizeCloudinaryUrl(url, extraTransforms);
+  return widths
+    .map((width) => `${injectWidthTransform(optimizedBase, width)} ${width}w`)
+    .join(", ");
+}
+
+export function getLcpPreloadUrls() {
+  const patternBase = resolveAssetUrl(
+    process.env.NEXT_PUBLIC_ASSET_BACKGROUND_PATTERN,
+    "/ptern.png",
+  );
+  const wordmarkBase = resolveAssetUrl(
+    process.env.NEXT_PUBLIC_ASSET_BRAND_WORDMARK,
+    "/logo 2 gld.png",
+  );
+
+  return {
+    backgroundPatternMobile: optimizeCloudinaryUrl(
+      patternBase,
+      "f_auto,q_auto:eco,w_400",
+    ),
+    backgroundPatternDesktop: optimizeCloudinaryUrl(
+      patternBase,
+      "f_auto,q_auto:eco,w_800",
+    ),
+    brandWordmark: optimizeCloudinaryUrl(wordmarkBase, "f_auto,q_auto:good,w_300"),
+  };
+}
+
 export const staticAssets = {
   brandLogo: resolveAssetUrl(
     process.env.NEXT_PUBLIC_ASSET_BRAND_LOGO,
@@ -59,7 +129,7 @@ export const staticAssets = {
   ),
   poster: optimizeCloudinaryUrl(
     resolveAssetUrl(process.env.NEXT_PUBLIC_ASSET_POSTER, "/Poster.jpeg"),
-    "f_auto,q_auto:good,w_1000",
+    "f_auto,q_auto:eco,w_600",
   ),
   aboutVideo: resolveAssetUrl(
     process.env.NEXT_PUBLIC_ASSET_ABOUT_VIDEO,

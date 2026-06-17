@@ -21,7 +21,7 @@ import { getEntityId } from "@/app/lib/entity_id";
 import { trackCartAdd } from "@/app/lib/analytics";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { CartItem, Product, ProductVariant } from "@/app/lib/types";
-import { optimizeCloudinaryUrl } from "@/app/lib/assets";
+import { optimizeCloudinaryUrl, buildResponsiveSrcSet } from "@/app/lib/assets";
 
 type ProductDetailViewProps = {
   slug: string;
@@ -197,36 +197,42 @@ const ProductDetailView = ({
 
       <Navbar />
 
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: -80 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -80 }}
-            className='fixed top-24 left-1/2 -translate-x-1/2 z-[110] w-full max-w-sm px-4'
-          >
-            <div className='bg-zinc-900 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-[#D4AF37]/30'>
-              <div className='w-9 h-9 bg-[#D4AF37] rounded-xl flex items-center justify-center shrink-0'>
-                <Check size={16} className='text-black' />
+      {/* Reserved toast slot prevents CLS when cart confirmation appears */}
+      <div
+        aria-live="polite"
+        className='fixed top-24 left-1/2 -translate-x-1/2 z-[110] w-full max-w-sm px-4 min-h-[72px] pointer-events-none'
+      >
+        <AnimatePresence>
+          {showToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -80 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -80 }}
+              className='pointer-events-auto'
+            >
+              <div className='bg-zinc-900 text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-[#D4AF37]/30'>
+                <div className='w-9 h-9 bg-[#D4AF37] rounded-xl flex items-center justify-center shrink-0'>
+                  <Check size={16} className='text-black' />
+                </div>
+                <div className='flex-1'>
+                  <p className='text-[10px] font-black uppercase tracking-widest text-[#D4AF37]'>
+                    Added to Cart
+                  </p>
+                  <p className='text-sm font-bold truncate'>
+                    {currentVariant?.flavor}
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push("/cart")}
+                  className='text-[9px] font-black uppercase tracking-widest text-[#D4AF37] border border-[#D4AF37]/30 px-3 py-1.5 rounded-lg shrink-0'
+                >
+                  View Cart
+                </button>
               </div>
-              <div className='flex-1'>
-                <p className='text-[10px] font-black uppercase tracking-widest text-[#D4AF37]'>
-                  Added to Cart
-                </p>
-                <p className='text-sm font-bold truncate'>
-                  {currentVariant?.flavor}
-                </p>
-              </div>
-              <button
-                onClick={() => router.push("/cart")}
-                className='text-[9px] font-black uppercase tracking-widest text-[#D4AF37] border border-[#D4AF37]/30 px-3 py-1.5 rounded-lg shrink-0'
-              >
-                View Cart
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className='relative z-10 pt-20 pb-32'>
         <div className='mx-auto max-w-7xl px-4 lg:px-6'>
@@ -245,8 +251,18 @@ const ProductDetailView = ({
                 >
                   <img
                     src={currentImage ? optimizeCloudinaryUrl(currentImage, "f_auto,q_auto:good,w_800") : "/placeholder.jpg"}
+                    srcSet={
+                      currentImage
+                        ? buildResponsiveSrcSet(currentImage, [400, 600, 800, 1200])
+                        : undefined
+                    }
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className='w-full h-full object-cover'
                     alt={product.name}
+                    width={800}
+                    height={800}
+                    fetchPriority="high"
+                    decoding="async"
                     crossOrigin="anonymous"
                   />
                   <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#030303] to-transparent' />

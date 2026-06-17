@@ -90,6 +90,12 @@ export type CategoryLandingPage = {
   shortDescription: string;
   keywords: string[];
   categories: string[];
+  /** Exact <title> tag value for this category page (overrides the generic template). */
+  metaTitle?: string;
+  /** Exact <meta name="description"> value for this category page. */
+  metaDescription?: string;
+  /** Top-priority transactional keyword; injected first in the keywords array. */
+  primaryKeyword?: string;
 };
 
 export const categoryLandingPages: CategoryLandingPage[] = [
@@ -107,8 +113,16 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "premium vapes",
       "Sri Lanka vapes",
       "CigarroElectrico vapes",
+      "vapes online",
+      "vape store",
+      "vapes near me",
+      "comprar vapeador online",
     ],
     categories: ["Disposable", "Re-fill", "E-Liquid"],
+    metaTitle: "Premium Vapes & Vape Devices Online | CigarroElectrico",
+    metaDescription:
+      "Shop premium vape devices online at the best price. Curated catalogue of disposable and refillable vapes with fast island-wide delivery in Sri Lanka.",
+    primaryKeyword: "premium vapes online",
   },
   {
     slug: "vape-accessories",
@@ -122,8 +136,16 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "vape accessories",
       "vape accessory store",
       "CigarroElectrico accessories",
+      "pod vapes",
+      "vape coils",
+      "repuestos para vapeador",
+      "resistencias vape",
     ],
     categories: ["Accessories"],
+    metaTitle: "Vape Accessories & Coils | CigarroElectrico Sri Lanka",
+    metaDescription:
+      "Find genuine vape accessories for your setup — high-performance coils, pods, and premium add-ons. Fast delivery across Sri Lanka.",
+    primaryKeyword: "vape accessories Sri Lanka",
   },
   {
     slug: "e-liquid",
@@ -133,8 +155,22 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "Discover curated e-liquid options from CigarroElectrico, selected to complement premium vape hardware and refill-ready setups.",
     shortDescription:
       "Curated e-liquid options to pair with refill-ready vape setups.",
-    keywords: ["e-liquid", "e liquid", "vape juice", "CigarroElectrico e-liquid"],
+    keywords: [
+      "e-liquid",
+      "e liquid",
+      "vape juice",
+      "CigarroElectrico e-liquid",
+      "e-juice",
+      "nicotine salts",
+      "nasty vapes",
+      "mejor e-liquid sin nicotina",
+      "sales de nicotina",
+    ],
     categories: ["E-Liquid"],
+    metaTitle: "Premium E-Liquids & Nicotine Salts | CigarroElectrico",
+    metaDescription:
+      "Discover the best e-liquids and nicotine salts from leading brands. Intense flavour profiles with guaranteed quality — delivered across Sri Lanka.",
+    primaryKeyword: "premium e-liquid Sri Lanka",
   },
   {
     slug: "disposable-vapes",
@@ -144,8 +180,19 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "Browse disposable vape options from CigarroElectrico for convenient, ready-to-use performance.",
     shortDescription:
       "Convenient disposable vape options with ready-to-use performance.",
-    keywords: ["disposable vape", "disposable vapes", "CigarroElectrico disposable"],
+    keywords: [
+      "disposable vape",
+      "disposable vapes",
+      "CigarroElectrico disposable",
+      "flavoured vapes",
+      "vape desechable",
+      "vapes de sabores",
+    ],
     categories: ["Disposable"],
+    metaTitle: "Long-Lasting Disposable Vapes | CigarroElectrico Sri Lanka",
+    metaDescription:
+      "Explore our range of disposable vapes. Enjoy maximum puffs with premium flavour profiles — no charging, no refilling, just vape.",
+    primaryKeyword: "disposable vapes Sri Lanka",
   },
   {
     slug: "refill-vapes",
@@ -155,10 +202,61 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "Explore refill vape systems and compatible product lines from CigarroElectrico for flexible, repeat-use setups.",
     shortDescription:
       "Flexible refill vape systems for repeat-use setups.",
-    keywords: ["refill vape", "refill vapes", "pod vape", "CigarroElectrico refill"],
+    keywords: [
+      "refill vape",
+      "refill vapes",
+      "pod vape",
+      "CigarroElectrico refill",
+      "refillable vapes",
+      "pod systems",
+      "vape kits",
+      "vapes recargables",
+      "sistemas de pod",
+    ],
     categories: ["Re-fill"],
+    metaTitle: "Refillable Vapes & Pod Kits | CigarroElectrico Sri Lanka",
+    metaDescription:
+      "Optimise your vaping experience with advanced refillable vapes and modular pod systems built for long-lasting performance.",
+    primaryKeyword: "refillable vapes Sri Lanka",
   },
 ];
+
+// ── Per-product SEO hints ──────────────────────────────────────────────────────
+// Keyed by product slug. Used to inject high-intent keyword phrases into
+// product page metadata and JSON-LD without requiring a backend schema change.
+export type ProductSeoHint = {
+  /** Keyword-rich headline injected into the product page <title> prefix. */
+  headline: string;
+  /** High-intent search terms to merge into the page keywords array. */
+  targetKeywords: string[];
+};
+
+export const productSeoHints: Record<string, ProductSeoHint> = {
+  "elfbar-raya-d1": {
+    headline: "Elfbar Raya D1 13000 Puffs — Intense Flavours",
+    targetKeywords: ["elfbar raya d1", "elf bar d1 13000", "elfbar raya d1 price Sri Lanka"],
+  },
+  "vozol-vista-20k": {
+    headline: "Vozol Vista 20K — Smart Screen Vape",
+    targetKeywords: ["vozol vista 20k", "vozol vista 20000", "vozol vista Sri Lanka"],
+  },
+  "elfbar-raya-d3-25k": {
+    headline: "Elfbar Raya D3 25K Puffs — Rechargeable Vape",
+    targetKeywords: ["elfbar raya d3 25k", "elf bar raya d3", "elfbar raya d3 price Sri Lanka"],
+  },
+  "elfbar-planet-space-edition-25k": {
+    headline: "Elfbar Planet Space Edition — Special Edition Vape",
+    targetKeywords: ["elfbar planet space edition", "elfbar space edition 25k", "elf bar space edition Sri Lanka"],
+  },
+  "elfbar-ice-king-30k": {
+    headline: "Elfbar Ice King 30K — Maximum Menthol Puffs",
+    targetKeywords: ["elfbar ice king 30k", "elf bar ice king 30000", "elfbar ice king price Sri Lanka"],
+  },
+  "elfbar-trio-30k": {
+    headline: "Elfbar Trio 30K Puffs — Three Flavours in One",
+    targetKeywords: ["elfbar trio 30k", "elf bar trio 30000", "elfbar trio Sri Lanka"],
+  },
+};
 
 export function absoluteUrl(path = "/") {
   if (/^https?:\/\//i.test(path)) {

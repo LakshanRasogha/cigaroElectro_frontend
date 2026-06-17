@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import ProductCard from "../components/product_card";
 import { Loader2, ChevronLeft, ChevronRight, Shirt } from "lucide-react";
-import { staticAssets } from "@/app/lib/assets";
+import { staticAssets, buildResponsiveSrcSet } from "@/app/lib/assets";
 import { getListKey } from "@/app/lib/entity_id";
 import type { Product } from "@/app/lib/types";
 
@@ -29,20 +29,19 @@ const TshirtSection = ({ products, loading, bestsellerKeys = new Set() }: Tshirt
   return (
     <section className='relative bg-[#050505] overflow-hidden' id='merch'>
       {/* --- 1. Background Image Section --- */}
-      {/* - h-[500px]: Increased height for mobile so poster looks more "stretched" vertically
-          - md:h-[600px]: Desktop height
-          - bg-cover: Ensures image fills the area
-          - bg-center: Focuses on the middle of the image for mobile
-      */}
-      <div
-        className='absolute top-0 left-0 right-0 h-[180px] md:h-[360px] z-0'
-        style={{
-          backgroundImage: `url('${staticAssets.poster}')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center", // Focused on middle
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+      <div className='absolute top-0 left-0 right-0 h-[180px] md:h-[360px] z-0 overflow-hidden'>
+        <img
+          src={staticAssets.poster}
+          srcSet={buildResponsiveSrcSet(staticAssets.poster, [400, 600, 900], "f_auto,q_auto:eco")}
+          sizes="100vw"
+          alt="Limited edition apparel collection banner"
+          width={1200}
+          height={360}
+          loading="lazy"
+          decoding="async"
+          crossOrigin="anonymous"
+          className='absolute inset-0 w-full h-full object-cover object-center'
+        />
         {/* Gradient Overlay to fade into black at the bottom */}
         <div className='absolute inset-0 bg-gradient-to-b from-[#050505]/20 via-[#050505]/50 to-[#050505]' />
       </div>

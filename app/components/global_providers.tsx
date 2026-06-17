@@ -172,7 +172,11 @@ export default function GlobalProviders({
       </div>
 
       {/* Show gate only while unverified; null during SSR (ageVerified === null) */}
-      {ageVerified === false && <AgeGate onVerified={handleVerified} />}
+      {ageVerified === false && (
+        <div className="fixed inset-0 z-[9999]">
+          <AgeGate onVerified={handleVerified} />
+        </div>
+      )}
     </>
   );
 }

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import GlobalProviders from "./components/global_providers";
+import DeferredScripts from "./components/deferred_scripts";
+import WebVitalsReporter from "./components/web_vitals_reporter";
+import { getLcpPreloadUrls } from "@/app/lib/assets";
 import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 const geistSans = Geist({
@@ -78,6 +81,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lcpPreloads = getLcpPreloadUrls();
+
   return (
     <html lang='en' suppressHydrationWarning data-scroll-behavior='smooth'>
       <head>
@@ -87,18 +92,26 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.cigarroelectrico.com" />
 
-        {/* ── Preload LCP hero background — browser discovers this instantly ─ */}
+        {/* ── Preload LCP hero background (responsive media queries) ────────── */}
         <link
           rel="preload"
           as="image"
-          href="https://res.cloudinary.com/diznx0cr9/image/upload/f_auto,q_auto:eco,w_800/ptern_lbbsh7"
+          href={lcpPreloads.backgroundPatternMobile}
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href={lcpPreloads.backgroundPatternDesktop}
+          media="(min-width: 768px)"
           fetchPriority="high"
         />
         {/* ── Preload the brand wordmark (above the fold, blocks FCP) ──────── */}
         <link
           rel="preload"
           as="image"
-          href="https://res.cloudinary.com/diznx0cr9/image/upload/f_auto,q_auto:good,w_300/logo_2_gld_qqqzjq"
+          href={lcpPreloads.brandWordmark}
           fetchPriority="high"
         />
       </head>
@@ -106,7 +119,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${cormorantGaramond.variable} antialiased`}
         suppressHydrationWarning
       >
+        <WebVitalsReporter />
         <GlobalProviders>{children}</GlobalProviders>
+        <DeferredScripts />
       </body>
     </html>
   );

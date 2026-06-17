@@ -8,7 +8,7 @@ import { trackProductClick } from "@/app/lib/analytics";
 import { getProductHasStock, getProductVariantCount } from "@/app/lib/products";
 import { useWishlist } from "@/app/lib/wishlist";
 import type { Product, ProductVariant } from "@/app/lib/types";
-import { optimizeCloudinaryUrl } from "@/app/lib/assets";
+import { optimizeCloudinaryUrl, buildResponsiveSrcSet } from "@/app/lib/assets";
 
 interface ProductProps {
   productKey: string;
@@ -95,7 +95,15 @@ const ProductCard = ({
 
         <img
           src={safeProductImages[0] ? optimizeCloudinaryUrl(safeProductImages[0], "f_auto,q_auto:good,w_500") : "/placeholder.jpg"}
+          srcSet={
+            safeProductImages[0]
+              ? buildResponsiveSrcSet(safeProductImages[0], [300, 500, 700])
+              : undefined
+          }
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           alt={safeName}
+          width={400}
+          height={500}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding={priority ? "sync" : "async"}

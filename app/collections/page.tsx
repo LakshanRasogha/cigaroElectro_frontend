@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import CollectionsClient from "./collections-client";
+import { fetchAllProductsSafe } from "@/app/lib/catalog";
 import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
+import {
+  buildBreadcrumbSchema,
+  buildCollectionsIndexSchema,
+  renderJsonLd,
+} from "@/app/lib/schema";
 
 export const metadata: Metadata = {
   title: "Collections | Vapes, Accessories & E-Liquid",
@@ -26,6 +32,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CollectionsPage() {
-  return <CollectionsClient />;
+export default async function CollectionsPage() {
+  const products = await fetchAllProductsSafe();
+  const collectionsSchema = buildCollectionsIndexSchema(products);
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Collections", path: "/collections" },
+  ]);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: renderJsonLd(collectionsSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: renderJsonLd(breadcrumbSchema),
+        }}
+      />
+      <CollectionsClient />
+    </>
+  );
 }

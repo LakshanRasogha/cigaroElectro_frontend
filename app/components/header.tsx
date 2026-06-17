@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronRight, ShieldCheck, Zap } from "lucide-react";
-import { staticAssets } from "@/app/lib/assets";
+import { buildResponsiveSrcSet, staticAssets } from "@/app/lib/assets";
 
 /**
  * Hero / Header section.
@@ -9,6 +9,12 @@ import { staticAssets } from "@/app/lib/assets";
  * The CTA is a plain <Link> (prefetches on hover, no useRouter overhead).
  */
 const Hero = () => {
+  const heroSrcSet = buildResponsiveSrcSet(
+    staticAssets.backgroundPattern,
+    [400, 800, 1200, 1600],
+    "f_auto,q_auto:eco",
+  );
+
   return (
     <header className='relative h-screen min-h-[800px] bg-black overflow-hidden flex items-center'>
       {/* --- Background Layer Stack --- */}
@@ -16,9 +22,13 @@ const Hero = () => {
         {/* 1. The Pattern Image — LCP candidate, load with high priority */}
         <img
           src={staticAssets.backgroundPattern}
+          srcSet={heroSrcSet}
+          sizes="100vw"
           alt='Background Pattern'
+          width={1600}
+          height={900}
           className='absolute inset-0 w-full h-full object-cover'
-          style={{ objectPosition: "center 15%" }}
+          style={{ objectPosition: "center 15%", aspectRatio: "16 / 9" }}
           fetchPriority="high"
           decoding="async"
           crossOrigin="anonymous"
