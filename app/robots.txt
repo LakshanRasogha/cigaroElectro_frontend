@@ -1,0 +1,19 @@
+User-Agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Disallow: /admin
+Disallow: /profile
+Disallow: /wishlist
+Disallow: /checkout
+Disallow: /api
+Disallow: /search
+Disallow: /*?*query=
+Disallow: /*?*limit=
+Disallow: /*?*offset=
+Disallow: /*?*categories=
+Disallow: /*?*utm_*
+Disallow: /*?*fbclid
+Disallow: /*?*gclid
+
+Sitemap: https://cigarroelectrico.com/sitemap.xml
