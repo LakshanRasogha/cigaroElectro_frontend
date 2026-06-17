@@ -24,19 +24,6 @@ import { persistAuthSession } from "@/app/lib/auth";
 import { staticAssets } from "@/app/lib/assets";
 import { getErrorMessage } from "@/app/lib/errors";
 import type { AppUser } from "@/app/lib/types";
-import type { Metadata } from "next";
-import { absoluteUrl } from "@/app/lib/site";
-
-export const metadata: Metadata = {
-  title: "Login",
-  alternates: {
-    canonical: absoluteUrl("/auth/login"),
-  },
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
 
 const LoginPage = () => {
   const router = useRouter();

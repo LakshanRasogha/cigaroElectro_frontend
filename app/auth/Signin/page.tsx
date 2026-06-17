@@ -30,19 +30,7 @@ import {
   combinePhoneNumber,
   normalizePhoneDigits,
 } from "@/app/lib/phone";
-import type { Metadata } from "next";
-import { absoluteUrl } from "@/app/lib/site";
 
-export const metadata: Metadata = {
-  title: "Sign Up",
-  alternates: {
-    canonical: absoluteUrl("/auth/signup"),
-  },
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
 
 export default function Register() {
   const router = useRouter();
@@ -345,11 +333,10 @@ export default function Register() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-center border ${
-                  message.type === "success"
+                className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest text-center border ${message.type === "success"
                     ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                     : "bg-rose-500/10 text-rose-500 border-rose-500/20"
-                }`}
+                  }`}
               >
                 {message.text}
               </motion.div>
@@ -456,11 +443,10 @@ const InputField = ({
           value={value}
           onChange={onChange}
           placeholder={`Enter ${label.toLowerCase()}`}
-          className={`w-full bg-white/10 border border-white/10 rounded-lg sm:rounded-xl md:rounded-2xl px-3 sm:px-4 md:px-5 lg:px-6 py-2.5 sm:py-3 md:py-4 text-white text-xs sm:text-sm font-bold placeholder:text-zinc-500 placeholder:opacity-100 focus:bg-white/15 focus:border-[#D4AF37]/50 focus:ring-2 focus:ring-[#D4AF37]/10 transition-all outline-none ${
-            error
+          className={`w-full bg-white/10 border border-white/10 rounded-lg sm:rounded-xl md:rounded-2xl px-3 sm:px-4 md:px-5 lg:px-6 py-2.5 sm:py-3 md:py-4 text-white text-xs sm:text-sm font-bold placeholder:text-zinc-500 placeholder:opacity-100 focus:bg-white/15 focus:border-[#D4AF37]/50 focus:ring-2 focus:ring-[#D4AF37]/10 transition-all outline-none ${error
               ? "border-rose-500/40 focus:border-rose-500 focus:ring-rose-500/10"
               : ""
-          } ${isPasswordField ? "pr-10 sm:pr-12" : ""}`}
+            } ${isPasswordField ? "pr-10 sm:pr-12" : ""}`}
         />
 
         {isPasswordField && (

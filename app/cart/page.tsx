@@ -25,19 +25,7 @@ import Footer from "@/app/components/footer";
 import Link from "next/link";
 import { staticAssets } from "@/app/lib/assets";
 import type { CartItem } from "@/app/lib/types";
-import type { Metadata } from "next";
-import { absoluteUrl } from "@/app/lib/site";
 
-export const metadata: Metadata = {
-  title: "Shopping Cart",
-  alternates: {
-    canonical: absoluteUrl("/cart"),
-  },
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
 
 interface AddressForm {
   name: string;
