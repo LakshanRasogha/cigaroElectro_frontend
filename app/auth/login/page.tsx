@@ -442,14 +442,14 @@ const LoginPage = () => {
               By continuing, you confirm that you are an adult and have read
               and accepted our{" "}
               <Link
-                href='/free-membership-agreement'
+                href='/auth/login/free-membership-agreement'
                 className='text-[#D4AF37] hover:text-[#F2D37D] transition-colors underline underline-offset-4'
               >
                 CigarroElectrico Free Membership Agreement
               </Link>{" "}
               and{" "}
               <Link
-                href='/privacy-policy'
+                href='/auth/login/privacy-policy'
                 className='text-[#D4AF37] hover:text-[#F2D37D] transition-colors underline underline-offset-4'
               >
                 Privacy Policy
