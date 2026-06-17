@@ -148,13 +148,12 @@ export default function InventoryPage() {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const categories = [
+  const [categories, setCategories] = useState<string[]>([
     "Disposable",
     "Re-fill",
     "E-Liquid",
     "Accessories",
-    "T-shirts",
-  ];
+  ]);
 
   const initialFormState = {
     key: "",
@@ -193,8 +192,20 @@ export default function InventoryPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await apiFetch<any[]>(apiUrl("/categories/get"));
+      if (response.data && Array.isArray(response.data)) {
+        setCategories(response.data.map((cat: any) => cat.name));
+      }
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchCategories();
   }, []);
 
   const handleFileUpload = async (

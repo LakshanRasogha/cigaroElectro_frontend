@@ -8,6 +8,7 @@ import {
   Bell,
   ChevronRight,
   ClipboardList,
+  Folder,
   History,
   LayoutDashboard,
   Loader2,
@@ -38,6 +39,7 @@ import {
 } from "recharts";
 import InventoryPage from "../inventory/page";
 import OrdersPage from "../orders/page";
+import CategoriesPage from "../categories/page";
 import { clearAuthSession, isUnauthorizedError } from "@/app/lib/auth";
 import { apiUrl, getAuthHeaders, apiFetch } from "@/app/lib/api";
 import { getErrorMessage } from "@/app/lib/errors";
@@ -45,6 +47,7 @@ import { getErrorMessage } from "@/app/lib/errors";
 type ActiveTab =
   | "dashboard"
   | "inventory"
+  | "categories"
   | "orders"
   | "customers"
   | "admins";
@@ -932,11 +935,13 @@ export default function AdminDashboardPage() {
       ? "The Dashboard."
       : activeTab === "inventory"
         ? "Inventory Master."
-        : activeTab === "orders"
-          ? "Order Management."
-          : activeTab === "customers"
-            ? "Customer Directory."
-            : "Admin Directory.";
+        : activeTab === "categories"
+          ? "Categories Management."
+          : activeTab === "orders"
+            ? "Order Management."
+            : activeTab === "customers"
+              ? "Customer Directory."
+              : "Admin Directory.";
   const searchPlaceholder =
     activeTab === "admins"
       ? "Search admins..."
@@ -1000,6 +1005,12 @@ export default function AdminDashboardPage() {
                 onClick={() => handleNavClick("inventory")}
               />
               <SidebarItem
+                icon={Folder}
+                label='Add Category'
+                active={activeTab === "categories"}
+                onClick={() => handleNavClick("categories")}
+              />
+              <SidebarItem
                 icon={ClipboardList}
                 label='Orders'
                 active={activeTab === "orders"}
@@ -1058,6 +1069,12 @@ export default function AdminDashboardPage() {
             label='Inventory'
             active={activeTab === "inventory"}
             onClick={() => setActiveTab("inventory")}
+          />
+          <SidebarItem
+            icon={Folder}
+            label='Add Category'
+            active={activeTab === "categories"}
+            onClick={() => setActiveTab("categories")}
           />
           <SidebarItem
             icon={ClipboardList}
@@ -1281,6 +1298,8 @@ export default function AdminDashboardPage() {
         )}
 
         {activeTab === "orders" && <OrdersPage />}
+
+        {activeTab === "categories" && <CategoriesPage />}
 
         {activeTab === "inventory" && <InventoryPage />}
 
