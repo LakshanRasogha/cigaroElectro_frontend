@@ -50,6 +50,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
     {
+      url: absoluteUrl("/auth/login/privacy-policy"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: absoluteUrl("/auth/login/free-membership-agreement"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
       url: absoluteUrl("/auth/Signin"),
       lastModified: new Date(),
       changeFrequency: "monthly",
