@@ -9,7 +9,7 @@ import {
 } from "@/app/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Collections | Vapes, Accessories & E-Liquid",
+  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
     "Explore the CigarroElectrico collections of premium vapes, vape accessories, e-liquids, and apparel through product and category pages built for easy browsing.",
   keywords: [...brandKeywords, "collections", "vape collection", "vape accessories collection"],
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     canonical: absoluteUrl("/collections"),
   },
   openGraph: {
-    title: "CigarroElectrico Collections",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
       "Browse CigarroElectrico collections for premium vapes, vape accessories, e-liquids, and apparel.",
     url: absoluteUrl("/collections"),
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CigarroElectrico Collections",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
       "Browse premium vapes, vape accessories, e-liquids, and apparel from CigarroElectrico.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],

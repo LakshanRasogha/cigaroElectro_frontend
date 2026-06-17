@@ -3,7 +3,7 @@ import LoginPage from "./login-client";
 import { absoluteUrl } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Login | CigarroElectrico",
+  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
     "Sign in to your CigarroElectrico account to manage orders, saved items, and account details.",
   alternates: {

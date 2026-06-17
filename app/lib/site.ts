@@ -371,7 +371,8 @@ export function absoluteUrl(path = "/") {
 export function normalizeCategory(value: string | null | undefined) {
   return String(value || "")
     .toLowerCase()
-    .trim();
+    .trim()
+    .replace(/[^a-z0-9]+/g, "");
 }
 
 export function getCategoryLandingPage(slug: string) {

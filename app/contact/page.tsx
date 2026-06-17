@@ -3,7 +3,7 @@ import ContactContent from "./contact-content";
 import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
+  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
     "Contact CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
   keywords: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     canonical: absoluteUrl("/contact"),
   },
   openGraph: {
-    title: "Contact CigarroElectrico",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
       "Reach CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
     url: absoluteUrl("/contact"),
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contact CigarroElectrico",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
       "Reach CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],

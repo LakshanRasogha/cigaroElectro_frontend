@@ -6,7 +6,7 @@ import { staticAssets } from "@/app/lib/assets";
 import { absoluteUrl } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | CigarroElectrico",
+  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
     "Review the CigarroElectrico privacy policy to understand data collection, usage, and protection practices.",
   alternates: {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const sections = [
   {
-    title: "Information We Collect",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     body: "We may collect information you provide directly, including your name, email address, phone number, shipping details, and account preferences. We may also collect basic technical information needed to operate the site and improve performance.",
   },
   {
