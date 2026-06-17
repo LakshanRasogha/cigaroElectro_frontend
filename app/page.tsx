@@ -8,25 +8,39 @@ import {
 } from "@/app/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Premium Vapes, Vape Accessories & Apparel in Sri Lanka",
+  title:
+     "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
-    "Shop premium vapes, vape accessories, e-liquids, and apparel at CigarroElectrico. Discover Cigarro Electrico online for curated hardware and lifestyle essentials in Sri Lanka.",
-  keywords: [...brandKeywords],
+    "Shop the best disposable vapes, premium e-liquids, pod systems, and vape accessories in Sri Lanka at CigarroElectrico. Fast delivery and curated vape essentials for every setup.",
+  keywords: [
+    ...brandKeywords,
+    "vape sri lanka",
+    "best vape shop colombo",
+    "disposable vapes sri lanka",
+    "e-liquid sri lanka",
+    "vape accessories sri lanka",
+    "pod vapes",
+    "nicotine salts",
+    "vape juice",
+    "best disposable vapes",
+  ],
   alternates: {
     canonical: absoluteUrl("/"),
   },
   openGraph: {
-    title: "CigarroElectrico | Premium Vapes, Vape Accessories & Apparel",
+    title:
+       "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Discover premium vapes, vape accessories, e-liquids, and apparel at CigarroElectrico.",
+      "Explore premium disposable vapes, vape accessories, e-liquids, and pod systems at CigarroElectrico with island-wide delivery.",
     url: absoluteUrl("/"),
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CigarroElectrico | Premium Vapes, Vape Accessories & Apparel",
+    title:
+       "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Discover premium vapes, vape accessories, e-liquids, and apparel at CigarroElectrico.",
+      "Explore premium disposable vapes, vape accessories, e-liquids, and pod systems at CigarroElectrico with island-wide delivery.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };

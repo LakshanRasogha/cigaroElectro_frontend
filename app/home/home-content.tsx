@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import React, { useEffect, useRef, useState } from "react";
-
 import { UserCircle2, X } from "lucide-react";
 import Link from "next/link";
 
@@ -247,6 +246,44 @@ const ProfileNudgeBanner = () => {
 
 const Home = () => {
   const [bestsellerKeys, setBestsellerKeys] = useState<Set<string>>(new Set());
+  const trendingKeywordPills = [
+    "vapes sri lanka",
+    "vape store colombo",
+    "buy vapes online sri lanka",
+    "premium vape shop colombo",
+    "disposable vape price sri lanka",
+    "e-liquid price colombo",
+    "vape juice colombo",
+    "vape accessories sri lanka",
+    "vape coils colombo",
+    "elf bar 13000 price sri lanka",
+    "elfbar raya d1 colombo",
+    "vozol vista 20k price",
+    "elfbar ice king 30k delivery",
+    "elf bar 13000 price sri lanka",
+    "elf bar raya D3 - 25k price sri lanka",
+    "ELFBAR - Planet space edition 2 price sri lanka",
+    "ELFBAR Ice King 30k",
+    "VOZOL Gear ICE & SWEET 50K price sri lanka",
+    "Sonder Q2 Geek Vape price sri lanka",
+    "Wenex Q GeekVape price sri lanka",
+    "QPods sri lanka",
+    "QPods price sri lanka",
+    "NASTY Liquids price sri lanka",
+    "SILVAPER Salt Liquids sri lanka",
+    "I Love Salt Liquids sri lanka",
+    "I Love Salt Liquids",
+    "VGod Salt Liquids sri lanka",
+    "I Love Salt Liquids sri lanka",
+    "TOKYO Classic Liquids",
+    "NASTY Bolt 50K",
+    "Disposable Vapes",
+    "E-Liquid",
+    "Vape Accessories",
+    "Pod Systems",
+    "Nicotine Salts",
+    "Best Vape Shop Colombo",
+  ];
 
   useEffect(() => {
     let active = true;
@@ -267,13 +304,18 @@ const Home = () => {
 
   return (
     <div className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans">
+      <h1 className="sr-only">
+        CigarroElectrico - Best Vape Shop in Sri Lanka for Disposable Vapes,
+        E-Liquids, and Accessories
+      </h1>
+
       <ProfileNudgeBanner />
 
       <div className="fixed top-0 left-0 right-0 z-[100]">
         <Navbar />
       </div>
 
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute top-0 left-[-10%] w-[28rem] h-[28rem] bg-[#D4AF37]/5 blur-[110px] rounded-full" />
         <div className="absolute top-[28%] right-[-8%] w-[24rem] h-[24rem] bg-[#AA771C]/5 blur-[100px] rounded-full" />
         <div className="absolute bottom-[10%] left-[-6%] w-[22rem] h-[22rem] bg-[#D4AF37]/4 blur-[90px] rounded-full" />
@@ -284,13 +326,14 @@ const Home = () => {
           <Headers />
         </header>
 
+        {/* Semantic optimization of dynamic sections using trending keyword anchors */}
         <DeferredSection
           loadOnIdle
           rootMargin="260px 0px"
           fallback={
             <SectionFallback
-              eyebrow="Trending Now"
-              title="Loading Most Viewed"
+              eyebrow="Trending Vapes"
+              title="Loading Most Viewed Devices in Sri Lanka"
             />
           }
         >
@@ -302,15 +345,24 @@ const Home = () => {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#D4AF37]">
-                  Explore More
+                  Explore Our Vape Shop
                 </p>
                 <h2 className="mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
-                  Browse the full collection
+                  Browse the Best Disposable Vapes, E-Liquid & Vape Accessories
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-                  We now keep the homepage focused on the most viewed products.
-                  Open the full catalog to load more items in smaller batches.
+                  Discover trending vape essentials in Sri Lanka, including premium disposable vapes, refill-ready pod systems, nicotine salts, and curated vape accessories for every setup.
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {trendingKeywordPills.map((keyword) => (
+                    <span
+                      key={keyword}
+                      className="rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F2D37D]"
+                    >
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <Link
@@ -323,7 +375,7 @@ const Home = () => {
           </div>
         </div>
 
-        <section className="bg-[#050505]" id="about">
+        <section className="bg-[#050505]" id="about" aria-label="About CigarroElectrico">
           <HeritageSection />
         </section>
 
@@ -336,16 +388,13 @@ const Home = () => {
         ::-webkit-scrollbar {
           width: 8px;
         }
-
         ::-webkit-scrollbar-track {
           background: #050505;
         }
-
         ::-webkit-scrollbar-thumb {
           background: #222;
           border-radius: 10px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
           background: #d4af37;
         }

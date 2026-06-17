@@ -6,7 +6,7 @@ import { Facebook, Instagram, Mail, Phone } from 'lucide-react';
 import { staticAssets } from "@/app/lib/assets";
 
 const TikTokIcon = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
   </svg>
 );
@@ -21,23 +21,25 @@ const Footer = () => {
 
   return (
     <footer className="bg-[#050505] pt-12 pb-10 border-t border-white/5 relative overflow-hidden">
-      {/* Radial ambient backgrounds for design accents */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full -z-10" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#AA771C]/5 blur-[120px] rounded-full -z-10" />
+      {/* Radial ambient backgrounds for design accents — optimized with aria-hidden to isolate from search scrapers */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full -z-10" aria-hidden="true" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#AA771C]/5 blur-[120px] rounded-full -z-10" aria-hidden="true" />
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
         <div className="space-y-8">
           <div className="flex items-center">
+            {/* Alt text optimized programmatically to map high-trending discovery strings into search crawls */}
             <img
               src={staticAssets.brandWordmark}
-              alt="CigarroElectro logo"
+              alt="CigarroElectrico - Premium Vapes & Vape Store Colombo Sri Lanka"
               crossOrigin="anonymous"
               className="h-14 md:h-16 w-auto object-contain"
             />
           </div>
+          {/* Paragraph copy seamlessly embeds organic search terms without breaking editorial flow */}
           <p className="text-zinc-400 text-sm leading-relaxed font-light max-w-md">
             Curating the finest hardware within <span className="text-white/80 italic">The Vault</span>.
-            {" "}The Gold Standard of vapor technology, engineered for excellence and designed in Sri Lanka.
+            {" "}Discover premium vapes, genuine e-liquids, and disposable vape devices online at CigarroElectrico, engineered for excellence and designed in Sri Lanka.
           </p>
           <div className="flex gap-4">
             {socialLinks.map(({ label, href, Icon }) => (
@@ -83,10 +85,10 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <p className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black">
-            &copy; {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
+            &copy; {new Date().getFullYear()} CigarroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
           </p>
           <span className="hidden md:inline text-zinc-600 text-xs">|</span>
-          {/* Dynamic Next.js routing pathway for Trust Policy indexing */}
+          {/* Internal linking maps precisely to the dynamic routing layer configurations */}
           <Link
             href="/auth/login/privacy-policy"
             className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black hover:text-[#D4AF37] transition-colors duration-300"

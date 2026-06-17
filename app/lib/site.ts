@@ -73,16 +73,17 @@ export function getServerApiBaseUrl() {
 }
 
 export const brandKeywords = [
-  "CigarroElectrico",
-  "Cigarro Electrico",
-  "cigarroelectrico",
-  "cigarro electrico",
-  "vape",
-  "vapes",
-  "vape accessories",
-  "e-liquid",
-  "Sri Lanka vape store",
-  "vape Sri Lanka",
+  "vape price Sri Lanka | CigarroElectrico",
+  "vape price Sri Lanka | ",
+  "vape price Sri Lanka | Cigarro Electrico",
+  "vape price Sri Lanka | cigarroelectrico",
+  "vape price Sri Lanka |cigarro electrico",
+  "vape price Sri Lanka |vape",
+  "vape price Sri Lanka |vapes",
+  "vape price Sri Lanka |vape accessories",
+  "vape price Sri Lanka |e-liquid",
+  "vape price Sri Lanka |Sri Lanka vape store",
+  
 ] as const;
 
 // ── Indexable Category Pages ──────────────────────────────────────────────────
@@ -102,7 +103,7 @@ export type CategoryLandingPage = {
 export const categoryLandingPages: CategoryLandingPage[] = [
   {
     slug: "vapes",
-    title: "Vapes",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Premium Vapes in Sri Lanka",
     description:
       "Browse premium vapes from CigarroElectrico, including disposable vape devices, refill systems, and curated essentials for everyday use.",
@@ -119,14 +120,14 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "vapes near me",
     ],
     categories: ["Disposable", "Re-fill", "E-Liquid"],
-    metaTitle: "Premium Vapes & Vape Devices Online | CigarroElectrico",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription:
       "Shop premium vape devices online at the best price. Curated catalogue of disposable and refillable vapes with fast island-wide delivery in Sri Lanka.",
     primaryKeyword: "premium vapes online",
   },
   {
     slug: "vape-accessories",
-    title: "Vape Accessories",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Vape Accessories & Add-Ons",
     description:
       "Shop vape accessories from CigarroElectrico, including add-ons and supporting essentials that complete your setup.",
@@ -140,14 +141,14 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "vape coils",
     ],
     categories: ["Accessories"],
-    metaTitle: "Vape Accessories & Coils | CigarroElectrico Sri Lanka",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription:
       "Find genuine vape accessories for your setup — high-performance coils, pods, and premium add-ons. Fast delivery across Sri Lanka.",
     primaryKeyword: "vape accessories Sri Lanka",
   },
   {
     slug: "e-liquid",
-    title: "E-Liquid",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Curated E-Liquid Collection",
     description:
       "Discover curated e-liquid options from CigarroElectrico, selected to complement premium vape hardware and refill-ready setups.",
@@ -163,14 +164,14 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "nasty vapes",
     ],
     categories: ["E-Liquid"],
-    metaTitle: "Premium E-Liquids & Nicotine Salts | CigarroElectrico",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription:
       "Discover the best e-liquids and nicotine salts from leading brands. Intense flavour profiles with guaranteed quality — delivered across Sri Lanka.",
     primaryKeyword: "premium e-liquid Sri Lanka",
   },
   {
     slug: "disposable-vapes",
-    title: "Disposable Vapes",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Disposable Vapes",
     description:
       "Browse disposable vape options from CigarroElectrico for convenient, ready-to-use performance.",
@@ -183,14 +184,14 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "flavoured vapes",
     ],
     categories: ["Disposable"],
-    metaTitle: "Long-Lasting Disposable Vapes | CigarroElectrico Sri Lanka",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription:
       "Explore our range of disposable vapes. Enjoy maximum puffs with premium flavour profiles — no charging, no refilling, just vape.",
     primaryKeyword: "disposable vapes Sri Lanka",
   },
   {
     slug: "refill-vapes",
-    title: "Refill Vapes",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Refill Vape Systems",
     description:
       "Explore refill vape systems and compatible product lines from CigarroElectrico for flexible, repeat-use setups.",
@@ -206,7 +207,7 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "vape kits",
     ],
     categories: ["Re-fill"],
-    metaTitle: "Refillable Vapes & Pod Kits | CigarroElectrico Sri Lanka",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription:
       "Optimise your vaping experience with advanced refillable vapes and modular pod systems built for long-lasting performance.",
     primaryKeyword: "refillable vapes Sri Lanka",
@@ -228,36 +229,36 @@ export type UtilityPageSeo = {
 export const utilityPages: UtilityPageSeo[] = [
   {
     slug: "cart",
-    title: "Shopping Cart",
-    metaTitle: "Review Your Cart | CigarroElectrico",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription: "Verify your items, adjust product counts, and proceed to secure checkout for premium alternative hardware and culture essentials.",
     robots: { index: false, follow: false }, // Explicitly hidden from indexation paths to prevent homepage loop anomalies
   },
   {
     slug: "auth/login",
-    title: "Login",
-    metaTitle: "Account Authentication | CigarroElectrico",
+    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription: "Log in to your secure client terminal to manage configurations, monitor purchase tracking, and modify system wishlists.",
     robots: { index: false, follow: true },
   },
   {
     slug: "auth/Signin",
     title: "Sign Up",
-    metaTitle: "Register Secure Corporate Identity | CigarroElectrico",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription: "Establish a secure user profile to initiate checkout permissions and review system access arrays.",
     robots: { index: false, follow: true },
   },
   {
     slug: "auth/login/free-membership-agreement",
     title: "Free Membership Agreement",
-    metaTitle: "Free Membership Agreement | CigarroElectrico",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription: "Read our Free Membership Agreement guidelines and terms of service for utilizing the CigarroElectrico platform.",
     robots: { index: false, follow: true },
   },
   {
     slug: "auth/login/privacy-policy",
     title: "Privacy Policy",
-    metaTitle: "Privacy Policy | CigarroElectrico",
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription: "Review the CigarroElectrico privacy policy regarding security, user data protection, and localized data handling processes.",
     robots: { index: false, follow: true },
   },
@@ -267,32 +268,40 @@ export const utilityPages: UtilityPageSeo[] = [
 export type ProductSeoHint = {
   headline: string;
   targetKeywords: string[];
+  metaTitle?: string;
 };
 
 export const productSeoHints: Record<string, ProductSeoHint> = {
   "elfbar-raya-d1": {
     headline: "Elfbar Raya D1 13000 Puffs — Intense Flavours",
     targetKeywords: ["elfbar raya d1", "elf bar d1 13000", "elfbar raya d1 price Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    
   },
   "vozol-vista-20k": {
     headline: "Vozol Vista 20K — Smart Screen Vape",
     targetKeywords: ["vozol vista 20k", "vozol vista 20000", "vozol vista Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
   },
   "elfbar-raya-d3-25k": {
     headline: "Elfbar Raya D3 25K Puffs — Rechargeable Vape",
     targetKeywords: ["elfbar raya d3 25k", "elf bar raya d3", "elfbar raya d3 price Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
   },
   "elfbar-planet-space-edition-25k": {
     headline: "Elfbar Planet Space Edition — Special Edition Vape",
     targetKeywords: ["elfbar planet space edition", "elfbar space edition 25k", "elf bar space edition Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
   },
   "elfbar-ice-king-30k": {
     headline: "Elfbar Ice King 30K — Maximum Menthol Puffs",
     targetKeywords: ["elfbar ice king 30k", "elf bar ice king 30000", "elfbar ice king price Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
   },
   "elfbar-trio-30k": {
     headline: "Elfbar Trio 30K Puffs — Three Flavours in One",
     targetKeywords: ["elfbar trio 30k", "elf bar trio 30000", "elf bar trio Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
   },
 };
 
