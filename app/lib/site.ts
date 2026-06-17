@@ -83,7 +83,6 @@ export const brandKeywords = [
   "vape price Sri Lanka |vape accessories",
   "vape price Sri Lanka |e-liquid",
   "vape price Sri Lanka |Sri Lanka vape store",
-  
 ] as const;
 
 // ── Indexable Category Pages ──────────────────────────────────────────────────
@@ -232,7 +231,7 @@ export const utilityPages: UtilityPageSeo[] = [
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
     metaDescription: "Verify your items, adjust product counts, and proceed to secure checkout for premium alternative hardware and culture essentials.",
-    robots: { index: false, follow: false }, // Explicitly hidden from indexation paths to prevent homepage loop anomalies
+    robots: { index: false, follow: false },
   },
   {
     slug: "auth/login",
@@ -276,7 +275,6 @@ export const productSeoHints: Record<string, ProductSeoHint> = {
     headline: "Elfbar Raya D1 13000 Puffs — Intense Flavours",
     targetKeywords: ["elfbar raya d1", "elf bar d1 13000", "elfbar raya d1 price Sri Lanka"],
     metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
-    
   },
   "vozol-vista-20k": {
     headline: "Vozol Vista 20K — Smart Screen Vape",
@@ -301,6 +299,62 @@ export const productSeoHints: Record<string, ProductSeoHint> = {
   "elfbar-trio-30k": {
     headline: "Elfbar Trio 30K Puffs — Three Flavours in One",
     targetKeywords: ["elfbar trio 30k", "elf bar trio 30000", "elf bar trio Sri Lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  // ── New High-Trending Catalog Additions ──────────────────────────────────────
+  "nasty-bolt-50k": {
+    headline: "NASTY Bolt 50K Puffs — High Performance Disposable",
+    targetKeywords: ["nasty bolt 50k", "nasty bolt 50000 price", "nasty bolt vape sri lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "vozol-gear-ice-sweet-50k": {
+    headline: "VOZOL Gear ICE & SWEET 50K — Premium Puffs Dual Flavor",
+    targetKeywords: ["vozol gear ice sweet 50k", "vozol 50k puffs price", "vozol ice sweet vape"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "sonder-q2-geek-vape": {
+    headline: "Sonder Q2 Geek Vape — Professional Pod System Kit",
+    targetKeywords: ["sonder q2 geekvape", "sonder q2 price sri lanka", "geekvape sonder q2"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "wenex-q-geekvape": {
+    headline: "Wenax Q GeekVape — Adjustable Airflow Smart Pod Kit",
+    targetKeywords: ["wenax q geekvape", "wenax q price sri lanka", "geekvape wenax q"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "qpods": {
+    headline: "QPods Replacement Cartridges — Maximum Leak-Proof Design",
+    targetKeywords: ["qpods cartridges", "qpods price sri lanka", "replacement qpods"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "nasty-liquids": {
+    headline: "NASTY Liquids — Award Winning Premium E-Juice Profiles",
+    targetKeywords: ["nasty liquids", "nasty vape juice price sri lanka", "nasty freebase liquid"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "vozol-salt-liquids": {
+    headline: "VOZOL Salt Liquids — Intense Flavor Nicotine Salts",
+    targetKeywords: ["vozol salt liquids", "vozol nic salts price", "vozol salt e-liquid"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "silvaper-salt-liquids": {
+    headline: "SILVAPER Salt Liquids — Ultra Smooth Nicotine Salts",
+    targetKeywords: ["silvaper salt liquids", "silvaper e-liquid price", "silvaper juice sri lanka"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "i-love-salt-liquids": {
+    headline: "I Love Salt Liquids — Mad Hatter Premium Nic Salts",
+    targetKeywords: ["i love salt liquids", "i love salts price sri lanka", "mad hatter nicotine salts"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "vgod-salt-liquids": {
+    headline: "VGod Salt Liquids — Premium Cubano Cigar & Fruit Nic Salts",
+    targetKeywords: ["vgod salt liquids", "vgod e-liquid price sri lanka", "vgod cubano salt"],
+    metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  },
+  "tokyo-classic-liquids": {
+    headline: "TOKYO Classic Liquids — Refreshing High-Fidelity E-Liquid",
+    targetKeywords: ["tokyo classic liquids", "tokyo classic vape juice", "tokyo e-liquid price sri lanka"],
     metaTitle: "Vapes with golden quality | Sri Lanka's Best Vapes",
   },
 };
