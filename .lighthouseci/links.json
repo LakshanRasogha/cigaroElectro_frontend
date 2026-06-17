@@ -1,0 +1,7 @@
+{
+  "http://localhost:3000/": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781670352093-89886.report.html",
+  "http://localhost:3000/collections": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781670353489-54439.report.html",
+  "http://localhost:3000/collections/category/vapes": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781670354901-10527.report.html",
+  "http://localhost:3000/about": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781670356251-92987.report.html",
+  "http://localhost:3000/contact": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1781670357593-38894.report.html"
+}
