@@ -28,5 +28,6 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
+  <meta name="msvalidate.01" content="85D8EDFDD4C1B872558C39E186397F6F" />
   return <HomeContent />;
 }
