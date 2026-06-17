@@ -247,6 +247,20 @@ export const utilityPages: UtilityPageSeo[] = [
     metaDescription: "Establish a secure user profile to initiate checkout permissions and review system access arrays.",
     robots: { index: false, follow: true },
   },
+  {
+    slug: "auth/login/free-membership-agreement",
+    title: "Free Membership Agreement",
+    metaTitle: "Free Membership Agreement | CigarroElectrico",
+    metaDescription: "Read our Free Membership Agreement guidelines and terms of service for utilizing the CigarroElectrico platform.",
+    robots: { index: false, follow: true },
+  },
+  {
+    slug: "auth/login/privacy-policy",
+    title: "Privacy Policy",
+    metaTitle: "Privacy Policy | CigarroElectrico",
+    metaDescription: "Review the CigarroElectrico privacy policy regarding security, user data protection, and localized data handling processes.",
+    robots: { index: false, follow: true },
+  },
 ];
 
 // ── Per-product SEO hints ──────────────────────────────────────────────────────

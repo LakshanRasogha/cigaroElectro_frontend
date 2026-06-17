@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Facebook, Instagram, Mail, Phone } from 'lucide-react';
 import { staticAssets } from "@/app/lib/assets";
 
 const TikTokIcon = () => (
   <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
   </svg>
 );
 
@@ -20,6 +21,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-[#050505] pt-12 pb-10 border-t border-white/5 relative overflow-hidden">
+      {/* Radial ambient backgrounds for design accents */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full -z-10" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#AA771C]/5 blur-[120px] rounded-full -z-10" />
 
@@ -28,7 +30,7 @@ const Footer = () => {
           <div className="flex items-center">
             <img
               src={staticAssets.brandWordmark}
-              alt="CigaroElectro logo"
+              alt="CigarroElectro logo"
               crossOrigin="anonymous"
               className="h-14 md:h-16 w-auto object-contain"
             />
@@ -79,9 +81,19 @@ const Footer = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black">
-          &copy; {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
-        </p>
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <p className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black">
+            &copy; {new Date().getFullYear()} CigaroElectrico Premium Group. <span className="text-[#D4AF37]">Established MMXXIV.</span>
+          </p>
+          <span className="hidden md:inline text-zinc-600 text-xs">|</span>
+          {/* Dynamic Next.js routing pathway for Trust Policy indexing */}
+          <Link
+            href="/privacy-policy"
+            className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black hover:text-[#D4AF37] transition-colors duration-300"
+          >
+            Privacy Policy
+          </Link>
+        </div>
 
         <div className="flex flex-wrap justify-center gap-2 opacity-60 transition-all duration-500 hover:opacity-100">
           {paymentMethods.map((method) => (
