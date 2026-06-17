@@ -3,9 +3,9 @@ import ContactContent from "./contact-content";
 import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  title: "Contact Us | CigarroElectrico Vape Shop Sri Lanka",
   description:
-    "Contact CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
+    "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
   keywords: [
     ...brandKeywords,
     "contact CigarroElectrico",
@@ -16,17 +16,17 @@ export const metadata: Metadata = {
     canonical: absoluteUrl("/contact"),
   },
   openGraph: {
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "Contact Us | CigarroElectrico Vape Shop Sri Lanka",
     description:
-      "Reach CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
+      "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
     url: absoluteUrl("/contact"),
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "Contact Us | CigarroElectrico Vape Shop Sri Lanka",
     description:
-      "Reach CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
+      "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };
@@ -55,7 +55,7 @@ const contactPageSchema = {
   "@type": "ContactPage",
   name: "Contact CigarroElectrico",
   description:
-    "Contact CigarroElectrico for premium vape product support, delivery coordination, and order inquiries in Sri Lanka.",
+    "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
   url: absoluteUrl("/contact"),
   mainEntity: {
     "@type": "Organization",
@@ -90,6 +90,13 @@ export default function ContactPage() {
           __html: JSON.stringify(breadcrumbSchema),
         }}
       />
+      
+      {/* 
+        Semantic H1 tag fallback to keep spiders happy in case your 
+        nested client wrapper doesn't use standard semantic element trees.
+      */}
+      <h1 className="sr-only">Contact CigarroElectrico</h1>
+
       <ContactContent />
     </>
   );

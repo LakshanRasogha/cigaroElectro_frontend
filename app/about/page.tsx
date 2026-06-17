@@ -4,8 +4,7 @@ import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 export const metadata: Metadata = {
   title: "Vapes with golden quality | Sri Lanka's Best Vapes",
-  description:
-    "Learn about CigarroElectrico, a Sri Lanka-based destination for premium vapes, vape accessories, e-liquids, and curated lifestyle apparel.",
+  description: "Shop premium disposable vapes, e-liquids, and accessories at CigarroElectrico. Discover curated essentials with fast delivery across Sri Lanka.",
   keywords: [
     ...brandKeywords,
     "about CigarroElectrico",

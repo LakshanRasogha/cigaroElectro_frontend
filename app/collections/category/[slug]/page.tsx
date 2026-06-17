@@ -108,6 +108,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           __html: renderJsonLd(breadcrumbSchema),
         }}
       />
+      
+      {/* 
+        Semantic H1 tag generated on the server side for crawlers.
+        Uses 'sr-only' to keep it visually hidden while providing the 
+        exact dynamic category title to search engines.
+      */}
+      <h1 className="sr-only">
+        {landingPage.title} | CigarroElectrico Vape Shop Sri Lanka
+      </h1>
+
       <CollectionsClient initialCategorySlug={landingPage.slug} />
     </>
   );

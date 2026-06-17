@@ -6,9 +6,9 @@ import { staticAssets } from "@/app/lib/assets";
 import { absoluteUrl } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  title: "Privacy Policy | CigarroElectrico Vape Shop Sri Lanka",
   description:
-    "Review the CigarroElectrico privacy policy to understand data collection, usage, and protection practices.",
+    "Review the CigarroElectrico privacy policy to learn how we protect your personal account data, manage order information, and ensure safe shopping.",
   alternates: {
     canonical: absoluteUrl("/auth/login/privacy-policy"),
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const sections = [
   {
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "Information Collection",
     body: "We may collect information you provide directly, including your name, email address, phone number, shipping details, and account preferences. We may also collect basic technical information needed to operate the site and improve performance.",
   },
   {
@@ -65,7 +65,7 @@ export default function PrivacyPolicyPage() {
         <div className='relative z-10 max-w-4xl mx-auto px-6'>
           <div className='mb-10'>
             <p className='text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.35em] mb-4'>
-              Sample Legal Page
+              Legal Documentation
             </p>
             <h1 className='text-4xl sm:text-5xl md:text-6xl font-serif tracking-tight text-white mb-4'>
               Privacy Policy

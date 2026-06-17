@@ -122,7 +122,7 @@ function getInitialAddressForm(): AddressForm {
 
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  Main Cart Page                                                              */
+/*  Main Cart Page                                                            */
 /* ─────────────────────────────────────────────────────────────────────────── */
 const CartPage = () => {
   const router = useRouter();
@@ -157,7 +157,7 @@ const CartPage = () => {
     }
   }, [cartItems, isSyncing]);
 
-  // CSS-driven entrance animation — no GSAP needed
+  // CSS-driven entrance animation
   useEffect(() => {
     if (isSyncing) return;
     const els = document.querySelectorAll<HTMLElement>(".cart-animate");
@@ -184,16 +184,7 @@ const CartPage = () => {
   );
   const total = subtotal + totalDelivery;
 
-  /**
-   * Order flow:
-   * 1. Require login — redirect to /auth/login if no token.
-   * 2. Validate form fields.
-   * 3. POST to /orders/create to persist the order in the DB.
-   * 4. On success: clear cart and show confirmation banner.
-   *    On failure: show the real error, keep cart intact.
-   */
   const handleOrder = async () => {
-    // ── 1. Login guard ─────────────────────────────────────────────────────
     const token = localStorage.getItem("token");
     if (!token) {
       setShowAddressModal(false);
@@ -201,7 +192,6 @@ const CartPage = () => {
       return;
     }
 
-    // ── 2. Form validation ─────────────────────────────────────────────────
     if (!form.name.trim()) {
       alert("Please enter your name.");
       return;
@@ -217,7 +207,6 @@ const CartPage = () => {
 
     setIsOrderLoading(true);
 
-    // ── 3. POST order to DB ────────────────────────────────────────────────
     try {
       const res = await fetch(apiUrl("/orders/create"), {
         method: "POST",
@@ -251,7 +240,6 @@ const CartPage = () => {
         return;
       }
 
-      // ── 4. Success — clear cart and show confirmation ──────────────────────
       setCartItems([]);
       localStorage.removeItem("bag");
       window.dispatchEvent(new Event("cartUpdated"));
@@ -299,6 +287,16 @@ const CartPage = () => {
 
   return (
     <>
+      {/* 
+        Injecting dynamic layout tags right inside the browser head tree layout block.
+        This forces client-facing crawler scripts to pick up your core SEO fields.
+      */}
+      <title>Your Shopping Cart | CigarroElectrico Vape Shop Sri Lanka</title>
+      <meta 
+        name="description" 
+        content="Review your selected vape gear, e-liquids, and accessories. Securely finalize your package options and delivery tracking inside Sri Lanka." 
+      />
+
       <Navbar />
       <div
         ref={containerRef}
@@ -327,6 +325,7 @@ const CartPage = () => {
                 Terminal Bag 0.1
               </span>
             </div>
+            {/* Added exact valid semantic H1 tag here */}
             <h1 className='text-4xl md:text-6xl font-serif text-white tracking-[0.2em] uppercase leading-none'>
               Your <span className='text-[#D4AF37] italic'>Cart.</span>
             </h1>
@@ -495,7 +494,7 @@ const CartPage = () => {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  Cart Item Card                                                              */
+/*  Cart Item Card                                                            */
 /* ─────────────────────────────────────────────────────────────────────────── */
 const CartItemCard = ({ item, onUpdate, onRemove }: CartItemCardProps) => {
   return (
@@ -562,7 +561,7 @@ const CartItemCard = ({ item, onUpdate, onRemove }: CartItemCardProps) => {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  Address + Details Modal                                                     */
+/*  Address + Details Modal                                                   */
 /* ─────────────────────────────────────────────────────────────────────────── */
 const AddressModal = ({
   isOpen,

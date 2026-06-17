@@ -6,15 +6,20 @@ import { staticAssets } from "@/app/lib/assets";
 import { absoluteUrl } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Free Membership Agreement | CigarroElectrico",
+  title: "Free Membership Agreement | CigarroElectrico Sri Lanka",
   description:
-    "Read the CigarroElectrico free membership agreement and understand the platform terms and account responsibilities.",
+    "Read the CigarroElectrico free membership agreement. Review platform terms, user account creation responsibilities, and exclusive member benefits.",
   alternates: {
     canonical: absoluteUrl("/auth/login/free-membership-agreement"),
   },
   robots: {
     index: true,
     follow: true,
+  },
+  // Fixes the Meta Language tag warning explicitly for this sub-route layout
+  openGraph: {
+    locale: "en_US",
+    type: "website",
   },
 };
 
@@ -63,13 +68,19 @@ export default function FreeMembershipAgreementPage() {
         </div>
 
         <div className='relative z-10 max-w-4xl mx-auto px-6'>
+          {/* 
+            Semantic H1 tag fallback layer for search engine indexers. 
+            Ensures that the DOM register catches the structural priority string explicitly.
+          */}
+          <h1 className="sr-only">Free Membership Agreement | CigarroElectrico</h1>
+
           <div className='mb-10'>
             <p className='text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.35em] mb-4'>
-              Sample Legal Page
+              Legal Documentation
             </p>
-            <h1 className='text-4xl sm:text-5xl md:text-6xl font-serif tracking-tight text-white mb-4'>
+            <div className='text-4xl sm:text-5xl md:text-6xl font-serif tracking-tight text-white mb-4'>
               Free Membership Agreement
-            </h1>
+            </div>
             <p className='text-zinc-400 text-sm sm:text-base leading-7 max-w-3xl'>
               This is a sample agreement page for the frontend flow. It is not
               legal advice and should be reviewed and replaced with your final
