@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/"],
         disallow: [
           "/admin",
           "/profile",
@@ -14,12 +14,12 @@ export default function robots(): MetadataRoute.Robots {
           "/checkout",
           "/api",
           "/search",
-          // Block internal search, pagination, and filter query parameters to protect crawl budget
+          // Block internal search routing, sorting, and pagination parameters
           "/*?*query=",
           "/*?*limit=",
           "/*?*offset=",
           "/*?*categories=",
-          // Block common tracking query parameters to prevent duplicate page indexing
+          // Prevent duplicate indexing from social and marketing attribution tracking
           "/*?*utm_*",
           "/*?*fbclid",
           "/*?*gclid",
@@ -27,6 +27,5 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: absoluteUrl("/sitemap.xml"),
-    host: absoluteUrl("/"),
   };
 }

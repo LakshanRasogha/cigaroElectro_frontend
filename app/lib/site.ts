@@ -1,3 +1,5 @@
+import type { MetadataRoute } from "next";
+
 export const siteConfig = {
   name: "CigarroElectrico",
   legalName: "CigarroElectrico",
@@ -14,7 +16,7 @@ export const siteConfig = {
 
 export const fallbackApiBaseUrl =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:3001"
+    ? "http://localhost:3000" // Standard local development port configuration
     : "https://api.cigarroelectrico.com";
 
 export const siteUrl =
@@ -80,8 +82,10 @@ export const brandKeywords = [
   "vape accessories",
   "e-liquid",
   "Sri Lanka vape store",
+  "vape Sri Lanka",
 ] as const;
 
+// ── Indexable Category Pages ──────────────────────────────────────────────────
 export type CategoryLandingPage = {
   slug: string;
   title: string;
@@ -90,11 +94,8 @@ export type CategoryLandingPage = {
   shortDescription: string;
   keywords: string[];
   categories: string[];
-  /** Exact <title> tag value for this category page (overrides the generic template). */
   metaTitle?: string;
-  /** Exact <meta name="description"> value for this category page. */
   metaDescription?: string;
-  /** Top-priority transactional keyword; injected first in the keywords array. */
   primaryKeyword?: string;
 };
 
@@ -116,7 +117,6 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "vapes online",
       "vape store",
       "vapes near me",
-      "comprar vapeador online",
     ],
     categories: ["Disposable", "Re-fill", "E-Liquid"],
     metaTitle: "Premium Vapes & Vape Devices Online | CigarroElectrico",
@@ -138,8 +138,6 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "CigarroElectrico accessories",
       "pod vapes",
       "vape coils",
-      "repuestos para vapeador",
-      "resistencias vape",
     ],
     categories: ["Accessories"],
     metaTitle: "Vape Accessories & Coils | CigarroElectrico Sri Lanka",
@@ -163,8 +161,6 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "e-juice",
       "nicotine salts",
       "nasty vapes",
-      "mejor e-liquid sin nicotina",
-      "sales de nicotina",
     ],
     categories: ["E-Liquid"],
     metaTitle: "Premium E-Liquids & Nicotine Salts | CigarroElectrico",
@@ -185,8 +181,6 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "disposable vapes",
       "CigarroElectrico disposable",
       "flavoured vapes",
-      "vape desechable",
-      "vapes de sabores",
     ],
     categories: ["Disposable"],
     metaTitle: "Long-Lasting Disposable Vapes | CigarroElectrico Sri Lanka",
@@ -210,8 +204,6 @@ export const categoryLandingPages: CategoryLandingPage[] = [
       "refillable vapes",
       "pod systems",
       "vape kits",
-      "vapes recargables",
-      "sistemas de pod",
     ],
     categories: ["Re-fill"],
     metaTitle: "Refillable Vapes & Pod Kits | CigarroElectrico Sri Lanka",
@@ -221,13 +213,45 @@ export const categoryLandingPages: CategoryLandingPage[] = [
   },
 ];
 
+// ── Non-Indexable Utility Pages (Auth & Checkout Pipelines) ──────────────────
+export type UtilityPageSeo = {
+  slug: string;
+  title: string;
+  metaTitle: string;
+  metaDescription: string;
+  robots: {
+    index: false;
+    follow: boolean;
+  };
+};
+
+export const utilityPages: UtilityPageSeo[] = [
+  {
+    slug: "cart",
+    title: "Shopping Cart",
+    metaTitle: "Review Your Cart | CigarroElectrico",
+    metaDescription: "Verify your items, adjust product counts, and proceed to secure checkout for premium alternative hardware and culture essentials.",
+    robots: { index: false, follow: false }, // Explicitly hidden from indexation paths to prevent homepage loop anomalies
+  },
+  {
+    slug: "auth/login",
+    title: "Login",
+    metaTitle: "Account Authentication | CigarroElectrico",
+    metaDescription: "Log in to your secure client terminal to manage configurations, monitor purchase tracking, and modify system wishlists.",
+    robots: { index: false, follow: true },
+  },
+  {
+    slug: "auth/Signin",
+    title: "Sign Up",
+    metaTitle: "Register Secure Corporate Identity | CigarroElectrico",
+    metaDescription: "Establish a secure user profile to initiate checkout permissions and review system access arrays.",
+    robots: { index: false, follow: true },
+  },
+];
+
 // ── Per-product SEO hints ──────────────────────────────────────────────────────
-// Keyed by product slug. Used to inject high-intent keyword phrases into
-// product page metadata and JSON-LD without requiring a backend schema change.
 export type ProductSeoHint = {
-  /** Keyword-rich headline injected into the product page <title> prefix. */
   headline: string;
-  /** High-intent search terms to merge into the page keywords array. */
   targetKeywords: string[];
 };
 
@@ -254,7 +278,7 @@ export const productSeoHints: Record<string, ProductSeoHint> = {
   },
   "elfbar-trio-30k": {
     headline: "Elfbar Trio 30K Puffs — Three Flavours in One",
-    targetKeywords: ["elfbar trio 30k", "elf bar trio 30000", "elfbar trio Sri Lanka"],
+    targetKeywords: ["elfbar trio 30k", "elf bar trio 30000", "elf bar trio Sri Lanka"],
   },
 };
 

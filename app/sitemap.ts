@@ -5,7 +5,7 @@ import { absoluteUrl, categoryLandingPages } from "@/app/lib/site";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await fetchAllProductsSafe();
 
-  // ── Static pages ──────────────────────────────────────────────────────────
+  // ── Core Indexable Static Pages ─────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: absoluteUrl("/"),
@@ -31,21 +31,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.6,
     },
+  ];
+
+  // ── Non-Indexable Utility Pages (Crawl Control Segregation) ──────────────────
+  // Included per explicit system structural requirements. 
+  // NOTE: Wastes crawl budget if prioritized; kept at minimum structural weight.
+  const utilityPages: MetadataRoute.Sitemap = [
     {
-      url: absoluteUrl("/privacy-policy"),
+      url: absoluteUrl("/cart"),
       lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.2,
+      changeFrequency: "monthly",
+      priority: 0.3,
     },
     {
-      url: absoluteUrl("/free-membership-agreement"),
+      url: absoluteUrl("/auth/login"),
       lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.2,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: absoluteUrl("/auth/Signin"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
     },
   ];
 
-  // ── Category landing pages ─────────────────────────────────────────────────
+  // ── Category Landing Pages ─────────────────────────────────────────────────
   // High priority — these are the main SEO entry points for product discovery.
   const categoryPages: MetadataRoute.Sitemap = categoryLandingPages.map(
     (page) => ({
@@ -56,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  // ── Individual product pages ───────────────────────────────────────────────
+  // ── Individual Product Pages ───────────────────────────────────────────────
   // Use the real updatedAt timestamp when available so Google knows freshness.
   const productPages: MetadataRoute.Sitemap = products.map((product) => {
     const updatedAt =
@@ -71,5 +83,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  return [...staticPages, ...categoryPages, ...productPages];
+  return [...staticPages, ...utilityPages, ...categoryPages, ...productPages];
 }
