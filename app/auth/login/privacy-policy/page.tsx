@@ -84,7 +84,7 @@ export default function PrivacyPolicyPage() {
               Return To Login
             </Link>
             <Link
-              href='/free-membership-agreement'
+              href='/auth/login/free-membership-agreement'
               className='text-[#D4AF37] hover:text-[#F2D37D] transition-colors underline underline-offset-4'
             >
               View Membership Agreement
