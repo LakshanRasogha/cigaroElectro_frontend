@@ -1,8 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
 import { staticAssets } from "@/app/lib/assets";
+import { absoluteUrl } from "@/app/lib/site";
 
+export const metadata: Metadata = {
+  title: "Free Membership Agreement | CigarroElectrico",
+  description:
+    "Read the CigarroElectrico free membership agreement and understand the platform terms and account responsibilities.",
+  alternates: {
+    canonical: absoluteUrl("/auth/login/free-membership-agreement"),
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const sections = [
   {
@@ -77,12 +91,6 @@ export default function FreeMembershipAgreementPage() {
           </div>
 
           <div className='mt-8 flex flex-wrap items-center gap-4 text-sm'>
-            <Link
-              href='/auth/login'
-              className='inline-flex items-center justify-center rounded-full bg-[#D4AF37] px-6 py-3 font-black uppercase tracking-[0.18em] text-black transition-colors hover:bg-[#F2D37D]'
-            >
-              Return To Login
-            </Link>
             <Link
               href='/auth/login/privacy-policy'
               className='text-[#D4AF37] hover:text-[#F2D37D] transition-colors underline underline-offset-4'

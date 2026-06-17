@@ -57,9 +57,9 @@ const Footer = () => {
 
         <div className="space-y-8 flex flex-col md:items-end">
           <div className="w-full md:max-w-xs space-y-8">
-            <h4 className="font-black uppercase tracking-[0.4em] text-[10px] mb-10 text-[#D4AF37] md:text-right">
+            <h3 className="font-black uppercase tracking-[0.4em] text-[10px] mb-10 text-[#D4AF37] md:text-right">
               Terminal
-            </h4>
+            </h3>
             <div className="flex items-center gap-5 text-sm text-zinc-500 group cursor-default">
               <div className="p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-[#D4AF37]/30 transition-colors">
                 <Mail className="text-[#D4AF37] h-4 w-4" />
@@ -88,7 +88,7 @@ const Footer = () => {
           <span className="hidden md:inline text-zinc-600 text-xs">|</span>
           {/* Dynamic Next.js routing pathway for Trust Policy indexing */}
           <Link
-            href="/privacy-policy"
+            href="/auth/login/privacy-policy"
             className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black hover:text-[#D4AF37] transition-colors duration-300"
           >
             Privacy Policy

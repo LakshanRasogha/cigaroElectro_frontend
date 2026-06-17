@@ -1,8 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
 import { staticAssets } from "@/app/lib/assets";
+import { absoluteUrl } from "@/app/lib/site";
 
+export const metadata: Metadata = {
+  title: "Privacy Policy | CigarroElectrico",
+  description:
+    "Review the CigarroElectrico privacy policy to understand data collection, usage, and protection practices.",
+  alternates: {
+    canonical: absoluteUrl("/auth/login/privacy-policy"),
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const sections = [
   {
