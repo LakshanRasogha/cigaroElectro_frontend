@@ -2,6 +2,19 @@ import Link from "next/link";
 import Navbar from "@/app/components/navbar";
 import Footer from "@/app/components/footer";
 import { staticAssets } from "@/app/lib/assets";
+import type { Metadata } from "next";
+import { absoluteUrl } from "@/app/lib/site";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  alternates: {
+    canonical: absoluteUrl("/privacy-policy"),
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const sections = [
   {

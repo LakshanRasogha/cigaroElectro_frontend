@@ -30,6 +30,19 @@ import {
   combinePhoneNumber,
   normalizePhoneDigits,
 } from "@/app/lib/phone";
+import type { Metadata } from "next";
+import { absoluteUrl } from "@/app/lib/site";
+
+export const metadata: Metadata = {
+  title: "Sign Up",
+  alternates: {
+    canonical: absoluteUrl("/auth/signup"),
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function Register() {
   const router = useRouter();
