@@ -26,11 +26,13 @@ import { optimizeCloudinaryUrl, buildResponsiveSrcSet } from "@/app/lib/assets";
 type ProductDetailViewProps = {
   slug: string;
   initialProduct?: Product | null;
+  fallbackTitle?: string;
 };
 
 const ProductDetailView = ({
   slug,
   initialProduct = null,
+  fallbackTitle,
 }: ProductDetailViewProps) => {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(initialProduct);
@@ -74,7 +76,15 @@ const ProductDetailView = ({
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-black text-white flex items-center justify-center'>
+      <div className='min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4 px-6 text-center'>
+        <div className='max-w-xl'>
+          <p className='text-[10px] font-black uppercase tracking-[0.35em] text-zinc-500'>
+            Product Details
+          </p>
+          <h1 className='mt-4 text-3xl md:text-4xl font-black tracking-tight text-white'>
+            {fallbackTitle || "Loading Product Details"}
+          </h1>
+        </div>
         <Loader2 className='h-8 w-8 animate-spin text-[#D4AF37]' />
       </div>
     );
@@ -86,6 +96,9 @@ const ProductDetailView = ({
         <p className='text-sm uppercase tracking-[0.3em] text-zinc-500'>
           Product unavailable
         </p>
+        <h1 className='text-3xl md:text-4xl font-black tracking-tight text-white'>
+          {fallbackTitle || "Product Details"}
+        </h1>
         <button
           onClick={() => router.push("/collections")}
           className='rounded-full border border-white/10 px-6 py-3 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:border-[#D4AF37]/40'

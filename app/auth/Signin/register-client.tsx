@@ -194,13 +194,13 @@ export default function Register() {
             </Link>
           </div>
 
-          <h2 className='text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tighter flex items-center justify-center gap-2'>
+          <h1 className='text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tighter flex items-center justify-center gap-2'>
             Join the{" "}
             <span className='italic text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F2D37D] to-[#AA771C]'>
               Circle.
             </span>
             <Sparkles className='text-[#D4AF37]' size={16} />
-          </h2>
+          </h1>
 
           <p className='text-[#D4AF37]/70 font-bold mt-2 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em]'>
             Identity Registration
@@ -501,4 +501,3 @@ const PhoneField = ({
     </div>
   </div>
 );
-

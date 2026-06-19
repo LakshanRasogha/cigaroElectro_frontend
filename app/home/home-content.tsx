@@ -304,11 +304,6 @@ const Home = () => {
 
   return (
     <div className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black min-h-screen relative overflow-x-hidden font-sans">
-      <h1 className="sr-only">
-        CigarroElectrico - Best Vape Shop in Sri Lanka for Disposable Vapes,
-        E-Liquids, and Accessories
-      </h1>
-
       <ProfileNudgeBanner />
 
       <div className="fixed top-0 left-0 right-0 z-[100]">

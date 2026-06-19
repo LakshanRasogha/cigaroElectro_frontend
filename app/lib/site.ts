@@ -22,6 +22,42 @@ export const fallbackApiBaseUrl =
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || siteConfig.domain;
 
+const META_DESCRIPTION_MIN_LENGTH = 120;
+const META_DESCRIPTION_MAX_LENGTH = 160;
+
+export function normalizeMetaDescription(
+  value: string | null | undefined,
+  fallback: string,
+) {
+  const cleanedValue = String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const base = cleanedValue || fallback;
+  const truncated =
+    base.length > META_DESCRIPTION_MAX_LENGTH
+      ? base.slice(0, META_DESCRIPTION_MAX_LENGTH).replace(/\s+\S*$/, "").trim()
+      : base;
+
+  if (truncated.length >= META_DESCRIPTION_MIN_LENGTH) {
+    return truncated;
+  }
+
+  const suffixes = [
+    " Fast island-wide delivery across Sri Lanka.",
+    " Shop online with fast island-wide delivery.",
+    " Discover premium products from CigarroElectrico.",
+  ];
+
+  for (const suffix of suffixes) {
+    if (truncated.length + suffix.length <= META_DESCRIPTION_MAX_LENGTH) {
+      return `${truncated}${suffix}`;
+    }
+  }
+
+  return truncated;
+}
+
 function isLocalDevelopmentHost(hostname: string) {
   return (
     hostname === "localhost" ||
@@ -105,7 +141,7 @@ export const categoryLandingPages: CategoryLandingPage[] = [
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Premium Vapes in Sri Lanka",
     description:
-      "Browse premium vapes from CigarroElectrico, including disposable vape devices, refill systems, and curated essentials for everyday use.",
+      "Browse premium vapes from CigarroElectrico, including disposable devices, refill systems, and curated essentials for everyday use.",
     shortDescription:
       "Explore premium vape devices, refill systems, and curated everyday hardware.",
     keywords: [
@@ -129,7 +165,7 @@ export const categoryLandingPages: CategoryLandingPage[] = [
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Vape Accessories & Add-Ons",
     description:
-      "Shop vape accessories from CigarroElectrico, including add-ons and supporting essentials that complete your setup.",
+      "Shop vape accessories from CigarroElectrico, including pods, coils, and supporting essentials that complete your setup.",
     shortDescription:
       "Accessories and supporting essentials to complete your vape setup.",
     keywords: [
@@ -150,7 +186,7 @@ export const categoryLandingPages: CategoryLandingPage[] = [
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Curated E-Liquid Collection",
     description:
-      "Discover curated e-liquid options from CigarroElectrico, selected to complement premium vape hardware and refill-ready setups.",
+      "Discover curated e-liquid options from CigarroElectrico, selected to pair with premium hardware and refill-ready setups.",
     shortDescription:
       "Curated e-liquid options to pair with refill-ready vape setups.",
     keywords: [
@@ -173,7 +209,7 @@ export const categoryLandingPages: CategoryLandingPage[] = [
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Disposable Vapes",
     description:
-      "Browse disposable vape options from CigarroElectrico for convenient, ready-to-use performance.",
+      "Browse disposable vape options from CigarroElectrico for convenient, ready-to-use performance and fast delivery.",
     shortDescription:
       "Convenient disposable vape options with ready-to-use performance.",
     keywords: [
@@ -193,7 +229,7 @@ export const categoryLandingPages: CategoryLandingPage[] = [
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     headline: "Refill Vape Systems",
     description:
-      "Explore refill vape systems and compatible product lines from CigarroElectrico for flexible, repeat-use setups.",
+      "Explore refill vape systems from CigarroElectrico for flexible, repeat-use setups and compatible product lines.",
     shortDescription:
       "Flexible refill vape systems for repeat-use setups.",
     keywords: [

@@ -11,7 +11,7 @@ import {
 export const metadata: Metadata = {
   title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
-    "Explore the CigarroElectrico collections of premium vapes, vape accessories, e-liquids, and apparel through product and category pages built for easy browsing.",
+    "Browse premium vapes, accessories, e-liquids, and apparel from CigarroElectrico in one collection hub with fast island-wide delivery.",
   keywords: [...brandKeywords, "collections", "vape collection", "vape accessories collection"],
   alternates: {
     canonical: absoluteUrl("/collections"),
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Browse CigarroElectrico collections for premium vapes, vape accessories, e-liquids, and apparel.",
+      "Browse CigarroElectrico collections for premium vapes, accessories, e-liquids, and apparel in Sri Lanka.",
     url: absoluteUrl("/collections"),
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Browse premium vapes, vape accessories, e-liquids, and apparel from CigarroElectrico.",
+      "Browse premium vapes, accessories, e-liquids, and apparel from CigarroElectrico in Sri Lanka.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };
@@ -54,7 +54,7 @@ export default async function CollectionsPage() {
           __html: renderJsonLd(breadcrumbSchema),
         }}
       />
-      <CollectionsClient />
+      <CollectionsClient pageHeading="Browse Collections" />
     </>
   );
 }

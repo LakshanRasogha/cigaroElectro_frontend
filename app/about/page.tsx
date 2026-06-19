@@ -4,7 +4,7 @@ import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 export const metadata: Metadata = {
   title: "Vapes with golden quality | Sri Lanka's Best Vapes",
-  description: "Shop premium disposable vapes, e-liquids, and accessories at CigarroElectrico. Discover curated essentials with fast delivery across Sri Lanka.",
+  description: "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
   keywords: [
     ...brandKeywords,
     "about CigarroElectrico",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title:  "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Learn about CigarroElectrico, a Sri Lanka-based destination for premium vapes, accessories, e-liquids, and apparel.",
+      "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
     url: absoluteUrl("/about"),
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title:  "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Learn about CigarroElectrico, a Sri Lanka-based destination for premium vapes, accessories, e-liquids, and apparel.",
+      "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };

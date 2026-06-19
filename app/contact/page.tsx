@@ -5,7 +5,7 @@ import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 export const metadata: Metadata = {
   title: "Contact Us | CigarroElectrico Vape Shop Sri Lanka",
   description:
-    "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
+    "Contact CigarroElectrico for support, stock checks, and vape order help in Sri Lanka, including delivery coordination and order updates.",
   keywords: [
     ...brandKeywords,
     "contact CigarroElectrico",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact Us | CigarroElectrico Vape Shop Sri Lanka",
     description:
-      "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
+      "Contact CigarroElectrico for support, stock checks, and vape order help in Sri Lanka, including delivery coordination and order updates.",
     url: absoluteUrl("/contact"),
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Contact Us | CigarroElectrico Vape Shop Sri Lanka",
     description:
-      "Get in touch with CigarroElectrico for customer support, fast delivery coordination, stock availability, and all vape product inquiries in Sri Lanka.",
+      "Contact CigarroElectrico for support, stock checks, and vape order help in Sri Lanka, including delivery coordination and order updates.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };
@@ -91,12 +91,6 @@ export default function ContactPage() {
         }}
       />
       
-      {/* 
-        Semantic H1 tag fallback to keep spiders happy in case your 
-        nested client wrapper doesn't use standard semantic element trees.
-      */}
-      <h1 className="sr-only">Contact CigarroElectrico</h1>
-
       <ContactContent />
     </>
   );

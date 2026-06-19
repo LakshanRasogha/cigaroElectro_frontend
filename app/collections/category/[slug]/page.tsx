@@ -7,6 +7,7 @@ import {
   brandKeywords,
   categoryLandingPages,
   getCategoryLandingPage,
+  normalizeMetaDescription,
   type CategoryLandingPage,
 } from "@/app/lib/site";
 import {
@@ -25,7 +26,10 @@ function buildCategoryMetadata(landingPage: CategoryLandingPage) {
   const canonicalUrl = absoluteUrl(`/collections/category/${landingPage.slug}`);
 
   const title = landingPage.metaTitle ?? `${landingPage.title} | CigarroElectrico`;
-  const description = landingPage.metaDescription ?? landingPage.description;
+  const description = normalizeMetaDescription(
+    landingPage.metaDescription ?? landingPage.description,
+    `Explore ${landingPage.headline.toLowerCase()} at CigarroElectrico with curated products and fast island-wide delivery.`,
+  );
   const keywords = [
     ...(landingPage.primaryKeyword ? [landingPage.primaryKeyword] : []),
     ...brandKeywords,
@@ -109,16 +113,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         }}
       />
       
-      {/* 
-        Semantic H1 tag generated on the server side for crawlers.
-        Uses 'sr-only' to keep it visually hidden while providing the 
-        exact dynamic category title to search engines.
-      */}
-      <h1 className="sr-only">
-        {landingPage.title} | CigarroElectrico Vape Shop Sri Lanka
-      </h1>
-
-      <CollectionsClient initialCategorySlug={landingPage.slug} />
+      <CollectionsClient
+        initialCategorySlug={landingPage.slug}
+        pageHeading={landingPage.headline}
+      />
     </>
   );
 }

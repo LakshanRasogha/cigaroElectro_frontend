@@ -8,7 +8,7 @@ import { absoluteUrl } from "@/app/lib/site";
 export const metadata: Metadata = {
   title: "Privacy Policy | CigarroElectrico Vape Shop Sri Lanka",
   description:
-    "Review the CigarroElectrico privacy policy to learn how we protect your personal account data, manage order information, and ensure safe shopping.",
+    "Review the CigarroElectrico privacy policy to learn how we handle account data, orders, and secure shopping in Sri Lanka.",
   alternates: {
     canonical: absoluteUrl("/auth/login/privacy-policy"),
   },

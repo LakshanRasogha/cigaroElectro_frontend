@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = {
   title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
-    "Shop the best disposable vapes, premium e-liquids, and vape accessories in Sri Lanka at CigarroElectrico. Enjoy fast island-wide delivery.",
+    "Discover premium vapes, e-liquids, and accessories from CigarroElectrico with fast island-wide delivery across Sri Lanka.",
   keywords: [
     ...brandKeywords,
     "vape sri lanka",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Explore premium disposable vapes, vape accessories, e-liquids, and pod systems at CigarroElectrico with island-wide delivery.",
+      "Discover premium disposable devices, vape accessories, e-liquids, and pod systems from CigarroElectrico with island-wide delivery.",
     url: absoluteUrl("/"),
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vapes with golden quality | Sri Lanka's Best Vapes",
     description:
-      "Explore premium disposable vapes, vape accessories, e-liquids, and pod systems at CigarroElectrico with island-wide delivery.",
+      "Discover premium disposable devices, vape accessories, e-liquids, and pod systems from CigarroElectrico with island-wide delivery.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };
@@ -57,13 +57,6 @@ export default function HomePage() {
           __html: renderJsonLd(buildWebsiteSchema()),
         }}
       />
-      
-      {/* 
-        Semantic H1 tag for search engine spiders. 
-        Using standard Tailwind CSS 'sr-only' keeps it hidden visually 
-        while making sure crawlers register it.
-      */}
-      <h1 className="sr-only">CigarroElectrico | Sri Lanka's Best Vapes & Premium E-Liquids</h1>
       
       <HomeContent />
     </>

@@ -5,7 +5,7 @@ import { absoluteUrl } from "@/app/lib/site";
 export const metadata: Metadata = {
   title: "Vapes with golden quality | Sri Lanka's Best Vapes",
   description:
-    "Sign in to your CigarroElectrico account to manage orders, saved items, and account details.",
+    "Sign in to your CigarroElectrico account to manage orders, saved items, and account details securely on any device in Sri Lanka.",
   alternates: {
     canonical: absoluteUrl("/auth/login"),
   },

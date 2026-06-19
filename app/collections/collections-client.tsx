@@ -23,9 +23,13 @@ const PAGE_SIZE = 8;
 
 type ProductsPageProps = {
   initialCategorySlug?: string;
+  pageHeading?: string;
 };
 
-const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
+const ProductsPage = ({
+  initialCategorySlug,
+  pageHeading,
+}: ProductsPageProps) => {
   const activeCategory = useMemo(
     () =>
       initialCategorySlug
@@ -210,7 +214,7 @@ const ProductsPage = ({ initialCategorySlug }: ProductsPageProps) => {
               className="text-3xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tighter leading-none"
               style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
             >
-              Collection
+              {pageHeading || "Collections"}
             </h1>
 
             <div className="w-full lg:w-72 xl:w-80">

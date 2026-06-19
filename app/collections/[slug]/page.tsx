@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import ProductDetailClient from "./product-detail-client";
 import { fetchProductBySlug } from "@/app/lib/catalog";
-import { absoluteUrl, brandKeywords, productSeoHints, siteConfig } from "@/app/lib/site";
+import {
+  absoluteUrl,
+  brandKeywords,
+  normalizeMetaDescription,
+  productSeoHints,
+  siteConfig,
+} from "@/app/lib/site";
 import {
   buildBreadcrumbSchema,
   buildProductSchema,
@@ -32,10 +38,10 @@ export async function generateMetadata({
 
   const canonicalUrl = absoluteUrl(`/collections/${product.slug || slug}`);
   const image = product.productImage?.[0] || siteConfig.defaultOgImage;
-  const description =
-    product.description ||
-    product.tagline ||
-    `Shop ${product.name} at CigarroElectrico with premium vapes, vape accessories, and curated product details.`;
+  const description = normalizeMetaDescription(
+    product.description || product.tagline,
+    `Shop ${product.name} at CigarroElectrico with premium vapes, accessories, and fast island-wide delivery across Sri Lanka.`,
+  );
 
   const seoHint = productSeoHints[product.slug || slug];
   const pageTitle = seoHint
@@ -75,9 +81,14 @@ export async function generateMetadata({
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await fetchProductBySlug(slug);
+  const fallbackTitle = slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 
   if (!product) {
-    return <ProductDetailClient slug={slug} />;
+    return <ProductDetailClient slug={slug} fallbackTitle={fallbackTitle} />;
   }
 
   const productSchema = buildProductSchema(product, slug);
@@ -101,7 +112,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
           __html: renderJsonLd(breadcrumbSchema),
         }}
       />
-      <ProductDetailClient initialProduct={product} slug={slug} />
+      <ProductDetailClient
+        initialProduct={product}
+        slug={slug}
+        fallbackTitle={fallbackTitle}
+      />
     </>
   );
 }

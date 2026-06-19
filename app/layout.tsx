@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: "%s | CigarroElectrico",
   },
   description:
-    "Shop premium vapes, vape accessories, e-liquids, and lifestyle apparel at CigarroElectrico. Discover Cigarro Electrico online with curated hardware and culture-led essentials in Sri Lanka.",
+    "Shop premium vapes, accessories, e-liquids, and lifestyle apparel from CigarroElectrico in Sri Lanka with island-wide delivery.",
   keywords: [...brandKeywords],
   alternates: {
     canonical: absoluteUrl("/"),
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CigarroElectrico | Premium Vapes, Accessories & Apparel",
     description:
-      "Explore CigarroElectrico for premium vapes, vape accessories, e-liquids, and curated apparel.",
+      "Explore CigarroElectrico for premium vapes, accessories, e-liquids, and curated apparel in Sri Lanka.",
     url: absoluteUrl("/"),
     siteName: siteConfig.name,
     locale: "en_US",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CigarroElectrico | Premium Vapes, Accessories & Apparel",
     description:
-      "Discover premium vapes, vape accessories, e-liquids, and curated apparel from CigarroElectrico.",
+      "Discover premium vapes, accessories, e-liquids, and curated apparel from CigarroElectrico in Sri Lanka.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };
