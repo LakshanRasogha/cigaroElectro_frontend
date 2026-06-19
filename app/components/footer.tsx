@@ -31,7 +31,7 @@ const Footer = () => {
             {/* Alt text optimized programmatically to map high-trending discovery strings into search crawls */}
             <img
               src={staticAssets.brandWordmark}
-              alt="CigarroElectrico - Premium Vapes & Vape Store Colombo Sri Lanka"
+              alt="CigarroElectrico - Premium Vapes and Vape Store in Sri Lanka"
               crossOrigin="anonymous"
               className="h-14 md:h-16 w-auto object-contain"
             />

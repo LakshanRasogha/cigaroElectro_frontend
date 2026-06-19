@@ -1,0 +1,13 @@
+
+> cigaroelectro_frontend@0.1.0 dev
+> next dev --port 3000
+
+▲ Next.js 16.2.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.3:3000
+- Environments: .env
+✓ Ready in 7.6s
+Creating turbopack project {
+  dir: 'D:\\projects\\cigarroElectrineNew\\cigaroElectro_frontend',
+  testMode: true
+}

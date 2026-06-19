@@ -175,7 +175,7 @@ const LoginPage = () => {
               </div>
               <img
                 src={staticAssets.brandWordmark}
-                alt='CigaroElectro wordmark'
+                alt='CigarroElectrico wordmark'
                 className='h-10 w-auto object-contain'
                 crossOrigin="anonymous"
               />

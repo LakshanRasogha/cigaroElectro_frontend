@@ -179,7 +179,7 @@ export default function Register() {
               </div>
               <img
                 src={staticAssets.brandWordmark}
-                alt='CigaroElectro wordmark'
+                alt='CigarroElectrico wordmark'
                 className='h-8 sm:h-9 md:h-10 w-auto object-contain'
                 crossOrigin="anonymous"
               />

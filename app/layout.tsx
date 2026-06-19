@@ -30,8 +30,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
   title: {
     default:
-      "CigarroElectrico | Premium Vapes, Vape Accessories & Apparel in Sri Lanka",
-    template: "%s | CigarroElectrico",
+      "cigarroelectrico.com | Premium Vapes, Vape Accessories & Apparel in Sri Lanka",
+    template: "%s | cigarroelectrico.com",
   },
   description:
     "Shop premium vapes, accessories, e-liquids, and lifestyle apparel from CigarroElectrico in Sri Lanka with island-wide delivery.",

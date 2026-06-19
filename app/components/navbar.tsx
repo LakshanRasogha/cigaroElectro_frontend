@@ -36,7 +36,7 @@ const BrandLogo = ({
   <Link href="/" onClick={onClick} className="flex items-center shrink-0">
     <img
       src={staticAssets.brandWordmark}
-      alt="CigaroElectro logo"
+      alt="CigarroElectrico logo"
       width={240}
       height={40}
       fetchPriority="high"
@@ -461,7 +461,7 @@ const Navbar = () => {
               </Link>
             )}
             <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.5em] mt-8 text-center">
-              Cigaro Electrico MMXXVI
+              CigarroElectrico MMXXVI
             </p>
           </div>
         </div>

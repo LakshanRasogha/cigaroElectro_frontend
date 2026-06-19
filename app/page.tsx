@@ -8,7 +8,7 @@ import {
 } from "@/app/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  title: "cigarroelectrico.com | Premium Vapes in Sri Lanka",
   description:
     "Discover premium vapes, e-liquids, and accessories from CigarroElectrico with fast island-wide delivery across Sri Lanka.",
   keywords: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     canonical: absoluteUrl("/"),
   },
   openGraph: {
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "cigarroelectrico.com | Premium Vapes in Sri Lanka",
     description:
       "Discover premium disposable devices, vape accessories, e-liquids, and pod systems from CigarroElectrico with island-wide delivery.",
     url: absoluteUrl("/"),
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "cigarroelectrico.com | Premium Vapes in Sri Lanka",
     description:
       "Discover premium disposable devices, vape accessories, e-liquids, and pod systems from CigarroElectrico with island-wide delivery.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
