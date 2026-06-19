@@ -3,8 +3,8 @@ import AboutContent from "./about-content";
 import { absoluteUrl, brandKeywords, siteConfig } from "@/app/lib/site";
 
 export const metadata: Metadata = {
-  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
-  description: "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
+  title: "About CigarroElectrico | Sri Lanka Vape Shop",
+  description: "Learn about CigarroElectrico, a Sri Lanka vape shop for premium vapes, disposable devices, accessories, e-liquids, and apparel with trusted service.",
   keywords: [
     ...brandKeywords,
     "about CigarroElectrico",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     canonical: absoluteUrl("/about"),
   },
   openGraph: {
-    title:  "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "About CigarroElectrico | Sri Lanka Vape Shop",
     description:
       "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
     url: absoluteUrl("/about"),
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title:  "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "About CigarroElectrico | Sri Lanka Vape Shop",
     description:
       "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],

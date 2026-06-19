@@ -5,14 +5,20 @@ import { absoluteUrl, siteConfig, type CategoryLandingPage } from "@/app/lib/sit
 export function buildOrganizationSchema() {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "OnlineStore",
     "@id": absoluteUrl("/#organization"),
     name: siteConfig.legalName,
-    alternateName: siteConfig.alternateName,
+    alternateName: [
+      siteConfig.alternateName,
+      "cigarroelectrico.com",
+      "CigarroElectrico Sri Lanka",
+    ],
     url: absoluteUrl("/"),
     logo: absoluteUrl("/icon.png"),
     email: siteConfig.contactEmail,
     telephone: siteConfig.contactPhone,
+    description: siteConfig.description,
+    sameAs: [absoluteUrl("/")],
     address: {
       "@type": "PostalAddress",
       addressLocality: siteConfig.addressLocality,
@@ -21,6 +27,14 @@ export function buildOrganizationSchema() {
     areaServed: {
       "@type": "Country",
       name: "Sri Lanka",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      telephone: siteConfig.contactPhone,
+      email: siteConfig.contactEmail,
+      areaServed: "LK",
+      availableLanguage: ["en"],
     },
   };
 }
@@ -31,7 +45,11 @@ export function buildWebsiteSchema() {
     "@type": "WebSite",
     "@id": absoluteUrl("/#website"),
     name: siteConfig.name,
-    alternateName: siteConfig.alternateName,
+    alternateName: [
+      siteConfig.alternateName,
+      "CigarroElectrico vapes Sri Lanka",
+      "Cigarro Electrico vape shop",
+    ],
     url: absoluteUrl("/"),
     description: siteConfig.description,
     publisher: { "@id": absoluteUrl("/#organization") },
@@ -93,7 +111,7 @@ export function buildCollectionsIndexSchema(products: Product[]) {
     "@type": "CollectionPage",
     name: "CigarroElectrico Collections",
     description:
-      "Browse premium vapes, vape accessories, e-liquids, and apparel from CigarroElectrico.",
+      "Browse premium vapes, disposable vapes, vape accessories, e-liquids, pod systems, and apparel from CigarroElectrico in Sri Lanka.",
     url: canonicalUrl,
     inLanguage: "en",
     publisher: {

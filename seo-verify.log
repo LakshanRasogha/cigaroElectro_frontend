@@ -11,3 +11,6 @@ Creating turbopack project {
   dir: 'D:\\projects\\cigarroElectrineNew\\cigaroElectro_frontend',
   testMode: true
 }
+- Experiments (use with caution):
+  · optimizePackageImports
+

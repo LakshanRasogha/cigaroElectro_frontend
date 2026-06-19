@@ -53,13 +53,17 @@ const Hero = () => {
               className='block py-1 text-5xl md:text-7xl font-light tracking-tighter text-[#D4AF37]'
               style={{ fontFamily: "var(--font-cormorant-garamond), serif" }}
             >
-              THE APEX OF VAPOR
+              VAPES SRI LANKA
+            </span>
+            <span className='mt-3 block text-sm md:text-lg font-black uppercase tracking-[0.35em] text-white/80'>
+              CigarroElectrico Online Vape Shop
             </span>
           </h1>
 
           {/* Subtext */}
           <p className='text-zinc-300 text-base md:text-xl mb-12 leading-relaxed max-w-xl font-light'>
-            It&apos;s your entry into the gold standard of modern indulgence.
+            Shop premium disposable vapes, refillable pod systems, e-liquids,
+            and vape accessories with fast islandwide delivery.
           </p>
 
           {/* CTA Section */}
@@ -87,7 +91,7 @@ const Hero = () => {
                   Authentic Gold Tier
                 </p>
                 <p className='text-zinc-400 text-[10px] mt-1 font-medium'>
-                  Verified luxury hardware &amp; components
+                  Verified vape devices, pods, coils &amp; e-liquids
                 </p>
               </div>
             </div>
@@ -101,7 +105,7 @@ const Hero = () => {
                   Premium Logistics
                 </p>
                 <p className='text-zinc-400 text-[10px] mt-1 font-medium'>
-                  Concierge delivery islandwide
+                  Fast delivery across Colombo and Sri Lanka
                 </p>
               </div>
             </div>

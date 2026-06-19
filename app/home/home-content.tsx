@@ -248,41 +248,21 @@ const Home = () => {
   const [bestsellerKeys, setBestsellerKeys] = useState<Set<string>>(new Set());
   const trendingKeywordPills = [
     "vapes sri lanka",
-    "vape store colombo",
     "buy vapes online sri lanka",
-    "premium vape shop colombo",
-    "disposable vape price sri lanka",
-    "e-liquid price colombo",
-    "vape juice colombo",
+    "cigarroelectrico vapes",
+    "vape shop colombo",
+    "disposable vapes sri lanka",
+    "refillable pod systems",
     "vape accessories sri lanka",
+    "e-liquid sri lanka",
+    "vape juice sri lanka",
+    "nicotine salts",
+    "elfbar sri lanka",
+    "vozol sri lanka",
+    "geekvape sri lanka",
+    "nasty liquids sri lanka",
+    "qpods sri lanka",
     "vape coils colombo",
-    "elf bar 13000 price sri lanka",
-    "elfbar raya d1 colombo",
-    "vozol vista 20k price",
-    "elfbar ice king 30k delivery",
-    "elf bar 13000 price sri lanka",
-    "elf bar raya D3 - 25k price sri lanka",
-    "ELFBAR - Planet space edition 2 price sri lanka",
-    "ELFBAR Ice King 30k",
-    "VOZOL Gear ICE & SWEET 50K price sri lanka",
-    "Sonder Q2 Geek Vape price sri lanka",
-    "Wenex Q GeekVape price sri lanka",
-    "QPods sri lanka",
-    "QPods price sri lanka",
-    "NASTY Liquids price sri lanka",
-    "SILVAPER Salt Liquids sri lanka",
-    "I Love Salt Liquids sri lanka",
-    "I Love Salt Liquids",
-    "VGod Salt Liquids sri lanka",
-    "I Love Salt Liquids sri lanka",
-    "TOKYO Classic Liquids",
-    "NASTY Bolt 50K",
-    "Disposable Vapes",
-    "E-Liquid",
-    "Vape Accessories",
-    "Pod Systems",
-    "Nicotine Salts",
-    "Best Vape Shop Colombo",
   ];
 
   useEffect(() => {
@@ -340,13 +320,13 @@ const Home = () => {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#D4AF37]">
-                  Explore Our Vape Shop
+                  CigarroElectrico Vape Shop Sri Lanka
                 </p>
                 <h2 className="mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
-                  Browse the Best Disposable Vapes, E-Liquid & Vape Accessories
+                  Buy Vapes Online in Sri Lanka
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-                  Discover trending vape essentials in Sri Lanka, including premium disposable vapes, refill-ready pod systems, nicotine salts, and curated vape accessories for every setup.
+                  Discover CigarroElectrico&apos;s curated vape catalogue for Sri Lanka, including premium disposable vapes, refill-ready pod systems, nicotine salts, e-liquids, coils, pods, and everyday vape accessories.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {trendingKeywordPills.map((keyword) => (

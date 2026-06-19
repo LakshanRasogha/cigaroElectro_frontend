@@ -45,8 +45,8 @@ export async function generateMetadata({
 
   const seoHint = productSeoHints[product.slug || slug];
   const pageTitle = seoHint
-    ? `${seoHint.headline} | ${product.category || "Collection"}`
-    : `${product.name} | ${product.category || "Collection"}`;
+    ? `${seoHint.headline} | CigarroElectrico Sri Lanka`
+    : `${product.name} | CigarroElectrico Sri Lanka`;
   const keywords = [
     ...(seoHint ? seoHint.targetKeywords : []),
     ...brandKeywords,

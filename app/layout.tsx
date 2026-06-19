@@ -30,11 +30,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl()),
   title: {
     default:
-      "cigarroelectrico.com | Premium Vapes, Vape Accessories & Apparel in Sri Lanka",
-    template: "%s | cigarroelectrico.com",
+      "CigarroElectrico | Vapes Sri Lanka, Vape Accessories & E-Liquid",
+    template: "%s",
   },
   description:
-    "Shop premium vapes, accessories, e-liquids, and lifestyle apparel from CigarroElectrico in Sri Lanka with island-wide delivery.",
+    "Shop vapes in Sri Lanka from CigarroElectrico. Browse premium disposable vapes, vape accessories, e-liquids, pod systems, and apparel with island-wide delivery.",
   keywords: [...brandKeywords],
   alternates: {
     canonical: absoluteUrl("/"),
@@ -51,9 +51,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "CigarroElectrico | Premium Vapes, Accessories & Apparel",
+    title: "CigarroElectrico | Vapes Sri Lanka",
     description:
-      "Explore CigarroElectrico for premium vapes, accessories, e-liquids, and curated apparel in Sri Lanka.",
+      "Explore CigarroElectrico for premium vapes, disposable vapes, vape accessories, e-liquids, and curated apparel in Sri Lanka.",
     url: absoluteUrl("/"),
     siteName: siteConfig.name,
     locale: "en_US",
@@ -69,9 +69,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CigarroElectrico | Premium Vapes, Accessories & Apparel",
+    title: "CigarroElectrico | Vapes Sri Lanka",
     description:
-      "Discover premium vapes, accessories, e-liquids, and curated apparel from CigarroElectrico in Sri Lanka.",
+      "Discover premium vapes, disposable vapes, accessories, e-liquids, and curated apparel from CigarroElectrico in Sri Lanka.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
 };

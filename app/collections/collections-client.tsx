@@ -340,13 +340,16 @@ function CategoryLink({
     <Link
       href={page ? `/collections/category/${page.slug}` : "/collections"}
       aria-current={active ? "page" : undefined}
+      aria-label={
+        page ? `Filter products by ${page.headline}` : "Show all products"
+      }
       className={`rounded-full border px-5 py-3 text-[10px] font-black uppercase tracking-[0.24em] transition-all ${
         active
           ? "border-[#D4AF37] bg-[#D4AF37] text-black"
           : "border-[#D4AF37]/20 bg-[#D4AF37]/5 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"
       }`}
     >
-      {page?.title || "All"}
+      {page?.navLabel || "All"}
     </Link>
   );
 }

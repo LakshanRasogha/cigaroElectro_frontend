@@ -9,17 +9,17 @@ import {
 } from "@/app/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+  title: "Vape Collection Sri Lanka | CigarroElectrico",
   description:
-    "Browse premium vapes, accessories, e-liquids, and apparel from CigarroElectrico in one collection hub with fast island-wide delivery.",
-  keywords: [...brandKeywords, "collections", "vape collection", "vape accessories collection"],
+    "Browse the CigarroElectrico vape collection in Sri Lanka, including disposable vapes, refillable pod systems, e-liquids, accessories, and apparel.",
+  keywords: [...brandKeywords, "vape collection Sri Lanka", "vape accessories collection", "online vape store Sri Lanka"],
   alternates: {
     canonical: absoluteUrl("/collections"),
   },
   openGraph: {
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "Vape Collection Sri Lanka | CigarroElectrico",
     description:
-      "Browse CigarroElectrico collections for premium vapes, accessories, e-liquids, and apparel in Sri Lanka.",
+      "Browse CigarroElectrico collections for disposable vapes, pod systems, vape accessories, e-liquids, and apparel in Sri Lanka.",
     url: absoluteUrl("/collections"),
     siteName: siteConfig.name,
     locale: "en_US",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vapes with golden quality | Sri Lanka's Best Vapes",
+    title: "Vape Collection Sri Lanka | CigarroElectrico",
     description:
       "Browse premium vapes, accessories, e-liquids, and apparel from CigarroElectrico in Sri Lanka.",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
