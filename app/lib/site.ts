@@ -124,6 +124,7 @@ export const brandKeywords = [
   "e-liquid Sri Lanka",
   "vape juice Sri Lanka",
   "pod vapes Sri Lanka",
+  "cigarettes Sri Lanka",
 ] as const;
 
 // ── Indexable Category Pages ──────────────────────────────────────────────────
@@ -258,6 +259,28 @@ export const categoryLandingPages: CategoryLandingPage[] = [
     metaDescription:
       "Optimise your vaping experience with advanced refillable vapes and modular pod systems built for long-lasting performance.",
     primaryKeyword: "refillable vapes Sri Lanka",
+  },
+  {
+    slug: "cigarettes",
+    title: "Cigarettes Sri Lanka",
+    navLabel: "Cigarettes",
+    headline: "Cigarettes",
+    description:
+      "Browse cigarette products from CigarroElectrico with fast delivery coordination across Sri Lanka.",
+    shortDescription:
+      "Selected cigarette products with fast delivery coordination across Sri Lanka.",
+    keywords: [
+      "cigarettes",
+      "cigarettes Sri Lanka",
+      "CigarroElectrico cigarettes",
+      "premium cigarettes",
+      "cigarettes online Sri Lanka",
+    ],
+    categories: ["Cigarettes"],
+    metaTitle: "Cigarettes Sri Lanka | CigarroElectrico",
+    metaDescription:
+      "Browse cigarette products online at CigarroElectrico with fast delivery coordination across Sri Lanka.",
+    primaryKeyword: "cigarettes Sri Lanka",
   },
 ];
 
