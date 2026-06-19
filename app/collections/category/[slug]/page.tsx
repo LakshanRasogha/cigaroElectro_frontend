@@ -47,6 +47,9 @@ function buildCategoryMetadata(landingPage: CategoryLandingPage) {
       title,
       description,
       url: canonicalUrl,
+      siteName: "CigarroElectrico",
+      locale: "en_US",
+      type: "website",
       images: [absoluteUrl("/opengraph-image.png")],
     },
     twitter: {

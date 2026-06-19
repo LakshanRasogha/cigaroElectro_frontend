@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     description:
       "Contact CigarroElectrico for support, stock checks, and vape order help in Sri Lanka, including delivery coordination and order updates.",
     url: absoluteUrl("/contact"),
+    siteName: siteConfig.name,
+    locale: "en_US",
+    type: "website",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
   twitter: {

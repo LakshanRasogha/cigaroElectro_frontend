@@ -67,6 +67,8 @@ export async function generateMetadata({
       description,
       url: canonicalUrl,
       type: "website",
+      siteName: siteConfig.name,
+      locale: "en_US",
       images: [absoluteUrl(image)],
     },
     twitter: {

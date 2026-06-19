@@ -3,98 +3,44 @@ import { fetchAllProductsSafe } from "@/app/lib/catalog";
 import { absoluteUrl, categoryLandingPages, productSeoHints } from "@/app/lib/site";
 
 const hardcodedProductPages = [
-  {
-    slug: "elfbar-raya-d1",
-    lastModified: "2026-06-13T12:38:04.970Z",
-  },
-  {
-    slug: "vozol-vista-20k",
-    lastModified: "2026-06-13T14:35:11.608Z",
-  },
-  {
-    slug: "elfbar-raya-d3-25k",
-    lastModified: "2026-06-13T14:40:36.425Z",
-  },
+  { slug: "elfbar-raya-d1", lastModified: "2026-06-13T12:38:04.970Z" },
+  { slug: "vozol-vista-20k", lastModified: "2026-06-13T14:35:11.608Z" },
+  { slug: "elfbar-raya-d3-25k", lastModified: "2026-06-13T14:40:36.425Z" },
   {
     slug: "elfbar-planet-space-edition-25k",
     lastModified: "2026-06-13T14:49:13.505Z",
   },
-  {
-    slug: "elfbar-ice-king-30k",
-    lastModified: "2026-06-13T14:54:20.698Z",
-  },
-  {
-    slug: "elfbar-trio-30k",
-    lastModified: "2026-06-13T14:56:59.885Z",
-  },
-  {
-    slug: "nasty-bolt-50k",
-    lastModified: "2026-06-16T23:19:44.890Z",
-  },
+  { slug: "elfbar-ice-king-30k", lastModified: "2026-06-13T14:54:20.698Z" },
+  { slug: "elfbar-trio-30k", lastModified: "2026-06-13T14:56:59.885Z" },
+  { slug: "nasty-bolt-50k", lastModified: "2026-06-16T23:19:44.890Z" },
   {
     slug: "vozol-gear-ice-sweet-50k",
     lastModified: "2026-06-16T23:21:36.879Z",
   },
-  {
-    slug: "sonder-q2-geek-vape",
-    lastModified: "2026-06-16T23:24:19.950Z",
-  },
-  {
-    slug: "wenex-q-geekvape",
-    lastModified: "2026-06-16T23:26:11.640Z",
-  },
-  {
-    slug: "qpods",
-    lastModified: "2026-06-16T23:28:11.992Z",
-  },
-  {
-    slug: "nasty-liquids",
-    lastModified: "2026-06-16T23:33:03.875Z",
-  },
-  {
-    slug: "vozol-salt-liquids",
-    lastModified: "2026-06-16T23:37:50.917Z",
-  },
-  {
-    slug: "silvaper-salt-liquids",
-    lastModified: "2026-06-16T23:39:42.085Z",
-  },
-  {
-    slug: "i-love-salt-liquids",
-    lastModified: "2026-06-16T23:42:19.046Z",
-  },
-  {
-    slug: "vgod-salt-liquids",
-    lastModified: "2026-06-16T23:44:25.694Z",
-  },
+  { slug: "sonder-q2-geek-vape", lastModified: "2026-06-16T23:24:19.950Z" },
+  { slug: "wenex-q-geekvape", lastModified: "2026-06-16T23:26:11.640Z" },
+  { slug: "qpods", lastModified: "2026-06-16T23:28:11.992Z" },
+  { slug: "nasty-liquids", lastModified: "2026-06-16T23:33:03.875Z" },
+  { slug: "vozol-salt-liquids", lastModified: "2026-06-16T23:37:50.917Z" },
+  { slug: "silvaper-salt-liquids", lastModified: "2026-06-16T23:39:42.085Z" },
+  { slug: "i-love-salt-liquids", lastModified: "2026-06-16T23:42:19.046Z" },
+  { slug: "vgod-salt-liquids", lastModified: "2026-06-16T23:44:25.694Z" },
   {
     slug: "tokyo-classic-liquids",
     lastModified: "2026-06-16T23:47:03.292Z",
   },
-  {
-    slug: "vozol-salt-50mg-30ml",
-    lastModified: "2026-06-17T11:31:12.699Z",
-  },
+  { slug: "vozol-salt-50mg-30ml", lastModified: "2026-06-17T11:31:12.699Z" },
   {
     slug: "silvaper-salt-50mg-30ml",
     lastModified: "2026-06-17T11:35:06.931Z",
   },
-  {
-    slug: "i-salt-50mg-30ml",
-    lastModified: "2026-06-17T11:38:50.641Z",
-  },
-  {
-    slug: "vgod-salt-50mg-30ml",
-    lastModified: "2026-06-17T11:49:01.420Z",
-  },
+  { slug: "i-salt-50mg-30ml", lastModified: "2026-06-17T11:38:50.641Z" },
+  { slug: "vgod-salt-50mg-30ml", lastModified: "2026-06-17T11:49:01.420Z" },
   {
     slug: "manchester-double-drive-cigarettes",
     lastModified: "2026-06-17T11:51:00.875Z",
   },
-  {
-    slug: "platinum-seven-slims",
-    lastModified: "2026-06-17T11:52:39.953Z",
-  },
+  { slug: "platinum-seven-slims", lastModified: "2026-06-17T11:52:39.953Z" },
   {
     slug: "esse-lights-super-slim-luxury-cigarettes",
     lastModified: "2026-06-17T11:54:15.417Z",
@@ -112,14 +58,12 @@ const hardcodedProductSlugs = new Set<string>(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await fetchAllProductsSafe();
 
-  // ── Core Indexable Static Pages ─────────────────────────────────────────────
-  // ── Core Indexable Static Pages ─────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: absoluteUrl("/"),
       lastModified: new Date(),
       changeFrequency: "daily",
-      priority: 1.0,
+      priority: 1,
     },
     {
       url: absoluteUrl("/collections"),
@@ -141,44 +85,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // ── Non-Indexable Utility Pages (Crawl Control Segregation) ──────────────────
-  // Included per explicit system structural requirements. 
-  // NOTE: Wastes crawl budget if prioritized; kept at minimum structural weight.
-  const utilityPages: MetadataRoute.Sitemap = [
-    {
-      url: absoluteUrl("/cart"),
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: absoluteUrl("/auth/login"),
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: absoluteUrl("/auth/login/privacy-policy"),
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: absoluteUrl("/auth/login/free-membership-agreement"),
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: absoluteUrl("/auth/Signin"),
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-  ];
-
-  // ── Category Landing Pages ─────────────────────────────────────────────────
-  // High priority — these are the main SEO entry points for product discovery.
   const categoryPages: MetadataRoute.Sitemap = categoryLandingPages.map(
     (page) => ({
       url: absoluteUrl(`/collections/category/${page.slug}`),
@@ -188,8 +94,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  // ── Individual Product Pages ───────────────────────────────────────────────
-  // Use the real updatedAt timestamp when available so Google knows freshness.
   const productPages: MetadataRoute.Sitemap = products.map((product) => {
     const updatedAt =
       (product as { updatedAt?: string }).updatedAt ??
@@ -228,7 +132,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticPages,
-    ...utilityPages,
     ...categoryPages,
     ...hardcodedPages,
     ...productPagesFromApi,

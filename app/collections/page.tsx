@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     description:
       "Browse CigarroElectrico collections for premium vapes, accessories, e-liquids, and apparel in Sri Lanka.",
     url: absoluteUrl("/collections"),
+    siteName: siteConfig.name,
+    locale: "en_US",
+    type: "website",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
   twitter: {

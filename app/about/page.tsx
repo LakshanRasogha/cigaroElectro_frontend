@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     description:
       "Learn about CigarroElectrico, a Sri Lanka vape shop offering premium devices, accessories, e-liquids, and apparel with trusted service.",
     url: absoluteUrl("/about"),
+    siteName: siteConfig.name,
+    locale: "en_US",
+    type: "website",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
   twitter: {

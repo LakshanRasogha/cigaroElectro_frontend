@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     description:
       "Discover premium disposable devices, vape accessories, e-liquids, and pod systems from CigarroElectrico with island-wide delivery.",
     url: absoluteUrl("/"),
+    siteName: siteConfig.name,
+    locale: "en_US",
+    type: "website",
     images: [absoluteUrl(siteConfig.defaultOgImage)],
   },
   twitter: {
