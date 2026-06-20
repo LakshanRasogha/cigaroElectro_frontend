@@ -246,24 +246,6 @@ const ProfileNudgeBanner = () => {
 
 const Home = () => {
   const [bestsellerKeys, setBestsellerKeys] = useState<Set<string>>(new Set());
-  const trendingKeywordPills = [
-    "vapes sri lanka",
-    "buy vapes online sri lanka",
-    "cigarroelectrico vapes",
-    "vape shop colombo",
-    "disposable vapes sri lanka",
-    "refillable pod systems",
-    "vape accessories sri lanka",
-    "e-liquid sri lanka",
-    "vape juice sri lanka",
-    "nicotine salts",
-    "elfbar sri lanka",
-    "vozol sri lanka",
-    "geekvape sri lanka",
-    "nasty liquids sri lanka",
-    "qpods sri lanka",
-    "vape coils colombo",
-  ];
 
   useEffect(() => {
     let active = true;
@@ -318,7 +300,7 @@ const Home = () => {
         <div className="bg-[#050505] px-4 pb-8 md:px-6">
           <div className="mx-auto max-w-7xl rounded-[2rem] border border-[#D4AF37]/15 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-xl">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
+              <div className="max-w-3xl">
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#D4AF37]">
                   CigarroElectrico Vape Shop Sri Lanka
                 </p>
@@ -328,16 +310,37 @@ const Home = () => {
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
                   Discover CigarroElectrico&apos;s curated vape catalogue for Sri Lanka, including premium disposable vapes, refill-ready pod systems, nicotine salts, e-liquids, coils, pods, and everyday vape accessories.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {trendingKeywordPills.map((keyword) => (
-                    <span
-                      key={keyword}
-                      className="rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F2D37D]"
-                    >
-                      {keyword}
-                    </span>
-                  ))}
-                </div>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-500">
+                  Shop by collection with dedicated pages for{" "}
+                  <Link
+                    href="/collections/category/disposable-vapes"
+                    className="font-semibold text-[#D4AF37] underline-offset-4 hover:underline"
+                  >
+                    disposable vapes
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="/collections/category/refill-vapes"
+                    className="font-semibold text-[#D4AF37] underline-offset-4 hover:underline"
+                  >
+                    refillable pod systems
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="/collections/category/e-liquid"
+                    className="font-semibold text-[#D4AF37] underline-offset-4 hover:underline"
+                  >
+                    e-liquids and nicotine salts
+                  </Link>
+                  , and{" "}
+                  <Link
+                    href="/collections/category/vape-accessories"
+                    className="font-semibold text-[#D4AF37] underline-offset-4 hover:underline"
+                  >
+                    vape accessories
+                  </Link>
+                  .
+                </p>
               </div>
 
               <Link
