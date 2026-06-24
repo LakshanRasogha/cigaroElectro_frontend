@@ -14,13 +14,40 @@ export const siteConfig = {
   addressLocality: "Colombo, Sri Lanka",
 } as const;
 
+function normalizeSiteUrl(value: string | undefined) {
+  const fallbackUrl = new URL(siteConfig.domain);
+  const normalizedValue = value?.trim();
+
+  if (!normalizedValue) {
+    return fallbackUrl.origin;
+  }
+
+  try {
+    const url = new URL(normalizedValue);
+
+    if (
+      url.hostname === "cigarroelectrico.com" ||
+      url.hostname === "www.cigarroelectrico.com"
+    ) {
+      return fallbackUrl.origin;
+    }
+
+    if (process.env.NODE_ENV === "development") {
+      return url.origin;
+    }
+  } catch {
+    return fallbackUrl.origin;
+  }
+
+  return fallbackUrl.origin;
+}
+
 export const fallbackApiBaseUrl =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000" // Standard local development port configuration
     : "https://api.cigarroelectrico.com";
 
-export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || siteConfig.domain;
+export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 const META_DESCRIPTION_MIN_LENGTH = 120;
 const META_DESCRIPTION_MAX_LENGTH = 160;
