@@ -1,5 +1,3 @@
-import type { MetadataRoute } from "next";
-
 export const siteConfig = {
   name: "CigarroElectrico",
   legalName: "CigarroElectrico",
@@ -471,6 +469,35 @@ export function normalizeCategory(value: string | null | undefined) {
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, "");
+}
+
+export function getCategoryLandingPageForProductCategory(
+  category: string | null | undefined,
+) {
+  const normalizedCategory = normalizeCategory(category);
+
+  return (
+    categoryLandingPages.find((page) =>
+      page.categories.some(
+        (pageCategory) => normalizeCategory(pageCategory) === normalizedCategory,
+      ),
+    ) || null
+  );
+}
+
+export function getProductCanonicalPath(
+  product: {
+    slug?: string | null;
+    key?: string | null;
+    category?: string | null;
+  },
+  fallbackSlug = "",
+) {
+  const productSlug = product.slug || product.key || fallbackSlug;
+  const landingPage = getCategoryLandingPageForProductCategory(product.category);
+  const categorySlug = landingPage?.slug || "vapes";
+
+  return `/collections/category/${categorySlug}/${productSlug}`;
 }
 
 export function getCategoryLandingPage(slug: string) {

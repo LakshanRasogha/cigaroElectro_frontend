@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import ProductDetailClient from "./product-detail-client";
+import { permanentRedirect } from "next/navigation";
 import { fetchProductBySlug } from "@/app/lib/catalog";
 import {
   absoluteUrl,
-  brandKeywords,
-  normalizeMetaDescription,
-  productSeoHints,
-  siteConfig,
+  getProductCanonicalPath,
 } from "@/app/lib/site";
-import {
-  buildBreadcrumbSchema,
-  buildProductSchema,
-  renderJsonLd,
-} from "@/app/lib/schema";
 
 type ProductPageProps = {
   params: Promise<{
@@ -36,46 +28,14 @@ export async function generateMetadata({
     };
   }
 
-  const canonicalUrl = absoluteUrl(`/collections/${product.slug || slug}`);
-  const image = product.productImage?.[0] || siteConfig.defaultOgImage;
-  const description = normalizeMetaDescription(
-    product.description || product.tagline,
-    `Shop ${product.name} at CigarroElectrico with premium vapes, accessories, and fast island-wide delivery across Sri Lanka.`,
-  );
-
-  const seoHint = productSeoHints[product.slug || slug];
-  const pageTitle = seoHint
-    ? `${seoHint.headline} | CigarroElectrico Sri Lanka`
-    : `${product.name} | CigarroElectrico Sri Lanka`;
-  const keywords = [
-    ...(seoHint ? seoHint.targetKeywords : []),
-    ...brandKeywords,
-    product.name,
-    product.category || "",
-    `${product.name} price Sri Lanka`,
-  ];
-
   return {
-    title: pageTitle,
-    description,
-    keywords,
+    title: `${product.name} | CigarroElectrico Sri Lanka`,
     alternates: {
-      canonical: canonicalUrl,
+      canonical: absoluteUrl(getProductCanonicalPath(product, slug)),
     },
-    openGraph: {
-      title: `${product.name} | CigarroElectrico`,
-      description,
-      url: canonicalUrl,
-      type: "website",
-      siteName: siteConfig.name,
-      locale: "en_US",
-      images: [absoluteUrl(image)],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${product.name} | CigarroElectrico`,
-      description,
-      images: [absoluteUrl(image)],
+    robots: {
+      index: false,
+      follow: true,
     },
   };
 }
@@ -83,42 +43,10 @@ export async function generateMetadata({
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await fetchProductBySlug(slug);
-  const fallbackTitle = slug
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 
-  if (!product) {
-    return <ProductDetailClient slug={slug} fallbackTitle={fallbackTitle} />;
+  if (product) {
+    permanentRedirect(getProductCanonicalPath(product, slug));
   }
 
-  const productSchema = buildProductSchema(product, slug);
-  const breadcrumbSchema = buildBreadcrumbSchema([
-    { name: "Home", path: "/" },
-    { name: "Collections", path: "/collections" },
-    { name: product.name, path: `/collections/${product.slug || slug}` },
-  ]);
-
-  return (
-    <>
-      <script
-        type='application/ld+json'
-        dangerouslySetInnerHTML={{
-          __html: renderJsonLd(productSchema),
-        }}
-      />
-      <script
-        type='application/ld+json'
-        dangerouslySetInnerHTML={{
-          __html: renderJsonLd(breadcrumbSchema),
-        }}
-      />
-      <ProductDetailClient
-        initialProduct={product}
-        slug={slug}
-        fallbackTitle={fallbackTitle}
-      />
-    </>
-  );
+  permanentRedirect("/collections");
 }

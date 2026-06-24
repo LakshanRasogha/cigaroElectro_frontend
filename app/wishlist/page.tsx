@@ -8,6 +8,7 @@ import Navbar from "@/app/components/navbar";
 import { apiUrl, apiFetch } from "@/app/lib/api";
 import { useWishlist } from "@/app/lib/wishlist";
 import { getProductSlug } from "@/app/lib/entity_id";
+import { getProductCanonicalPath } from "@/app/lib/site";
 import {
   buildProductListPath,
   collectAllProductPages,
@@ -157,7 +158,9 @@ const WishlistPage = () => {
                   idx={idx}
                   onRemove={() => toggle(product.key)}
                   onView={() =>
-                    router.push(`/collections/${getProductSlug(product)}`)
+                    router.push(
+                      getProductCanonicalPath(product, getProductSlug(product)),
+                    )
                   }
                 />
               ))}

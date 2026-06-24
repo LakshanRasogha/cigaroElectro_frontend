@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
 import { fetchAllProductsSafe } from "@/app/lib/catalog";
-import { absoluteUrl, categoryLandingPages, productSeoHints } from "@/app/lib/site";
+import {
+  absoluteUrl,
+  categoryLandingPages,
+  getProductCanonicalPath,
+  productSeoHints,
+} from "@/app/lib/site";
 
 const hardcodedProductPages = [
   { slug: "elfbar-raya-d1", lastModified: "2026-06-13T12:38:04.970Z" },
@@ -39,15 +44,22 @@ const hardcodedProductPages = [
   {
     slug: "manchester-double-drive-cigarettes",
     lastModified: "2026-06-17T11:51:00.875Z",
+    category: "Cigarettes",
   },
-  { slug: "platinum-seven-slims", lastModified: "2026-06-17T11:52:39.953Z" },
+  {
+    slug: "platinum-seven-slims",
+    lastModified: "2026-06-17T11:52:39.953Z",
+    category: "Cigarettes",
+  },
   {
     slug: "esse-lights-super-slim-luxury-cigarettes",
     lastModified: "2026-06-17T11:54:15.417Z",
+    category: "Cigarettes",
   },
   {
     slug: "manchester-red-premium-cigarettes",
     lastModified: "2026-06-17T11:55:31.813Z",
+    category: "Cigarettes",
   },
 ] as const;
 
@@ -100,7 +112,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       (product as { updated_at?: string }).updated_at;
 
     return {
-      url: absoluteUrl(`/collections/${product.slug || product.key}`),
+      url: absoluteUrl(getProductCanonicalPath(product)),
       lastModified: updatedAt ? new Date(updatedAt) : new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.85,
@@ -109,7 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const hardcodedPages: MetadataRoute.Sitemap = hardcodedProductPages.map(
     (page) => ({
-      url: absoluteUrl(`/collections/${page.slug}`),
+      url: absoluteUrl(getProductCanonicalPath(page, page.slug)),
       lastModified: new Date(page.lastModified),
       changeFrequency: "weekly" as const,
       priority: 0.85,
@@ -124,7 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const productHintPages: MetadataRoute.Sitemap = Object.keys(productSeoHints)
     .filter((slug) => !hardcodedProductSlugs.has(slug))
     .map((slug) => ({
-      url: absoluteUrl(`/collections/${slug}`),
+      url: absoluteUrl(`/collections/category/vapes/${slug}`),
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.85,

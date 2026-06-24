@@ -1,6 +1,11 @@
 import type { Product } from "@/app/lib/types";
 import { getProductSlug } from "@/app/lib/entity_id";
-import { absoluteUrl, siteConfig, type CategoryLandingPage } from "@/app/lib/site";
+import {
+  absoluteUrl,
+  getProductCanonicalPath,
+  siteConfig,
+  type CategoryLandingPage,
+} from "@/app/lib/site";
 
 export function buildOrganizationSchema() {
   return {
@@ -132,7 +137,7 @@ export function buildItemListSchema(products: Product[], listUrl: string) {
       "@type": "ListItem",
       position: index + 1,
       name: product.name,
-      url: absoluteUrl(`/collections/${getProductSlug(product)}`),
+      url: absoluteUrl(getProductCanonicalPath(product)),
     })),
   };
 }
@@ -147,7 +152,7 @@ function getProductStockStatus(product: Product) {
 
 export function buildProductSchema(product: Product, slug: string) {
   const productSlug = getProductSlug(product) || slug;
-  const productUrl = absoluteUrl(`/collections/${productSlug}`);
+  const productUrl = absoluteUrl(getProductCanonicalPath(product, productSlug));
   const productDescription =
     product.description ||
     product.tagline ||

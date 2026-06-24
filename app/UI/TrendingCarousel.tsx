@@ -17,6 +17,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useRouter } from "next/navigation";
 import { getListKey, getProductSlug } from "@/app/lib/entity_id";
+import { getProductCanonicalPath } from "@/app/lib/site";
 import { trackProductClick } from "@/app/lib/analytics";
 import { getProductVariantCount } from "@/app/lib/products";
 import type { Product } from "@/app/lib/types";
@@ -85,7 +86,7 @@ const TrendingCard = ({
 
   const handleClick = () => {
     trackProductClick(product.key);
-    router.push(`/collections/${getProductSlug(product)}`);
+    router.push(getProductCanonicalPath(product, getProductSlug(product)));
   };
 
   return (

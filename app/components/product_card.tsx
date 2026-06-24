@@ -4,6 +4,7 @@ import React from "react";
 import { Heart, ArrowUpRight, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getProductSlug } from "@/app/lib/entity_id";
+import { getProductCanonicalPath } from "@/app/lib/site";
 import { trackProductClick } from "@/app/lib/analytics";
 import { getProductHasStock, getProductVariantCount } from "@/app/lib/products";
 import { useWishlist } from "@/app/lib/wishlist";
@@ -53,6 +54,7 @@ const ProductCard = ({
   const safeVariants = Array.isArray(variants) ? variants : [];
   const productSummary: Product = {
     key: productKey,
+    slug,
     name: safeName,
     basePrice,
     category: safeCategory,
@@ -73,7 +75,7 @@ const ProductCard = ({
 
   const handleClick = () => {
     trackProductClick(productKey);
-    router.push(`/collections/${productSlug}`);
+    router.push(getProductCanonicalPath(productSummary, productSlug));
   };
 
   return (
