@@ -475,6 +475,19 @@ export function getCategoryLandingPageForProductCategory(
   category: string | null | undefined,
 ) {
   const normalizedCategory = normalizeCategory(category);
+  const directCategorySlugByName: Record<string, string> = {
+    accessories: "vape-accessories",
+    cigarettes: "cigarettes",
+    disposable: "disposable-vapes",
+    eliquid: "e-liquid",
+    refill: "refill-vapes",
+    tshirts: "t-shirts",
+  };
+  const directCategorySlug = directCategorySlugByName[normalizedCategory];
+
+  if (directCategorySlug) {
+    return getCategoryLandingPage(directCategorySlug);
+  }
 
   return (
     categoryLandingPages.find((page) =>
